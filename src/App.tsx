@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import ProtectedRoute from '@/components/shared/ProtectedRoute'
 import LoadingScreen from '@/components/shared/LoadingScreen'
+import SupabaseBanner from '@/components/shared/SupabaseBanner'
 
 const InvitationPage    = lazy(() => import('@/pages/InvitationPage'))
 const AdminLoginPage    = lazy(() => import('@/pages/AdminLoginPage'))
@@ -12,6 +13,8 @@ const NotFoundPage      = lazy(() => import('@/pages/NotFoundPage'))
 
 export default function App() {
   return (
+    <>
+    <SupabaseBanner />
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
         {/* Invitation pública con token de invitado */}
@@ -50,5 +53,6 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
+    </>
   )
 }

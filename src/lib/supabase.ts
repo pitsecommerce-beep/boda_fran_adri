@@ -1,14 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import type { WeddingConfig, Guest, RSVP } from '@/types'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
-}
+export const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Use placeholder values when not configured so the client initializes
+// without throwing — all DB calls will fail gracefully via null returns.
+export const supabase = createClient(
+  supabaseUrl ?? 'https://placeholder.supabase.co',
+  supabaseAnonKey ?? 'placeholder-key',
+)
 
 // ─── Wedding Config ────────────────────────────────────────────────────────────
 
