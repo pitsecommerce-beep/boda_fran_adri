@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { NavLink } from 'react-router-dom'
 
 const NAV_ITEMS = [
   { to: '/admin/dashboard',     label: 'Dashboard',     icon: '🏠' },
@@ -15,14 +14,6 @@ interface Props {
 }
 
 export default function AdminLayout({ children, title }: Props) {
-  const { signOut } = useAuth()
-  const navigate = useNavigate()
-
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/admin', { replace: true })
-  }
-
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
       {/* Top bar */}
@@ -75,17 +66,6 @@ export default function AdminLayout({ children, title }: Props) {
             </a>
           </nav>
 
-          {/* Sign out */}
-          <button
-            onClick={handleSignOut}
-            className="flex-shrink-0 px-3 py-2 rounded-xl font-sans text-xs transition-all hover:shadow-sm"
-            style={{
-              background: 'var(--color-dark)11',
-              color: 'var(--color-muted)',
-              border: '1px solid var(--color-dark)22',
-            }}>
-            Salir
-          </button>
         </div>
       </header>
 

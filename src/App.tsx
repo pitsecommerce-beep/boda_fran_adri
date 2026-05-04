@@ -1,11 +1,9 @@
 import { Routes, Route } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
-import ProtectedRoute from '@/components/shared/ProtectedRoute'
 import LoadingScreen from '@/components/shared/LoadingScreen'
 import SupabaseBanner from '@/components/shared/SupabaseBanner'
 
 const InvitationPage      = lazy(() => import('@/pages/InvitationPage'))
-const AdminLoginPage      = lazy(() => import('@/pages/AdminLoginPage'))
 const AdminDashboardPage  = lazy(() => import('@/pages/admin/AdminDashboardPage'))
 const AdminGuestsPage     = lazy(() => import('@/pages/admin/AdminGuestsPage'))
 const AdminSettingsPage   = lazy(() => import('@/pages/admin/AdminSettingsPage'))
@@ -18,46 +16,16 @@ export default function App() {
     <SupabaseBanner />
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        {/* Invitation pública con token de invitado */}
+        {/* Invitación pública */}
         <Route path="/invitacion/:token" element={<InvitationPage />} />
-
-        {/* Invitación genérica (sin token) */}
         <Route path="/" element={<InvitationPage />} />
 
-        {/* Admin */}
-        <Route path="/admin" element={<AdminLoginPage />} />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/invitados"
-          element={
-            <ProtectedRoute>
-              <AdminGuestsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/configuracion"
-          element={
-            <ProtectedRoute>
-              <AdminSettingsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/galeria"
-          element={
-            <ProtectedRoute>
-              <AdminGalleryPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* Admin — sin autenticación */}
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/invitados" element={<AdminGuestsPage />} />
+        <Route path="/admin/configuracion" element={<AdminSettingsPage />} />
+        <Route path="/admin/galeria" element={<AdminGalleryPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
