@@ -43,6 +43,8 @@ create table if not exists public.guests (
   -- family_id agrupa invitados que van juntos (mismo valor = misma familia).
   -- NULL indica invitado sin grupo familiar.
   family_id        uuid,
+  -- is_family_head: este invitado puede confirmar asistencia por toda su familia.
+  is_family_head   boolean     not null default false,
   created_at       timestamptz not null default now()
 );
 
@@ -64,6 +66,7 @@ create table if not exists public.rsvps (
 
 -- Migración si ya existe la tabla (ejecutar sólo si actualizas un esquema previo):
 -- alter table public.guests add column if not exists family_id uuid;
+-- alter table public.guests add column if not exists is_family_head boolean not null default false;
 -- alter table public.rsvps  add column if not exists needs_accommodation boolean not null default false;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
