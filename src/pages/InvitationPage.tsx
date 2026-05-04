@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import type { Guest } from '@/types'
 import { useWeddingConfig } from '@/hooks/useWeddingConfig'
 import { useGuest } from '@/hooks/useGuest'
 import LoadingScreen from '@/components/shared/LoadingScreen'
@@ -7,12 +9,17 @@ import CountdownTimer from '@/components/invitation/CountdownTimer'
 import WeddingDetails from '@/components/invitation/WeddingDetails'
 import GallerySection from '@/components/invitation/GallerySection'
 import RSVPSection from '@/components/invitation/RSVPSection'
+import GuestSearchForm from '@/components/invitation/GuestSearchForm'
+import FamilyRSVPSection from '@/components/invitation/FamilyRSVPSection'
 import WeddingFooter from '@/components/invitation/WeddingFooter'
 
 export default function InvitationPage() {
   const { token } = useParams<{ token?: string }>()
   const { config, loading: configLoading } = useWeddingConfig()
   const { guest, rsvp, loading: guestLoading, notFound, refresh } = useGuest(token)
+
+  // State for the self-search flow (no token)
+  const [searchedGuest, setSearchedGuest] = useState<Guest | null>(null)
 
   if (configLoading || (token && guestLoading)) return <LoadingScreen />
 
@@ -42,9 +49,15 @@ export default function InvitationPage() {
     )
   }
 
+  // Guest from token (legacy personalized link)
+  const activeGuest = guest ?? null
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
-      <HeroSection config={config} guestName={guest?.name} />
+      <HeroSection
+        config={config}
+        guestName={activeGuest?.name ?? searchedGuest?.name}
+      />
 
       {config.wedding_date && (
         <CountdownTimer weddingDate={config.wedding_date} />
@@ -54,20 +67,25 @@ export default function InvitationPage() {
 
       <GallerySection photos={config.gallery_urls ?? []} />
 
-      {guest && (
+      {/* ── Token-based personalized invitation ──────────────────────── */}
+      {activeGuest && (
         <RSVPSection
-          guest={guest}
+          guest={activeGuest}
           existingRSVP={rsvp}
           onSubmitted={refresh}
         />
       )}
 
-      {!guest && (
-        <section className="py-16 px-6 text-center">
-          <p className="font-serif text-lg italic" style={{ color: 'var(--color-muted)' }}>
-            ¿Tienes tu invitación personalizada? Usa el enlace que te enviaron para confirmar tu asistencia.
-          </p>
-        </section>
+      {/* ── Self-search flow (no token) ──────────────────────────────── */}
+      {!activeGuest && !searchedGuest && (
+        <GuestSearchForm onGuestSelected={(g) => setSearchedGuest(g)} />
+      )}
+
+      {!activeGuest && searchedGuest && (
+        <FamilyRSVPSection
+          selectedGuest={searchedGuest}
+          onBack={() => setSearchedGuest(null)}
+        />
       )}
 
       <WeddingFooter

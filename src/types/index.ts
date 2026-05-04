@@ -32,6 +32,7 @@ export interface Guest {
   phone: string | null
   token: string
   max_companions: number
+  family_id: string | null
   created_at: string
 }
 
@@ -41,6 +42,7 @@ export interface RSVP {
   attending: boolean
   companion_count: number
   dietary_notes: string | null
+  needs_accommodation: boolean
   message: string | null
   submitted_at: string
 }
@@ -49,8 +51,15 @@ export interface GuestWithRSVP extends Guest {
   rsvp?: RSVP | null
 }
 
+export interface FamilyRSVPEntry {
+  guest: Guest
+  attending: boolean
+  dietary_notes: string
+}
+
 export interface ExcelRow {
   nombre: string
   celular?: string
   acompanantes?: number
+  familia?: string
 }

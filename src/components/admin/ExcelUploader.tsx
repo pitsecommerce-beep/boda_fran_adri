@@ -41,7 +41,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
         const headers = Object.keys(firstRow).map(normalizeHeader)
         const missing = REQUIRED_COLS.filter((c) => !headers.includes(c))
         if (missing.length) {
-          setError(`Faltan columnas requeridas: ${missing.join(', ')}. Las columnas deben llamarse: nombre, celular (opcional), acompanantes (opcional).`)
+          setError(`Faltan columnas requeridas: ${missing.join(', ')}. Las columnas deben llamarse: nombre, celular (opcional), acompanantes (opcional), familia (opcional).`)
           return
         }
 
@@ -54,6 +54,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
             nombre: String(normalized['nombre'] ?? '').trim(),
             celular: normalized['celular'] ? String(normalized['celular']).trim() : undefined,
             acompanantes: normalized['acompanantes'] ? Number(normalized['acompanantes']) : 0,
+            familia: normalized['familia'] ? String(normalized['familia']).trim() : undefined,
           }
         }).filter((r) => r.nombre)
 
@@ -75,11 +76,23 @@ export default function ExcelUploader({ onSuccess }: Props) {
     if (!preview.length) return
     setUploading(true)
 
-    const guests = preview.map((r) => ({
-      name: r.nombre,
-      phone: r.celular,
-      max_companions: r.acompanantes ?? 0,
-    }))
+    // Build family_id map: same "familia" text → same UUID
+    const familyMap = new Map<string, string>()
+    const guests = preview.map((r) => {
+      let family_id: string | null = null
+      if (r.familia) {
+        if (!familyMap.has(r.familia)) {
+          familyMap.set(r.familia, crypto.randomUUID())
+        }
+        family_id = familyMap.get(r.familia)!
+      }
+      return {
+        name: r.nombre,
+        phone: r.celular,
+        max_companions: r.acompanantes ?? 0,
+        family_id,
+      }
+    })
 
     const { error } = await insertGuests(guests)
     setUploading(false)
@@ -114,7 +127,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
           {fileName ?? 'Arrastra tu Excel aquí o haz clic para seleccionar'}
         </p>
         <p className="mt-1 font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
-          Formatos: .xlsx, .xls, .csv — Columnas: <strong>nombre</strong>, celular, acompanantes
+          Formatos: .xlsx, .xls, .csv — Columnas: <strong>nombre</strong>, celular, acompanantes, familia
         </p>
       </div>
 
@@ -154,7 +167,8 @@ export default function ExcelUploader({ onSuccess }: Props) {
                 <tr style={{ background: 'var(--color-rose)22' }}>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Nombre</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Celular</th>
-                  <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Acompañantes</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Acomp.</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Familia</th>
                 </tr>
               </thead>
               <tbody>
@@ -163,6 +177,11 @@ export default function ExcelUploader({ onSuccess }: Props) {
                     <td className="px-4 py-2" style={{ color: 'var(--color-dark)' }}>{row.nombre}</td>
                     <td className="px-4 py-2" style={{ color: 'var(--color-muted)' }}>{row.celular ?? '—'}</td>
                     <td className="px-4 py-2" style={{ color: 'var(--color-muted)' }}>{row.acompanantes ?? 0}</td>
+                    <td className="px-4 py-2">
+                      {row.familia
+                        ? <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--color-orchid)33', color: 'var(--color-dark)' }}>{row.familia}</span>
+                        : <span style={{ color: 'var(--color-muted)' }}>—</span>}
+                    </td>
                   </tr>
                 ))}
               </tbody>

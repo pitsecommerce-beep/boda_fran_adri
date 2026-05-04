@@ -23,9 +23,11 @@ function AttendanceBadge({ rsvp }: { rsvp: RSVP | null }) {
     </span>
   )
   return rsvp.attending ? (
-    <span className="px-2 py-1 rounded-full text-xs font-sans"
+    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
       style={{ background: 'var(--color-jade)44', color: '#4A7A4A' }}>
-      ✓ Confirmado {rsvp.companion_count > 0 ? `+${rsvp.companion_count}` : ''}
+      ✓ Confirmado
+      {rsvp.companion_count > 0 && ` +${rsvp.companion_count}`}
+      {rsvp.needs_accommodation && ' 🏨'}
     </span>
   ) : (
     <span className="px-2 py-1 rounded-full text-xs font-sans"

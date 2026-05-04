@@ -62,13 +62,38 @@ export async function listGuests(): Promise<Guest[]> {
   return (data ?? []) as Guest[]
 }
 
+export async function searchGuestsByName(query: string): Promise<Guest[]> {
+  if (!query.trim()) return []
+  const { data, error } = await supabase
+    .from('guests')
+    .select('*')
+    .ilike('name', `%${query.trim()}%`)
+    .order('name')
+    .limit(15)
+
+  if (error) return []
+  return (data ?? []) as Guest[]
+}
+
+export async function getFamilyMembers(familyId: string): Promise<Guest[]> {
+  const { data, error } = await supabase
+    .from('guests')
+    .select('*')
+    .eq('family_id', familyId)
+    .order('name')
+
+  if (error) return []
+  return (data ?? []) as Guest[]
+}
+
 export async function insertGuests(
-  guests: Array<{ name: string; phone?: string; max_companions: number }>,
+  guests: Array<{ name: string; phone?: string; max_companions: number; family_id?: string | null }>,
 ): Promise<{ error: Error | null }> {
   const rows = guests.map((g) => ({
     name: g.name,
     phone: g.phone ?? null,
     max_companions: g.max_companions,
+    family_id: g.family_id ?? null,
     token: crypto.randomUUID(),
   }))
 
@@ -83,7 +108,7 @@ export async function deleteGuest(id: string): Promise<{ error: Error | null }> 
 
 export async function updateGuest(
   id: string,
-  updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions'>>,
+  updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions' | 'family_id'>>,
 ): Promise<{ error: Error | null }> {
   const { error } = await supabase.from('guests').update(updates).eq('id', id)
   return { error: error as Error | null }
@@ -109,16 +134,41 @@ export async function submitRSVP(rsvp: {
   attending: boolean
   companion_count: number
   dietary_notes?: string
+  needs_accommodation?: boolean
   message?: string
 }): Promise<{ error: Error | null }> {
-  // Remove existing RSVP first (upsert by guest_id)
   await supabase.from('rsvps').delete().eq('guest_id', rsvp.guest_id)
 
   const { error } = await supabase.from('rsvps').insert({
     ...rsvp,
     dietary_notes: rsvp.dietary_notes ?? null,
+    needs_accommodation: rsvp.needs_accommodation ?? false,
     message: rsvp.message ?? null,
   })
+  return { error: error as Error | null }
+}
+
+export async function submitFamilyRSVP(entries: Array<{
+  guest_id: string
+  attending: boolean
+  dietary_notes: string
+  needs_accommodation: boolean
+  message: string
+}>): Promise<{ error: Error | null }> {
+  // Delete existing RSVPs for all guests in the batch
+  const guestIds = entries.map((e) => e.guest_id)
+  await supabase.from('rsvps').delete().in('guest_id', guestIds)
+
+  const rows = entries.map((e) => ({
+    guest_id: e.guest_id,
+    attending: e.attending,
+    companion_count: 0,
+    dietary_notes: e.dietary_notes || null,
+    needs_accommodation: e.needs_accommodation,
+    message: e.message || null,
+  }))
+
+  const { error } = await supabase.from('rsvps').insert(rows)
   return { error: error as Error | null }
 }
 

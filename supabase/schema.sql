@@ -40,21 +40,31 @@ create table if not exists public.guests (
   phone            text,
   token            text        not null unique default gen_random_uuid()::text,
   max_companions   integer     not null default 0,
+  -- family_id agrupa invitados que van juntos (mismo valor = misma familia).
+  -- NULL indica invitado sin grupo familiar.
+  family_id        uuid,
   created_at       timestamptz not null default now()
 );
 
-create index if not exists guests_token_idx on public.guests (token);
+create index if not exists guests_token_idx    on public.guests (token);
+create index if not exists guests_family_idx   on public.guests (family_id);
+create index if not exists guests_name_idx     on public.guests using gin(to_tsvector('spanish', name));
 
 -- ─── Tabla: rsvps ────────────────────────────────────────────────────────────
 create table if not exists public.rsvps (
-  id               uuid        primary key default gen_random_uuid(),
-  guest_id         uuid        not null references public.guests (id) on delete cascade,
-  attending        boolean     not null,
-  companion_count  integer     not null default 0,
-  dietary_notes    text,
-  message          text,
-  submitted_at     timestamptz not null default now()
+  id                   uuid        primary key default gen_random_uuid(),
+  guest_id             uuid        not null references public.guests (id) on delete cascade,
+  attending            boolean     not null,
+  companion_count      integer     not null default 0,
+  dietary_notes        text,
+  needs_accommodation  boolean     not null default false,
+  message              text,
+  submitted_at         timestamptz not null default now()
 );
+
+-- Migración si ya existe la tabla (ejecutar sólo si actualizas un esquema previo):
+-- alter table public.guests add column if not exists family_id uuid;
+-- alter table public.rsvps  add column if not exists needs_accommodation boolean not null default false;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
 
