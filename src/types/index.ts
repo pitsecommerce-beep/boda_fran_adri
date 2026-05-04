@@ -33,6 +33,7 @@ export interface Guest {
   token: string
   max_companions: number
   family_id: string | null
+  is_family_head: boolean
   created_at: string
 }
 
@@ -62,4 +63,6 @@ export interface ExcelRow {
   celular?: string
   /** Identifier grouping family members — accepts column name "id_familia" or "familia" */
   id_familia?: string
+  /** Marks this guest as the family representative who confirms for everyone */
+  cabeza_familia?: boolean
 }

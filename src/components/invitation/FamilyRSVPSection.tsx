@@ -4,7 +4,8 @@ import { getFamilyMembers, getRSVPByGuestId, submitFamilyRSVP } from '@/lib/supa
 
 interface Props {
   selectedGuest: Guest
-  onBack: () => void
+  /** Omit when accessed from a personalized token link (no search to go back to) */
+  onBack?: () => void
 }
 
 interface MemberState {
@@ -300,13 +301,15 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
           )}
 
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onBack}
-              className="px-6 py-4 rounded-2xl font-sans text-sm transition-all"
-              style={{ background: '#f5f5f5', color: 'var(--color-muted)' }}>
-              ← Cambiar
-            </button>
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="px-6 py-4 rounded-2xl font-sans text-sm transition-all"
+                style={{ background: '#f5f5f5', color: 'var(--color-muted)' }}>
+                ← Cambiar
+              </button>
+            )}
             <button
               type="submit"
               disabled={submitting}

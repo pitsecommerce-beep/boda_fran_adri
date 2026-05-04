@@ -111,6 +111,7 @@ export default function AdminDashboardPage() {
 
   const confirmedWithCompanions =
     rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
+  const needsAccommodation = rsvps.filter((r) => r.needs_accommodation).length
 
   const weddingDate = config?.wedding_date ? new Date(config.wedding_date) : null
   const daysUntil = weddingDate
@@ -177,7 +178,7 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
             <StatCard
               icon="👥"
               label="Invitados"
@@ -204,6 +205,13 @@ export default function AdminDashboardPage() {
               value={pending}
               sub={`${totalGuests > 0 ? Math.round((pending / totalGuests) * 100) : 0}% sin responder`}
               accent="var(--color-yellow)"
+            />
+            <StatCard
+              icon="🏨"
+              label="Necesitan hospedaje"
+              value={needsAccommodation}
+              sub="solicitan apoyo"
+              accent="var(--color-orchid)"
             />
           </div>
 

@@ -43,6 +43,8 @@ create table if not exists public.guests (
   -- family_id agrupa invitados que van juntos (mismo valor = misma familia).
   -- NULL indica invitado sin grupo familiar.
   family_id        uuid,
+  -- is_family_head: este invitado puede confirmar asistencia por toda su familia.
+  is_family_head   boolean     not null default false,
   created_at       timestamptz not null default now()
 );
 
@@ -64,6 +66,7 @@ create table if not exists public.rsvps (
 
 -- Migración si ya existe la tabla (ejecutar sólo si actualizas un esquema previo):
 -- alter table public.guests add column if not exists family_id uuid;
+-- alter table public.guests add column if not exists is_family_head boolean not null default false;
 -- alter table public.rsvps  add column if not exists needs_accommodation boolean not null default false;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
@@ -74,27 +77,27 @@ alter table public.wedding_config enable row level security;
 alter table public.guests          enable row level security;
 alter table public.rsvps           enable row level security;
 
--- wedding_config: lectura pública, escritura sólo autenticados
+-- wedding_config: lectura y escritura pública (admin sin autenticación)
 create policy "wedding_config: public read"
   on public.wedding_config for select
   using (true);
 
-create policy "wedding_config: admin write"
+create policy "wedding_config: public write"
   on public.wedding_config for all
-  using (auth.role() = 'authenticated')
-  with check (auth.role() = 'authenticated');
+  using (true)
+  with check (true);
 
--- guests: lectura pública (necesitan el token), gestión sólo autenticados
+-- guests: acceso público total
 create policy "guests: public read"
   on public.guests for select
   using (true);
 
-create policy "guests: admin all"
+create policy "guests: public all"
   on public.guests for all
-  using (auth.role() = 'authenticated')
-  with check (auth.role() = 'authenticated');
+  using (true)
+  with check (true);
 
--- rsvps: cualquiera puede insertar, sólo autenticados pueden leer todo
+-- rsvps: cualquiera puede insertar, leer y borrar (para re-submit)
 create policy "rsvps: public insert"
   on public.rsvps for insert
   with check (true);
@@ -103,29 +106,30 @@ create policy "rsvps: public read own"
   on public.rsvps for select
   using (true);
 
-create policy "rsvps: admin delete"
+create policy "rsvps: public delete"
   on public.rsvps for delete
-  using (auth.role() = 'authenticated');
+  using (true);
 
 -- ─── Storage bucket ──────────────────────────────────────────────────────────
--- Crear en Supabase Dashboard → Storage → New bucket
--- Nombre: wedding-photos
--- Visibilidad: Public
--- Después agregar estas políticas en Storage → wedding-photos → Policies:
+-- PASO MANUAL: Supabase Dashboard → Storage → New bucket
+--   Nombre: wedding-photos   Visibilidad: Public ✓
+--
+-- Luego en Storage → wedding-photos → Policies agregar:
 
 -- Lectura pública:
 --   create policy "public read photos"
 --     on storage.objects for select
 --     using (bucket_id = 'wedding-photos');
 
--- Escritura sólo autenticados:
---   create policy "admin upload photos"
+-- Subida pública (admin sin auth):
+--   create policy "public upload photos"
 --     on storage.objects for insert
---     with check (bucket_id = 'wedding-photos' and auth.role() = 'authenticated');
+--     with check (bucket_id = 'wedding-photos');
 
---   create policy "admin delete photos"
+-- Borrado público (admin sin auth):
+--   create policy "public delete photos"
 --     on storage.objects for delete
---     using (bucket_id = 'wedding-photos' and auth.role() = 'authenticated');
+--     using (bucket_id = 'wedding-photos');
 
 -- ─── Función helper: updated_at automático ───────────────────────────────────
 create or replace function public.set_updated_at()

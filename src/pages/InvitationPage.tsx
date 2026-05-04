@@ -57,14 +57,16 @@ export default function InvitationPage() {
 
       <GallerySection photos={config.gallery_urls ?? []} />
 
-      {/* ── Token-based personalized invitation ──────────────────────── */}
-      {activeGuest && (
+      {/* ── Token-based: family head → family flow; individual → individual flow ── */}
+      {activeGuest && activeGuest.is_family_head && activeGuest.family_id ? (
+        <FamilyRSVPSection selectedGuest={activeGuest} />
+      ) : activeGuest ? (
         <RSVPSection
           guest={activeGuest}
           existingRSVP={rsvp}
           onSubmitted={refresh}
         />
-      )}
+      ) : null}
 
       {/* ── Self-search flow (no token) ──────────────────────────────── */}
       {!activeGuest && !searchedGuest && (

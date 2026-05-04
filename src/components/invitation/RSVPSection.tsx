@@ -14,6 +14,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   )
   const [companionCount, setCompanionCount] = useState(existingRSVP?.companion_count ?? 0)
   const [dietaryNotes, setDietaryNotes] = useState(existingRSVP?.dietary_notes ?? '')
+  const [needsAccommodation, setNeedsAccommodation] = useState(existingRSVP?.needs_accommodation ?? false)
   const [message, setMessage] = useState(existingRSVP?.message ?? '')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(!!existingRSVP)
@@ -30,6 +31,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
       attending,
       companion_count: attending ? companionCount : 0,
       dietary_notes: dietaryNotes || undefined,
+      needs_accommodation: needsAccommodation,
       message: message || undefined,
     })
 
@@ -56,9 +58,15 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
               ? 'Gracias por confirmar tu asistencia. ¡Será una noche inolvidable!'
               : 'Recibimos tu respuesta. Gracias por hacernos saber.'}
           </p>
+          {attending && needsAccommodation && (
+            <div className="mt-4 p-3 rounded-xl font-sans text-sm"
+              style={{ background: 'var(--color-blue)22', color: 'var(--color-dark)' }}>
+              🏨 Registramos que necesitas ayuda con hospedaje. Los novios se pondrán en contacto.
+            </div>
+          )}
           {attending && (
             <button
-              onClick={() => { setSubmitted(false) }}
+              onClick={() => setSubmitted(false)}
               className="mt-6 text-sm underline"
               style={{ color: 'var(--color-muted)' }}>
               Modificar respuesta
@@ -156,6 +164,41 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
             </div>
           )}
 
+          {/* Accommodation */}
+          {attending && (
+            <div className="mb-6">
+              <button
+                type="button"
+                onClick={() => setNeedsAccommodation(!needsAccommodation)}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
+                style={{
+                  background: needsAccommodation ? 'var(--color-blue)22' : '#f9f9f9',
+                  border: `1px solid ${needsAccommodation ? 'var(--color-blue)88' : '#e5e5e5'}`,
+                }}>
+                <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: needsAccommodation ? 'var(--color-blue)' : 'white',
+                    border: `2px solid ${needsAccommodation ? 'var(--color-blue)' : '#ccc'}`,
+                  }}>
+                  {needsAccommodation && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                      stroke="white" strokeWidth="3" strokeLinecap="round">
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <p className="font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
+                    🏨 Necesito ayuda para encontrar hospedaje
+                  </p>
+                  <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
+                    Los novios te contactarán con opciones de hoteles cercanos
+                  </p>
+                </div>
+              </button>
+            </div>
+          )}
+
           {/* Message */}
           <div className="mb-6">
             <label className="block font-sans text-sm mb-2" style={{ color: 'var(--color-muted)' }}>
@@ -179,10 +222,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
             type="submit"
             disabled={submitting || attending === null}
             className="w-full py-4 rounded-2xl font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              background: 'var(--color-rose)',
-              color: 'white',
-            }}>
+            style={{ background: 'var(--color-rose)', color: 'white' }}>
             {submitting ? 'Enviando…' : 'Confirmar respuesta'}
           </button>
         </form>

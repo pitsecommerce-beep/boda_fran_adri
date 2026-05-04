@@ -3,6 +3,11 @@ import type { Guest, RSVP } from '@/types'
 import { deleteGuest, updateGuest } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 
+async function toggleFamilyHead(guest: Guest, onRefresh: () => void) {
+  await updateGuest(guest.id, { is_family_head: !guest.is_family_head })
+  onRefresh()
+}
+
 interface Props {
   guests: Guest[]
   rsvps: RSVP[]
@@ -88,8 +93,11 @@ function GuestRow({
               style={{ borderColor: 'var(--color-rose)66' }}
             />
           ) : (
-            <span className="font-sans text-sm" style={{ color: 'var(--color-dark)' }}>
+            <span className="font-sans text-sm flex items-center gap-1.5" style={{ color: 'var(--color-dark)' }}>
               {guest.name}
+              {guest.is_family_head && guest.family_id && (
+                <span title="Cabeza de familia" className="text-base leading-none">👑</span>
+              )}
             </span>
           )}
         </td>
@@ -161,6 +169,15 @@ function GuestRow({
                   style={{ background: 'var(--color-orchid)22' }}>
                   QR
                 </button>
+                {guest.family_id && (
+                  <button
+                    onClick={() => void toggleFamilyHead(guest, onRefresh)}
+                    title={guest.is_family_head ? 'Quitar cabeza de familia' : 'Marcar como cabeza de familia'}
+                    className="p-1.5 rounded-lg text-sm transition-all"
+                    style={{ background: guest.is_family_head ? 'var(--color-yellow)88' : 'var(--color-yellow)22' }}>
+                    👑
+                  </button>
+                )}
                 <button
                   onClick={() => setEditing(true)}
                   title="Editar"
@@ -219,19 +236,21 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
     return matchesSearch && matchesFilter
   })
 
-  const totalConfirmed = rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
-  const totalDeclined  = rsvps.filter((r) => !r.attending).length
-  const totalPending   = guests.length - rsvps.length
+  const totalConfirmed    = rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
+  const totalDeclined     = rsvps.filter((r) => !r.attending).length
+  const totalPending      = guests.length - rsvps.length
+  const needsAccommodation = rsvps.filter((r) => r.needs_accommodation).length
 
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {[
-          { label: 'Total invitados', value: guests.length, color: 'var(--color-orchid)' },
-          { label: 'Confirmados',     value: totalConfirmed, color: 'var(--color-jade)' },
-          { label: 'No asistirán',    value: totalDeclined,  color: 'var(--color-apricot)' },
-          { label: 'Sin respuesta',   value: totalPending,   color: 'var(--color-blue)' },
+          { label: 'Total invitados', value: guests.length,       color: 'var(--color-orchid)' },
+          { label: 'Confirmados',     value: totalConfirmed,      color: 'var(--color-jade)' },
+          { label: 'No asistirán',    value: totalDeclined,       color: 'var(--color-apricot)' },
+          { label: 'Sin respuesta',   value: totalPending,        color: 'var(--color-blue)' },
+          { label: 'Necesitan hospedaje', value: needsAccommodation, color: 'var(--color-yellow)' },
         ].map(({ label, value, color }) => (
           <div key={label}
             className="bg-white rounded-2xl p-4 text-center shadow-sm"
