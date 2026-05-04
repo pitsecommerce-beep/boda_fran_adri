@@ -74,27 +74,27 @@ alter table public.wedding_config enable row level security;
 alter table public.guests          enable row level security;
 alter table public.rsvps           enable row level security;
 
--- wedding_config: lectura pública, escritura sólo autenticados
+-- wedding_config: lectura y escritura pública (admin sin autenticación)
 create policy "wedding_config: public read"
   on public.wedding_config for select
   using (true);
 
-create policy "wedding_config: admin write"
+create policy "wedding_config: public write"
   on public.wedding_config for all
-  using (auth.role() = 'authenticated')
-  with check (auth.role() = 'authenticated');
+  using (true)
+  with check (true);
 
--- guests: lectura pública (necesitan el token), gestión sólo autenticados
+-- guests: acceso público total
 create policy "guests: public read"
   on public.guests for select
   using (true);
 
-create policy "guests: admin all"
+create policy "guests: public all"
   on public.guests for all
-  using (auth.role() = 'authenticated')
-  with check (auth.role() = 'authenticated');
+  using (true)
+  with check (true);
 
--- rsvps: cualquiera puede insertar, sólo autenticados pueden leer todo
+-- rsvps: cualquiera puede insertar, leer y borrar (para re-submit)
 create policy "rsvps: public insert"
   on public.rsvps for insert
   with check (true);
@@ -103,9 +103,9 @@ create policy "rsvps: public read own"
   on public.rsvps for select
   using (true);
 
-create policy "rsvps: admin delete"
+create policy "rsvps: public delete"
   on public.rsvps for delete
-  using (auth.role() = 'authenticated');
+  using (true);
 
 -- ─── Storage bucket ──────────────────────────────────────────────────────────
 -- Crear en Supabase Dashboard → Storage → New bucket
