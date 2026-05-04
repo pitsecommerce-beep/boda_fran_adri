@@ -22,6 +22,7 @@ const defaultForm: FormData = {
   dress_code: '',
   cover_photo_url: '',
   account_number: '',
+  gift_registry_url: '',
 }
 
 interface FieldProps {
@@ -89,6 +90,7 @@ export default function AdminSettingsPage() {
         dress_code:          config.dress_code ?? '',
         cover_photo_url:     config.cover_photo_url ?? '',
         account_number:      config.account_number ?? '',
+        gift_registry_url:   config.gift_registry_url ?? '',
       })
     }
   }, [config])
@@ -134,7 +136,7 @@ export default function AdminSettingsPage() {
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
           style={{ border: '1px solid var(--color-rose)33' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
-            👫 Los novios
+            Los novios
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Nombre del novio" name="groom_name" placeholder="Francisco" form={form} onChange={handleChange} />
@@ -146,7 +148,7 @@ export default function AdminSettingsPage() {
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
           style={{ border: '1px solid var(--color-yellow)44' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
-            📅 Fecha y mensaje
+            Fecha y mensaje
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Fecha y hora de la boda" name="wedding_date" type="datetime-local" form={form} onChange={handleChange} />
@@ -168,7 +170,7 @@ export default function AdminSettingsPage() {
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
           style={{ border: '1px solid var(--color-orchid)44' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
-            ⛪ Ceremonia religiosa
+            Ceremonia religiosa
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Horario" name="ceremony_time" placeholder="Ej. 12:00 p.m." form={form} onChange={handleChange} />
@@ -185,7 +187,7 @@ export default function AdminSettingsPage() {
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
           style={{ border: '1px solid var(--color-apricot)44' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
-            🥂 Recepción
+            Recepción
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Horario" name="reception_time" placeholder="Ej. 2:00 p.m." form={form} onChange={handleChange} />
@@ -202,7 +204,7 @@ export default function AdminSettingsPage() {
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
           style={{ border: '1px solid var(--color-blue)44' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
-            🎁 Extras
+            Extras
           </h2>
           <div className="grid grid-cols-1 gap-4">
             <Field
@@ -213,8 +215,29 @@ export default function AdminSettingsPage() {
               form={form}
               onChange={handleChange}
             />
+          </div>
+        </div>
+
+        {/* Section: Gifts */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
+          style={{ border: '1px solid var(--color-yellow)44' }}>
+          <h2 className="font-serif text-xl mb-1" style={{ color: 'var(--color-dark)' }}>
+            Mesa de regalos
+          </h2>
+          <p className="font-sans text-xs mb-4" style={{ color: 'var(--color-muted)' }}>
+            Puedes poner una liga a tu mesa de regalos (Liverpool, Palacio de Hierro, etc.) y/o una CLABE para transferencias. Ambos campos son opcionales.
+          </p>
+          <div className="grid grid-cols-1 gap-4">
             <Field
-              label="Número de cuenta / CLABE para regalos (opcional)"
+              label="Liga a mesa de regalos (opcional)"
+              name="gift_registry_url"
+              placeholder="https://www.liverpool.com.mx/mesa-de-regalos/…"
+              hint="Enlace a tu mesa de regalos en Liverpool, Palacio de Hierro u otra tienda"
+              form={form}
+              onChange={handleChange}
+            />
+            <Field
+              label="Número de cuenta / CLABE (opcional)"
               name="account_number"
               placeholder="Ej. CLABE: 000 000 0000 0000 00 00"
               form={form}

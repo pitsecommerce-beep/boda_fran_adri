@@ -26,6 +26,7 @@ create table if not exists public.wedding_config (
   cover_photo_url  text,
   gallery_urls     text[]  not null default '{}',
   account_number   text,
+  gift_registry_url text,
   itinerary        jsonb   not null default '[]',
   updated_at       timestamptz not null default now()
 );
@@ -68,6 +69,7 @@ create table if not exists public.rsvps (
 -- alter table public.guests add column if not exists family_id uuid;
 -- alter table public.guests add column if not exists is_family_head boolean not null default false;
 -- alter table public.rsvps  add column if not exists needs_accommodation boolean not null default false;
+-- alter table public.wedding_config add column if not exists gift_registry_url text;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
 

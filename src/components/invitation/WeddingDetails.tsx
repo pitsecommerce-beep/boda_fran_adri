@@ -7,6 +7,36 @@ interface Props {
   config: WeddingConfig
 }
 
+function ChurchIcon({ color }: { color: string }) {
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 22V10l9-8 9 8v12" />
+      <path d="M9 22V15h6v7" />
+      <path d="M12 2v5M9.5 4.5h5" />
+    </svg>
+  )
+}
+
+function GlassIcon({ color }: { color: string }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 22h8M12 11v11M7 2h10l-2 9a5 5 0 01-6 0L7 2z" />
+    </svg>
+  )
+}
+
+function GiftIcon({ color }: { color: string }) {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 12 20 22 4 22 4 12" />
+      <rect x="2" y="7" width="20" height="5" />
+      <line x1="12" y1="22" x2="12" y2="7" />
+      <path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" />
+      <path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" />
+    </svg>
+  )
+}
+
 function DetailCard({
   icon,
   title,
@@ -16,7 +46,7 @@ function DetailCard({
   mapsUrl,
   accentColor,
 }: {
-  icon: string
+  icon: React.ReactNode
   title: string
   venue?: string | null
   address?: string | null
@@ -27,8 +57,8 @@ function DetailCard({
   return (
     <div className="bg-white rounded-3xl p-8 shadow-sm flex flex-col items-center text-center gap-3"
       style={{ border: `1px solid ${accentColor}44` }}>
-      <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
-        style={{ background: `${accentColor}33` }}>
+      <div className="w-16 h-16 rounded-full flex items-center justify-center"
+        style={{ background: `${accentColor}22` }}>
         {icon}
       </div>
       <h3 className="font-serif text-2xl" style={{ color: 'var(--color-dark)' }}>{title}</h3>
@@ -70,6 +100,7 @@ function DetailCard({
 
 export default function WeddingDetails({ config }: Props) {
   const weddingDate = config.wedding_date ? new Date(config.wedding_date) : null
+  const hasGiftSection = config.account_number || config.gift_registry_url
 
   return (
     <section id="detalles" className="py-20 px-6 max-w-5xl mx-auto">
@@ -102,11 +133,11 @@ export default function WeddingDetails({ config }: Props) {
         </div>
       )}
 
-      {/* Cards */}
+      {/* Venue cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {(config.ceremony_venue || config.ceremony_address) && (
           <DetailCard
-            icon="⛪"
+            icon={<ChurchIcon color="var(--color-orchid)" />}
             title="Ceremonia"
             venue={config.ceremony_venue}
             address={config.ceremony_address}
@@ -118,7 +149,7 @@ export default function WeddingDetails({ config }: Props) {
 
         {(config.reception_venue || config.reception_address) && (
           <DetailCard
-            icon="🥂"
+            icon={<GlassIcon color="var(--color-apricot)" />}
             title="Recepción"
             venue={config.reception_venue}
             address={config.reception_address}
@@ -132,32 +163,61 @@ export default function WeddingDetails({ config }: Props) {
       {/* Dress code */}
       {config.dress_code && (
         <div className="mt-8 text-center">
-          <FloralDivider icon="👗" color="var(--color-blue)" />
-          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-1"
+          <FloralDivider icon="✦" color="var(--color-blue)" />
+          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
             style={{ color: 'var(--color-blue)' }}>
             Código de vestimenta
           </p>
-          <p className="font-serif text-2xl" style={{ color: 'var(--color-dark)' }}>
+          <p className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
             {config.dress_code}
           </p>
         </div>
       )}
 
-      {/* Account for gifts */}
-      {config.account_number && (
+      {/* Gift section */}
+      {hasGiftSection && (
         <div className="mt-8 text-center bg-white rounded-3xl p-8 shadow-sm"
           style={{ border: '1px solid var(--color-yellow)44' }}>
-          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-2"
+          <div className="flex justify-center mb-4">
+            <GiftIcon color="var(--color-yellow)" />
+          </div>
+          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
             style={{ color: 'var(--color-yellow)' }}>
-            🎁 Mesa de regalos
+            Mesa de regalos
           </p>
-          <p className="font-serif text-lg" style={{ color: 'var(--color-muted)' }}>
-            El mejor regalo es tu presencia. Si deseas obsequiarnos algo, puedes hacerlo en:
+          <p className="font-serif text-lg italic leading-relaxed" style={{ color: 'var(--color-muted)' }}>
+            El mejor regalo es tu presencia. Si deseas obsequiarnos algo, puedes hacerlo aquí:
           </p>
-          <p className="mt-3 font-sans font-medium text-xl tracking-wider"
-            style={{ color: 'var(--color-dark)' }}>
-            {config.account_number}
-          </p>
+          {config.gift_registry_url && (
+            <a
+              href={config.gift_registry_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex items-center gap-2 px-7 py-3 rounded-full font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95"
+              style={{
+                background: 'var(--color-yellow)22',
+                color: 'var(--color-dark)',
+                border: '1px solid var(--color-yellow)',
+              }}>
+              Ver mesa de regalos
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+          )}
+          {config.account_number && (
+            <div className="mt-5">
+              {config.gift_registry_url && (
+                <p className="font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>
+                  O por transferencia:
+                </p>
+              )}
+              <p className="font-sans font-medium text-xl tracking-wider"
+                style={{ color: 'var(--color-dark)' }}>
+                {config.account_number}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </section>
