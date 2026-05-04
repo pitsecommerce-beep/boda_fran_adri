@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 
 const NAV_ITEMS = [
+  { to: '/admin/dashboard',     label: 'Dashboard',     icon: '🏠' },
   { to: '/admin/invitados',     label: 'Invitados',     icon: '👥' },
   { to: '/admin/configuracion', label: 'Configuración', icon: '⚙️' },
   { to: '/admin/galeria',       label: 'Galería',       icon: '🖼️' },
@@ -27,25 +28,27 @@ export default function AdminLayout({ children, title }: Props) {
       {/* Top bar */}
       <header className="sticky top-0 z-40 bg-white shadow-sm"
         style={{ borderBottom: '1px solid var(--color-rose)44' }}>
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">💍</span>
-            <span className="font-display text-3xl hidden sm:block" style={{ color: 'var(--color-dark)' }}>
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2">
+          {/* Logo */}
+          <div className="flex items-center gap-2 mr-4 flex-shrink-0">
+            <span className="text-xl">💍</span>
+            <span className="font-display text-2xl hidden sm:block" style={{ color: 'var(--color-dark)' }}>
               Fran &amp; Adri
             </span>
-            <span className="font-sans text-xs px-3 py-1 rounded-full"
+            <span className="font-sans text-xs px-2 py-0.5 rounded-full"
               style={{ background: 'var(--color-rose)33', color: 'var(--color-muted)' }}>
               Admin
             </span>
           </div>
 
-          <nav className="flex items-center gap-1">
+          {/* Nav — scrollable on mobile */}
+          <nav className="flex items-center gap-0.5 flex-1 overflow-x-auto">
             {NAV_ITEMS.map(({ to, label, icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded-xl font-sans text-xs transition-all flex items-center gap-1.5 ${
+                  `px-3 py-2 rounded-xl font-sans text-xs transition-all flex items-center gap-1.5 whitespace-nowrap ${
                     isActive ? 'font-semibold' : 'opacity-60 hover:opacity-100'
                   }`
                 }
@@ -58,11 +61,24 @@ export default function AdminLayout({ children, title }: Props) {
                 <span className="hidden md:inline">{label}</span>
               </NavLink>
             ))}
+
+            {/* Ver invitación */}
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 rounded-xl font-sans text-xs opacity-60 hover:opacity-100 transition-all flex items-center gap-1.5 whitespace-nowrap ml-1"
+              style={{ color: 'var(--color-dark)' }}
+            >
+              <span>🌸</span>
+              <span className="hidden lg:inline">Ver invitación</span>
+            </a>
           </nav>
 
+          {/* Sign out */}
           <button
             onClick={handleSignOut}
-            className="px-4 py-2 rounded-xl font-sans text-xs transition-all hover:shadow-sm"
+            className="flex-shrink-0 px-3 py-2 rounded-xl font-sans text-xs transition-all hover:shadow-sm"
             style={{
               background: 'var(--color-dark)11',
               color: 'var(--color-muted)',
@@ -74,7 +90,7 @@ export default function AdminLayout({ children, title }: Props) {
       </header>
 
       {/* Content */}
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="font-serif text-3xl mb-6" style={{ color: 'var(--color-dark)' }}>
           {title}
         </h1>

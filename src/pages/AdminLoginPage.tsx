@@ -11,7 +11,7 @@ export default function AdminLoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!loading && user) navigate('/admin/invitados', { replace: true })
+    if (!loading && user) navigate('/admin/dashboard', { replace: true })
   }, [user, loading, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
