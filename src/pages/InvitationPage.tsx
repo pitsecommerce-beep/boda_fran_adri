@@ -18,21 +18,12 @@ export default function InvitationPage() {
   const { config, loading: configLoading } = useWeddingConfig()
   const { guest, rsvp, loading: guestLoading, notFound, refresh } = useGuest(token)
 
-  // State for the self-search flow (no token)
   const [searchedGuest, setSearchedGuest] = useState<Guest | null>(null)
 
   if (configLoading || (token && guestLoading)) return <LoadingScreen />
 
-  if (!config) {
-    return (
-      <div className="min-h-screen flex items-center justify-center"
-        style={{ background: 'var(--color-cream)' }}>
-        <p className="font-serif text-xl text-center px-6" style={{ color: 'var(--color-muted)' }}>
-          La invitación estará disponible muy pronto. 🌸
-        </p>
-      </div>
-    )
-  }
+  // config is always defined here — useWeddingConfig falls back to DEFAULT_CONFIG
+  if (!config) return <LoadingScreen />
 
   if (token && notFound) {
     return (
@@ -49,7 +40,6 @@ export default function InvitationPage() {
     )
   }
 
-  // Guest from token (legacy personalized link)
   const activeGuest = guest ?? null
 
   return (

@@ -27,13 +27,13 @@ export async function getWeddingConfig(): Promise<WeddingConfig | null> {
     .from('wedding_config')
     .select('*')
     .eq('id', 1)
-    .single()
+    .maybeSingle()
 
   if (error) {
     console.error('Error fetching wedding config:', error)
     return null
   }
-  return data as WeddingConfig
+  return (data ?? null) as WeddingConfig | null
 }
 
 export async function updateWeddingConfig(

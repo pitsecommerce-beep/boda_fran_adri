@@ -1,0 +1,23 @@
+import type { WeddingConfig } from '@/types'
+
+export const DEFAULT_CONFIG: WeddingConfig = {
+  id: 1,
+  bride_name: 'Adriana',
+  groom_name: 'Francisco',
+  wedding_date: null,
+  ceremony_time: null,
+  ceremony_venue: null,
+  ceremony_address: null,
+  ceremony_maps_url: null,
+  reception_time: null,
+  reception_venue: null,
+  reception_address: null,
+  reception_maps_url: null,
+  welcome_message: null,
+  dress_code: null,
+  cover_photo_url: null,
+  gallery_urls: [],
+  account_number: null,
+  itinerary: [],
+  updated_at: new Date().toISOString(),
+}

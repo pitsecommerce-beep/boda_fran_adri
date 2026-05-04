@@ -4,12 +4,13 @@ import ProtectedRoute from '@/components/shared/ProtectedRoute'
 import LoadingScreen from '@/components/shared/LoadingScreen'
 import SupabaseBanner from '@/components/shared/SupabaseBanner'
 
-const InvitationPage    = lazy(() => import('@/pages/InvitationPage'))
-const AdminLoginPage    = lazy(() => import('@/pages/AdminLoginPage'))
-const AdminGuestsPage   = lazy(() => import('@/pages/admin/AdminGuestsPage'))
-const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'))
-const AdminGalleryPage  = lazy(() => import('@/pages/admin/AdminGalleryPage'))
-const NotFoundPage      = lazy(() => import('@/pages/NotFoundPage'))
+const InvitationPage      = lazy(() => import('@/pages/InvitationPage'))
+const AdminLoginPage      = lazy(() => import('@/pages/AdminLoginPage'))
+const AdminDashboardPage  = lazy(() => import('@/pages/admin/AdminDashboardPage'))
+const AdminGuestsPage     = lazy(() => import('@/pages/admin/AdminGuestsPage'))
+const AdminSettingsPage   = lazy(() => import('@/pages/admin/AdminSettingsPage'))
+const AdminGalleryPage    = lazy(() => import('@/pages/admin/AdminGalleryPage'))
+const NotFoundPage        = lazy(() => import('@/pages/NotFoundPage'))
 
 export default function App() {
   return (
@@ -25,6 +26,14 @@ export default function App() {
 
         {/* Admin */}
         <Route path="/admin" element={<AdminLoginPage />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/invitados"
           element={
