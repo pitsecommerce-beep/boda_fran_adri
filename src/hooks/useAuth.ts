@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -8,13 +8,19 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const db = getSupabaseClient()
+    if (!db) {
+      setLoading(false)
+      return
+    }
+
+    db.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = db.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
     })
@@ -23,12 +29,15 @@ export function useAuth() {
   }, [])
 
   async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const db = getSupabaseClient()
+    if (!db) return { error: new Error('Supabase no configurado') }
+    const { error } = await db.auth.signInWithPassword({ email, password })
     return { error }
   }
 
   async function signOut() {
-    await supabase.auth.signOut()
+    const db = getSupabaseClient()
+    await db?.auth.signOut()
   }
 
   return { user, session, loading, signIn, signOut }

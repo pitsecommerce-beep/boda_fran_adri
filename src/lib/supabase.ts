@@ -1,22 +1,29 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { WeddingConfig, Guest, RSVP } from '@/types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-export const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
-
-// Use placeholder values when not configured so the client initializes
-// without throwing — all DB calls will fail gracefully via null returns.
-export const supabase = createClient(
-  supabaseUrl ?? 'https://placeholder.supabase.co',
-  supabaseAnonKey ?? 'placeholder-key',
+export const supabaseConfigured = Boolean(
+  supabaseUrl?.startsWith('http') && supabaseAnonKey,
 )
+
+// Only create the real client when both env vars are valid URLs.
+// All exported functions guard against a null client and return empty data.
+let _client: SupabaseClient | null = null
+function getClient(): SupabaseClient | null {
+  if (!supabaseConfigured) return null
+  if (!_client) _client = createClient(supabaseUrl!, supabaseAnonKey!)
+  return _client
+}
 
 // ─── Wedding Config ────────────────────────────────────────────────────────────
 
 export async function getWeddingConfig(): Promise<WeddingConfig | null> {
-  const { data, error } = await supabase
+  const db = getClient()
+  if (!db) return null
+
+  const { data, error } = await db
     .from('wedding_config')
     .select('*')
     .eq('id', 1)
@@ -32,7 +39,10 @@ export async function getWeddingConfig(): Promise<WeddingConfig | null> {
 export async function updateWeddingConfig(
   updates: Partial<Omit<WeddingConfig, 'id' | 'updated_at'>>,
 ): Promise<{ error: Error | null }> {
-  const { error } = await supabase
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+
+  const { error } = await db
     .from('wedding_config')
     .upsert({ id: 1, ...updates, updated_at: new Date().toISOString() })
 
@@ -42,7 +52,10 @@ export async function updateWeddingConfig(
 // ─── Guests ────────────────────────────────────────────────────────────────────
 
 export async function getGuestByToken(token: string): Promise<Guest | null> {
-  const { data, error } = await supabase
+  const db = getClient()
+  if (!db) return null
+
+  const { data, error } = await db
     .from('guests')
     .select('*')
     .eq('token', token)
@@ -53,7 +66,10 @@ export async function getGuestByToken(token: string): Promise<Guest | null> {
 }
 
 export async function listGuests(): Promise<Guest[]> {
-  const { data, error } = await supabase
+  const db = getClient()
+  if (!db) return []
+
+  const { data, error } = await db
     .from('guests')
     .select('*')
     .order('created_at', { ascending: false })
@@ -66,8 +82,10 @@ export async function listGuests(): Promise<Guest[]> {
 }
 
 export async function searchGuestsByName(query: string): Promise<Guest[]> {
-  if (!query.trim()) return []
-  const { data, error } = await supabase
+  const db = getClient()
+  if (!db || !query.trim()) return []
+
+  const { data, error } = await db
     .from('guests')
     .select('*')
     .ilike('name', `%${query.trim()}%`)
@@ -79,7 +97,10 @@ export async function searchGuestsByName(query: string): Promise<Guest[]> {
 }
 
 export async function getFamilyMembers(familyId: string): Promise<Guest[]> {
-  const { data, error } = await supabase
+  const db = getClient()
+  if (!db) return []
+
+  const { data, error } = await db
     .from('guests')
     .select('*')
     .eq('family_id', familyId)
@@ -92,6 +113,9 @@ export async function getFamilyMembers(familyId: string): Promise<Guest[]> {
 export async function insertGuests(
   guests: Array<{ name: string; phone?: string; max_companions: number; family_id?: string | null }>,
 ): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+
   const rows = guests.map((g) => ({
     name: g.name,
     phone: g.phone ?? null,
@@ -100,12 +124,15 @@ export async function insertGuests(
     token: crypto.randomUUID(),
   }))
 
-  const { error } = await supabase.from('guests').insert(rows)
+  const { error } = await db.from('guests').insert(rows)
   return { error: error as Error | null }
 }
 
 export async function deleteGuest(id: string): Promise<{ error: Error | null }> {
-  const { error } = await supabase.from('guests').delete().eq('id', id)
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+
+  const { error } = await db.from('guests').delete().eq('id', id)
   return { error: error as Error | null }
 }
 
@@ -113,14 +140,20 @@ export async function updateGuest(
   id: string,
   updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions' | 'family_id'>>,
 ): Promise<{ error: Error | null }> {
-  const { error } = await supabase.from('guests').update(updates).eq('id', id)
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+
+  const { error } = await db.from('guests').update(updates).eq('id', id)
   return { error: error as Error | null }
 }
 
 // ─── RSVPs ─────────────────────────────────────────────────────────────────────
 
 export async function getRSVPByGuestId(guestId: string): Promise<RSVP | null> {
-  const { data, error } = await supabase
+  const db = getClient()
+  if (!db) return null
+
+  const { data, error } = await db
     .from('rsvps')
     .select('*')
     .eq('guest_id', guestId)
@@ -140,9 +173,12 @@ export async function submitRSVP(rsvp: {
   needs_accommodation?: boolean
   message?: string
 }): Promise<{ error: Error | null }> {
-  await supabase.from('rsvps').delete().eq('guest_id', rsvp.guest_id)
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
 
-  const { error } = await supabase.from('rsvps').insert({
+  await db.from('rsvps').delete().eq('guest_id', rsvp.guest_id)
+
+  const { error } = await db.from('rsvps').insert({
     ...rsvp,
     dietary_notes: rsvp.dietary_notes ?? null,
     needs_accommodation: rsvp.needs_accommodation ?? false,
@@ -158,9 +194,11 @@ export async function submitFamilyRSVP(entries: Array<{
   needs_accommodation: boolean
   message: string
 }>): Promise<{ error: Error | null }> {
-  // Delete existing RSVPs for all guests in the batch
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+
   const guestIds = entries.map((e) => e.guest_id)
-  await supabase.from('rsvps').delete().in('guest_id', guestIds)
+  await db.from('rsvps').delete().in('guest_id', guestIds)
 
   const rows = entries.map((e) => ({
     guest_id: e.guest_id,
@@ -171,12 +209,15 @@ export async function submitFamilyRSVP(entries: Array<{
     message: e.message || null,
   }))
 
-  const { error } = await supabase.from('rsvps').insert(rows)
+  const { error } = await db.from('rsvps').insert(rows)
   return { error: error as Error | null }
 }
 
 export async function listRSVPs(): Promise<RSVP[]> {
-  const { data, error } = await supabase
+  const db = getClient()
+  if (!db) return []
+
+  const { data, error } = await db
     .from('rsvps')
     .select('*')
     .order('submitted_at', { ascending: false })
@@ -188,10 +229,13 @@ export async function listRSVPs(): Promise<RSVP[]> {
 // ─── Storage helpers ───────────────────────────────────────────────────────────
 
 export async function uploadPhoto(file: File, bucket = 'wedding-photos'): Promise<string | null> {
+  const db = getClient()
+  if (!db) return null
+
   const ext = file.name.split('.').pop()
   const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`
 
-  const { error } = await supabase.storage.from(bucket).upload(path, file, {
+  const { error } = await db.storage.from(bucket).upload(path, file, {
     cacheControl: '3600',
     upsert: false,
   })
@@ -201,12 +245,20 @@ export async function uploadPhoto(file: File, bucket = 'wedding-photos'): Promis
     return null
   }
 
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path)
+  const { data } = db.storage.from(bucket).getPublicUrl(path)
   return data.publicUrl
 }
 
 export async function deletePhoto(url: string, bucket = 'wedding-photos'): Promise<void> {
+  const db = getClient()
+  if (!db) return
+
   const path = url.split(`/${bucket}/`).pop()
   if (!path) return
-  await supabase.storage.from(bucket).remove([path])
+  await db.storage.from(bucket).remove([path])
+}
+
+// Also export for auth use in useAuth hook
+export function getSupabaseClient(): SupabaseClient | null {
+  return getClient()
 }
