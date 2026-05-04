@@ -60,6 +60,6 @@ export interface FamilyRSVPEntry {
 export interface ExcelRow {
   nombre: string
   celular?: string
-  acompanantes?: number
-  familia?: string
+  /** Identifier grouping family members — accepts column name "id_familia" or "familia" */
+  id_familia?: string
 }
