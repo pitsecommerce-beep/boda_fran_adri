@@ -1,0 +1,56 @@
+export interface WeddingConfig {
+  id: number
+  bride_name: string
+  groom_name: string
+  wedding_date: string | null
+  ceremony_time: string | null
+  ceremony_venue: string | null
+  ceremony_address: string | null
+  ceremony_maps_url: string | null
+  reception_time: string | null
+  reception_venue: string | null
+  reception_address: string | null
+  reception_maps_url: string | null
+  welcome_message: string | null
+  dress_code: string | null
+  cover_photo_url: string | null
+  gallery_urls: string[]
+  account_number: string | null
+  itinerary: ItineraryItem[]
+  updated_at: string
+}
+
+export interface ItineraryItem {
+  time: string
+  label: string
+  icon: string
+}
+
+export interface Guest {
+  id: string
+  name: string
+  phone: string | null
+  token: string
+  max_companions: number
+  created_at: string
+}
+
+export interface RSVP {
+  id: string
+  guest_id: string
+  attending: boolean
+  companion_count: number
+  dietary_notes: string | null
+  message: string | null
+  submitted_at: string
+}
+
+export interface GuestWithRSVP extends Guest {
+  rsvp?: RSVP | null
+}
+
+export interface ExcelRow {
+  nombre: string
+  celular?: string
+  acompanantes?: number
+}
