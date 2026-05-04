@@ -239,7 +239,8 @@ export default function AdminSettingsPage() {
             <Field
               label="Número de cuenta / CLABE (opcional)"
               name="account_number"
-              placeholder="Ej. CLABE: 000 000 0000 0000 00 00"
+              type="textarea"
+              placeholder={"Ej.\nBBVA · CLABE: 012 345 6789 0123 45\nBanorte · CLABE: 072 345 0000 0000 00"}
               form={form}
               onChange={handleChange}
             />

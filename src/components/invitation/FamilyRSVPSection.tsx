@@ -80,7 +80,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
       guest_id: e.guest.id,
       attending: e.attending,
       dietary_notes: e.dietary_notes,
-      needs_accommodation: needsAccommodation,
+      needs_accommodation: e.attending && needsAccommodation,
       message: globalMessage,
     }))
 

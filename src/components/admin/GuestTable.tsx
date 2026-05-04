@@ -28,22 +28,32 @@ function AttendanceBadge({ rsvp }: { rsvp: RSVP | null }) {
     </span>
   )
   return (
-    <div className="flex flex-wrap gap-1">
-      {rsvp.attending ? (
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
-          style={{ background: 'var(--color-jade)44', color: '#4A7A4A' }}>
-          ✓ Confirmado{rsvp.companion_count > 0 ? ` +${rsvp.companion_count}` : ''}
-        </span>
-      ) : (
-        <span className="px-2 py-1 rounded-full text-xs font-sans"
-          style={{ background: '#FFE0E0', color: '#A04040' }}>
-          ✗ No asistirá
-        </span>
-      )}
-      {rsvp.needs_accommodation && (
-        <span className="px-2 py-1 rounded-full text-xs font-sans"
-          style={{ background: 'var(--color-blue)22', color: 'var(--color-blue)', border: '1px solid var(--color-blue)66' }}>
-          Hospedaje
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap gap-1">
+        {rsvp.attending ? (
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
+            style={{ background: 'var(--color-jade)44', color: '#4A7A4A' }}>
+            ✓ Confirmado{rsvp.companion_count > 0 ? ` +${rsvp.companion_count}` : ''}
+          </span>
+        ) : (
+          <span className="px-2 py-1 rounded-full text-xs font-sans"
+            style={{ background: '#FFE0E0', color: '#A04040' }}>
+            ✗ No asistirá
+          </span>
+        )}
+        {rsvp.attending && rsvp.needs_accommodation && (
+          <span className="px-2 py-1 rounded-full text-xs font-sans"
+            style={{ background: 'var(--color-blue)22', color: 'var(--color-blue)', border: '1px solid var(--color-blue)44' }}>
+            Hospedaje
+          </span>
+        )}
+      </div>
+      {rsvp.attending && rsvp.dietary_notes && (
+        <span
+          className="font-sans text-xs italic"
+          style={{ color: 'var(--color-muted)' }}
+          title={rsvp.dietary_notes}>
+          {rsvp.dietary_notes.length > 40 ? rsvp.dietary_notes.slice(0, 40) + '…' : rsvp.dietary_notes}
         </span>
       )}
     </div>
@@ -236,51 +246,64 @@ function GuestRow({
   )
 }
 
+type FilterType = 'all' | 'confirmed' | 'declined' | 'pending' | 'accommodation' | 'dietary'
+
+const FILTER_LABELS: Record<FilterType, string> = {
+  all: 'Todos',
+  confirmed: 'Confirmados',
+  declined: 'No asisten',
+  pending: 'Sin respuesta',
+  accommodation: 'Hospedaje',
+  dietary: 'Restricción alimentaria',
+}
+
+const FILTER_COLORS: Record<FilterType, string> = {
+  all: 'var(--color-rose)',
+  confirmed: 'var(--color-rose)',
+  declined: 'var(--color-rose)',
+  pending: 'var(--color-rose)',
+  accommodation: 'var(--color-blue)',
+  dietary: 'var(--color-apricot)',
+}
+
 export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const [search, setSearch] = useState('')
-  const [filterRSVP, setFilterRSVP] = useState<'all' | 'confirmed' | 'declined' | 'pending' | 'accommodation'>('all')
+  const [filterRSVP, setFilterRSVP] = useState<FilterType>('all')
 
   const filtered = guests.filter((g) => {
     const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
       (g.phone ?? '').includes(search)
     const rsvp = getRSVP(g.id, rsvps)
     const matchesFilter =
-      filterRSVP === 'all' ? true :
-      filterRSVP === 'pending' ? !rsvp :
-      filterRSVP === 'confirmed' ? (rsvp?.attending === true) :
-      filterRSVP === 'accommodation' ? (rsvp?.needs_accommodation === true) :
-      (rsvp?.attending === false)
+      filterRSVP === 'all'            ? true :
+      filterRSVP === 'pending'        ? !rsvp :
+      filterRSVP === 'confirmed'      ? (rsvp?.attending === true) :
+      filterRSVP === 'declined'       ? (rsvp?.attending === false) :
+      filterRSVP === 'accommodation'  ? (rsvp?.attending === true && rsvp?.needs_accommodation === true) :
+      /* dietary */                     (rsvp?.attending === true && !!rsvp?.dietary_notes)
     return matchesSearch && matchesFilter
   })
 
-  const totalConfirmed    = rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
-  const totalDeclined     = rsvps.filter((r) => !r.attending).length
-  const totalPending      = guests.length - rsvps.length
-  const needsAccommodation = (() => {
-    const familiesWithAccom = new Set<string>()
-    let individualCount = 0
-    rsvps.filter((r) => r.needs_accommodation).forEach((r) => {
-      const guest = guests.find((g) => g.id === r.guest_id)
-      if (guest?.family_id) {
-        familiesWithAccom.add(guest.family_id)
-      } else {
-        individualCount++
-      }
-    })
-    return familiesWithAccom.size + individualCount
-  })()
+  const totalConfirmed     = rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
+  const totalDeclined      = rsvps.filter((r) => !r.attending).length
+  const totalPending       = guests.length - rsvps.length
+  const needsAccommodation = rsvps.filter((r) => r.attending && r.needs_accommodation).length
+  const withDietary        = rsvps.filter((r) => r.attending && !!r.dietary_notes).length
+
+  const stats = [
+    { label: 'Total invitados',             value: guests.length,       color: 'var(--color-orchid)' },
+    { label: 'Confirmados',                 value: totalConfirmed,      color: 'var(--color-jade)' },
+    { label: 'No asistirán',                value: totalDeclined,       color: 'var(--color-apricot)' },
+    { label: 'Sin respuesta',               value: totalPending,        color: 'var(--color-blue)' },
+    { label: 'Necesitan hospedaje',         value: needsAccommodation,  color: 'var(--color-yellow)' },
+    { label: 'Restricción alimentaria',     value: withDietary,         color: 'var(--color-rose)' },
+  ]
 
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        {[
-          { label: 'Total invitados', value: guests.length,       color: 'var(--color-orchid)' },
-          { label: 'Confirmados',     value: totalConfirmed,      color: 'var(--color-jade)' },
-          { label: 'No asistirán',    value: totalDeclined,       color: 'var(--color-apricot)' },
-          { label: 'Sin respuesta',   value: totalPending,        color: 'var(--color-blue)' },
-          { label: 'Necesitan hospedaje', value: needsAccommodation, color: 'var(--color-yellow)' },
-        ].map(({ label, value, color }) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-6">
+        {stats.map(({ label, value, color }) => (
           <div key={label}
             className="bg-white rounded-2xl p-4 text-center shadow-sm"
             style={{ border: `1px solid ${color}55` }}>
@@ -301,18 +324,16 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
           style={{ borderColor: 'var(--color-rose)66' }}
         />
         <div className="flex gap-2 flex-wrap">
-          {(['all', 'confirmed', 'declined', 'pending', 'accommodation'] as const).map((f) => (
+          {(Object.keys(FILTER_LABELS) as FilterType[]).map((f) => (
             <button
               key={f}
               onClick={() => setFilterRSVP(f)}
               className="px-4 py-2 rounded-xl font-sans text-xs transition-all"
               style={{
-                background: filterRSVP === f
-                  ? f === 'accommodation' ? 'var(--color-blue)' : 'var(--color-rose)'
-                  : '#f5f5f5',
+                background: filterRSVP === f ? FILTER_COLORS[f] : '#f5f5f5',
                 color: filterRSVP === f ? 'white' : 'var(--color-muted)',
               }}>
-              {{ all: 'Todos', confirmed: 'Confirmados', declined: 'No asisten', pending: 'Sin respuesta', accommodation: 'Hospedaje' }[f]}
+              {FILTER_LABELS[f]}
             </button>
           ))}
         </div>
@@ -342,7 +363,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center font-serif italic"
                     style={{ color: 'var(--color-muted)' }}>
-                    No hay invitados que coincidan con la búsqueda.
+                    No hay invitados que coincidan.
                   </td>
                 </tr>
               ) : (

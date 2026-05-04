@@ -111,7 +111,13 @@ export default function AdminDashboardPage() {
 
   const confirmedWithCompanions =
     rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
-  const needsAccommodation = rsvps.filter((r) => r.needs_accommodation).length
+  const needsAccommodation = rsvps.filter((r) => r.attending && r.needs_accommodation).length
+  const withDietary        = rsvps.filter((r) => r.attending && !!r.dietary_notes)
+
+  const dietaryList = withDietary.map((r) => {
+    const guest = guests.find((g) => g.id === r.guest_id)
+    return { name: guest?.name ?? 'Invitado', note: r.dietary_notes! }
+  })
 
   const weddingDate = config?.wedding_date ? new Date(config.wedding_date) : null
   const daysUntil = weddingDate
@@ -178,7 +184,7 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
             <StatCard
               icon="👥"
               label="Invitados"
@@ -212,6 +218,13 @@ export default function AdminDashboardPage() {
               value={needsAccommodation}
               sub="solicitan apoyo"
               accent="var(--color-orchid)"
+            />
+            <StatCard
+              icon="🥗"
+              label="Restricción alimentaria"
+              value={withDietary.length}
+              sub={withDietary.length > 0 ? 'ver detalle abajo' : 'ninguna registrada'}
+              accent="var(--color-apricot)"
             />
           </div>
 
@@ -265,6 +278,31 @@ export default function AdminDashboardPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* Dietary restrictions detail */}
+      {!loading && dietaryList.length > 0 && (
+        <div
+          className="bg-white rounded-2xl p-6 shadow-sm mb-8"
+          style={{ border: '1px solid var(--color-apricot)44' }}
+        >
+          <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
+            Restricciones alimentarias
+          </h2>
+          <div className="divide-y" style={{ borderColor: 'var(--color-apricot)22' }}>
+            {dietaryList.map(({ name, note }) => (
+              <div key={name + note} className="py-3 flex items-start gap-4">
+                <span className="font-sans text-sm font-medium flex-shrink-0 w-40 truncate"
+                  style={{ color: 'var(--color-dark)' }} title={name}>
+                  {name}
+                </span>
+                <span className="font-sans text-sm italic" style={{ color: 'var(--color-muted)' }}>
+                  {note}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Quick links */}
