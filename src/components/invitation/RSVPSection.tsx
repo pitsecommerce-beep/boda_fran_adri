@@ -31,7 +31,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
       attending,
       companion_count: attending ? companionCount : 0,
       dietary_notes: dietaryNotes || undefined,
-      needs_accommodation: needsAccommodation,
+      needs_accommodation: attending ? needsAccommodation : false,
       message: message || undefined,
     })
 

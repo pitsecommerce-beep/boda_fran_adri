@@ -213,7 +213,7 @@ export default function WeddingDetails({ config }: Props) {
                 </p>
               )}
               <p className="font-sans font-medium text-xl tracking-wider"
-                style={{ color: 'var(--color-dark)' }}>
+                style={{ color: 'var(--color-dark)', whiteSpace: 'pre-line' }}>
                 {config.account_number}
               </p>
             </div>
