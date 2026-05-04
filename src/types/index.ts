@@ -16,6 +16,7 @@ export interface WeddingConfig {
   cover_photo_url: string | null
   gallery_urls: string[]
   account_number: string | null
+  gift_registry_url: string | null
   itinerary: ItineraryItem[]
   updated_at: string
 }

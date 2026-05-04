@@ -61,7 +61,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
           {attending && needsAccommodation && (
             <div className="mt-4 p-3 rounded-xl font-sans text-sm"
               style={{ background: 'var(--color-blue)22', color: 'var(--color-dark)' }}>
-              🏨 Registramos que necesitas ayuda con hospedaje. Los novios se pondrán en contacto.
+              Registramos que necesitas ayuda con hospedaje. Los novios se pondrán en contacto.
             </div>
           )}
           {attending && (
@@ -189,7 +189,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                 </div>
                 <div>
                   <p className="font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
-                    🏨 Necesito ayuda para encontrar hospedaje
+                    Necesito ayuda para encontrar hospedaje
                   </p>
                   <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
                     Los novios te contactarán con opciones de hoteles cercanos

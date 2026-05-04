@@ -99,7 +99,6 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   if (loading) {
     return (
       <section className="py-20 px-6 text-center">
-        <div className="animate-float text-4xl mb-4">🌸</div>
         <p className="font-serif italic" style={{ color: 'var(--color-muted)' }}>
           Cargando tu invitación…
         </p>
@@ -124,7 +123,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
           {needsAccommodation && (
             <div className="mt-4 p-3 rounded-xl font-sans text-sm"
               style={{ background: 'var(--color-blue)22', color: 'var(--color-dark)' }}>
-              🏨 Registramos que necesitan ayuda con hospedaje. Los novios se pondrán en contacto.
+              Registramos que necesitan ayuda con hospedaje. Los novios se pondrán en contacto.
             </div>
           )}
           <button
@@ -147,7 +146,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
             Confirmación de asistencia
           </p>
           <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
-            {members.length > 1 ? 'Tu grupo familiar' : 'Tu respuesta'}
+            {members.length > 1 ? 'Confirma por tu familia' : 'Tu respuesta'}
           </h2>
           {members.length > 1 && (
             <p className="mt-3 font-serif italic" style={{ color: 'var(--color-muted)' }}>
@@ -158,12 +157,10 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
         </div>
 
         {/* Children notice */}
-        <div className="mb-6 p-4 rounded-2xl flex items-start gap-3"
-          style={{ background: 'var(--color-yellow)33', border: '1px solid var(--color-yellow)88' }}>
-          <span className="text-xl flex-shrink-0">🚸</span>
-          <p className="font-sans text-sm leading-relaxed" style={{ color: 'var(--color-dark)' }}>
-            <strong>Nota importante:</strong> Esta es una celebración para adultos.
-            No se admiten niños menores de 15 años. ¡Gracias por su comprensión!
+        <div className="mb-6 p-4 rounded-2xl"
+          style={{ background: 'var(--color-yellow)22', border: '1px solid var(--color-yellow)66' }}>
+          <p className="font-sans text-sm leading-relaxed text-center" style={{ color: 'var(--color-dark)' }}>
+            <span className="font-medium">Celebración para adultos</span> — no se admiten menores de 15 años.
           </p>
         </div>
 
@@ -262,7 +259,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               </div>
               <div>
                 <p className="font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
-                  🏨 Necesitamos ayuda para encontrar hospedaje
+                  Necesitamos ayuda para encontrar hospedaje
                 </p>
                 <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
                   Los novios te contactarán con opciones de hoteles cercanos

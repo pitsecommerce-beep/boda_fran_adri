@@ -27,18 +27,26 @@ function AttendanceBadge({ rsvp }: { rsvp: RSVP | null }) {
       Sin respuesta
     </span>
   )
-  return rsvp.attending ? (
-    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
-      style={{ background: 'var(--color-jade)44', color: '#4A7A4A' }}>
-      ✓ Confirmado
-      {rsvp.companion_count > 0 && ` +${rsvp.companion_count}`}
-      {rsvp.needs_accommodation && ' 🏨'}
-    </span>
-  ) : (
-    <span className="px-2 py-1 rounded-full text-xs font-sans"
-      style={{ background: '#FFE0E0', color: '#A04040' }}>
-      ✗ No asistirá
-    </span>
+  return (
+    <div className="flex flex-wrap gap-1">
+      {rsvp.attending ? (
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
+          style={{ background: 'var(--color-jade)44', color: '#4A7A4A' }}>
+          ✓ Confirmado{rsvp.companion_count > 0 ? ` +${rsvp.companion_count}` : ''}
+        </span>
+      ) : (
+        <span className="px-2 py-1 rounded-full text-xs font-sans"
+          style={{ background: '#FFE0E0', color: '#A04040' }}>
+          ✗ No asistirá
+        </span>
+      )}
+      {rsvp.needs_accommodation && (
+        <span className="px-2 py-1 rounded-full text-xs font-sans"
+          style={{ background: 'var(--color-blue)22', color: 'var(--color-blue)', border: '1px solid var(--color-blue)66' }}>
+          Hospedaje
+        </span>
+      )}
+    </div>
   )
 }
 
@@ -93,12 +101,20 @@ function GuestRow({
               style={{ borderColor: 'var(--color-rose)66' }}
             />
           ) : (
-            <span className="font-sans text-sm flex items-center gap-1.5" style={{ color: 'var(--color-dark)' }}>
-              {guest.name}
+            <div className="flex flex-col gap-1">
+              <span className="font-sans text-sm" style={{ color: 'var(--color-dark)' }}>
+                {guest.name}
+              </span>
               {guest.is_family_head && guest.family_id && (
-                <span title="Cabeza de familia" className="text-base leading-none">👑</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans w-fit"
+                  style={{ background: 'var(--color-yellow)44', color: '#7a6500', border: '1px solid var(--color-yellow)' }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+                  </svg>
+                  Cabeza de familia
+                </span>
               )}
-            </span>
+            </div>
           )}
         </td>
         <td className="px-4 py-3">
@@ -222,7 +238,7 @@ function GuestRow({
 
 export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const [search, setSearch] = useState('')
-  const [filterRSVP, setFilterRSVP] = useState<'all' | 'confirmed' | 'declined' | 'pending'>('all')
+  const [filterRSVP, setFilterRSVP] = useState<'all' | 'confirmed' | 'declined' | 'pending' | 'accommodation'>('all')
 
   const filtered = guests.filter((g) => {
     const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -232,6 +248,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
       filterRSVP === 'all' ? true :
       filterRSVP === 'pending' ? !rsvp :
       filterRSVP === 'confirmed' ? (rsvp?.attending === true) :
+      filterRSVP === 'accommodation' ? (rsvp?.needs_accommodation === true) :
       (rsvp?.attending === false)
     return matchesSearch && matchesFilter
   })
@@ -239,7 +256,19 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const totalConfirmed    = rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
   const totalDeclined     = rsvps.filter((r) => !r.attending).length
   const totalPending      = guests.length - rsvps.length
-  const needsAccommodation = rsvps.filter((r) => r.needs_accommodation).length
+  const needsAccommodation = (() => {
+    const familiesWithAccom = new Set<string>()
+    let individualCount = 0
+    rsvps.filter((r) => r.needs_accommodation).forEach((r) => {
+      const guest = guests.find((g) => g.id === r.guest_id)
+      if (guest?.family_id) {
+        familiesWithAccom.add(guest.family_id)
+      } else {
+        individualCount++
+      }
+    })
+    return familiesWithAccom.size + individualCount
+  })()
 
   return (
     <div>
@@ -272,16 +301,18 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
           style={{ borderColor: 'var(--color-rose)66' }}
         />
         <div className="flex gap-2 flex-wrap">
-          {(['all', 'confirmed', 'declined', 'pending'] as const).map((f) => (
+          {(['all', 'confirmed', 'declined', 'pending', 'accommodation'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilterRSVP(f)}
               className="px-4 py-2 rounded-xl font-sans text-xs transition-all"
               style={{
-                background: filterRSVP === f ? 'var(--color-rose)' : '#f5f5f5',
+                background: filterRSVP === f
+                  ? f === 'accommodation' ? 'var(--color-blue)' : 'var(--color-rose)'
+                  : '#f5f5f5',
                 color: filterRSVP === f ? 'white' : 'var(--color-muted)',
               }}>
-              {{ all: 'Todos', confirmed: 'Confirmados', declined: 'No asisten', pending: 'Sin respuesta' }[f]}
+              {{ all: 'Todos', confirmed: 'Confirmados', declined: 'No asisten', pending: 'Sin respuesta', accommodation: 'Hospedaje' }[f]}
             </button>
           ))}
         </div>

@@ -18,6 +18,7 @@ export const DEFAULT_CONFIG: WeddingConfig = {
   cover_photo_url: null,
   gallery_urls: [],
   account_number: null,
+  gift_registry_url: null,
   itinerary: [],
   updated_at: new Date().toISOString(),
 }
