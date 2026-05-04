@@ -108,24 +108,25 @@ create policy "rsvps: public delete"
   using (true);
 
 -- ─── Storage bucket ──────────────────────────────────────────────────────────
--- Crear en Supabase Dashboard → Storage → New bucket
--- Nombre: wedding-photos
--- Visibilidad: Public
--- Después agregar estas políticas en Storage → wedding-photos → Policies:
+-- PASO MANUAL: Supabase Dashboard → Storage → New bucket
+--   Nombre: wedding-photos   Visibilidad: Public ✓
+--
+-- Luego en Storage → wedding-photos → Policies agregar:
 
 -- Lectura pública:
 --   create policy "public read photos"
 --     on storage.objects for select
 --     using (bucket_id = 'wedding-photos');
 
--- Escritura sólo autenticados:
---   create policy "admin upload photos"
+-- Subida pública (admin sin auth):
+--   create policy "public upload photos"
 --     on storage.objects for insert
---     with check (bucket_id = 'wedding-photos' and auth.role() = 'authenticated');
+--     with check (bucket_id = 'wedding-photos');
 
---   create policy "admin delete photos"
+-- Borrado público (admin sin auth):
+--   create policy "public delete photos"
 --     on storage.objects for delete
---     using (bucket_id = 'wedding-photos' and auth.role() = 'authenticated');
+--     using (bucket_id = 'wedding-photos');
 
 -- ─── Función helper: updated_at automático ───────────────────────────────────
 create or replace function public.set_updated_at()
