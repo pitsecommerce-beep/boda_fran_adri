@@ -30,7 +30,10 @@ export async function getWeddingConfig(): Promise<WeddingConfig | null> {
     .maybeSingle()
 
   if (error) {
-    console.error('Error fetching wedding config:', error)
+    // PGRST205 = table doesn't exist yet (schema not run) — expected, suppress log
+    if ((error as { code?: string }).code !== 'PGRST205') {
+      console.error('Error fetching wedding config:', error)
+    }
     return null
   }
   return (data ?? null) as WeddingConfig | null
