@@ -81,15 +81,17 @@ export default function HeroSection({ config, guestName }: Props) {
 
         {/* Scroll cue */}
         <div className="animate-fade-in-up delay-600 mt-12">
-          <a href="#detalles"
+          <button
+            type="button"
+            onClick={() => document.getElementById('detalles')?.scrollIntoView({ behavior: 'smooth' })}
             className="inline-flex flex-col items-center gap-2 transition-opacity hover:opacity-70"
-            style={{ color: 'var(--color-muted)' }}>
+            style={{ color: 'var(--color-muted)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
             <span className="font-serif italic text-sm">Desplázate para descubrir</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               strokeWidth="1.5" className="animate-bounce">
               <path d="M12 5v14M5 12l7 7 7-7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </a>
+          </button>
         </div>
       </div>
     </section>

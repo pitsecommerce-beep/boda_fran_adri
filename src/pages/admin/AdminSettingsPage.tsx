@@ -21,6 +21,7 @@ const defaultForm: FormData = {
   welcome_message: '',
   dress_code: '',
   cover_photo_url: '',
+  favicon_url: '',
   account_number: '',
   gift_registry_url: '',
 }
@@ -89,6 +90,7 @@ export default function AdminSettingsPage() {
         welcome_message:     config.welcome_message ?? '',
         dress_code:          config.dress_code ?? '',
         cover_photo_url:     config.cover_photo_url ?? '',
+        favicon_url:         config.favicon_url ?? '',
         account_number:      config.account_number ?? '',
         gift_registry_url:   config.gift_registry_url ?? '',
       })
@@ -212,6 +214,14 @@ export default function AdminSettingsPage() {
               name="cover_photo_url"
               placeholder="https://…"
               hint="URL pública de la imagen que aparecerá de fondo en el hero"
+              form={form}
+              onChange={handleChange}
+            />
+            <Field
+              label="Ícono de pestaña (favicon)"
+              name="favicon_url"
+              placeholder="https://… (.png, .ico o .svg)"
+              hint="URL pública del ícono que aparece en la pestaña del navegador"
               form={form}
               onChange={handleChange}
             />
