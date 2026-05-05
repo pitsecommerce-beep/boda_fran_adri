@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import GuestTable from '@/components/admin/GuestTable'
 import ExcelUploader from '@/components/admin/ExcelUploader'
+import AddGuestModal from '@/components/admin/AddGuestModal'
 import { listGuests, listRSVPs } from '@/lib/supabase'
 import { downloadGuestTemplate } from '@/lib/excelTemplate'
 import type { Guest, RSVP } from '@/types'
@@ -11,6 +12,7 @@ export default function AdminGuestsPage() {
   const [rsvps, setRsvps] = useState<RSVP[]>([])
   const [loading, setLoading] = useState(true)
   const [showUploader, setShowUploader] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const refresh = async () => {
     setLoading(true)
@@ -27,9 +29,15 @@ export default function AdminGuestsPage() {
       {/* Actions bar */}
       <div className="flex flex-wrap gap-3 mb-6">
         <button
-          onClick={() => setShowUploader(!showUploader)}
+          onClick={() => setShowAddModal(true)}
           className="px-5 py-2.5 rounded-xl font-sans text-sm font-medium transition-all hover:shadow-sm"
           style={{ background: 'var(--color-rose)', color: 'white' }}>
+          + Agregar invitado
+        </button>
+        <button
+          onClick={() => setShowUploader(!showUploader)}
+          className="px-5 py-2.5 rounded-xl font-sans text-sm font-medium transition-all hover:shadow-sm"
+          style={{ background: 'var(--color-orchid)33', color: 'var(--color-dark)', border: '1px solid var(--color-orchid)66' }}>
           {showUploader ? '✕ Cerrar importación' : '📊 Importar Excel'}
         </button>
         <button
@@ -76,6 +84,15 @@ export default function AdminGuestsPage() {
         </div>
       ) : (
         <GuestTable guests={guests} rsvps={rsvps} onRefresh={refresh} />
+      )}
+
+      {/* Add guest modal */}
+      {showAddModal && (
+        <AddGuestModal
+          guests={guests}
+          onSuccess={() => { setShowAddModal(false); void refresh() }}
+          onClose={() => setShowAddModal(false)}
+        />
       )}
     </AdminLayout>
   )
