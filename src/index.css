@@ -8,9 +8,9 @@
   --color-orchid: #D4B84A;   /* yellow darkened slightly for contrast */
   --color-blue: #EDD97A;
   --color-jade: #C8A830;     /* deeper gold for "yes" state */
-  --color-cream: #FFFEF5;    /* warm near-white background */
-  --color-dark: #3D2E00;     /* deep golden-brown for headings/body */
-  --color-muted: #8B6F1A;    /* warm mid-gold for secondary text */
+  --color-cream: #FFFFFF;
+  --color-dark: #1A1200;     /* near-black warm, máxima legibilidad */
+  --color-muted: #7A6520;    /* dorado medio para texto secundario */
   --color-white: #FFFFFF;
 
   --font-display: 'Great Vibes', cursive;

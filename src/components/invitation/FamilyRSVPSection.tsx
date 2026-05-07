@@ -108,9 +108,9 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
 
   if (submitted) {
     return (
-      <section id="rsvp" className="py-20 px-6 text-center" style={{ background: '#EDD97A0A' }}>
+      <section id="rsvp" className="py-20 px-6 text-center" style={{ background: '#FFFFFF' }}>
         <div className="max-w-lg mx-auto bg-white rounded-3xl p-10 shadow-sm"
-          style={{ border: '1px solid var(--color-yellow)44' }}>
+          style={{ border: '1.5px solid var(--color-yellow)' }}>
           <div className="text-5xl mb-4">{confirmedCount > 0 ? '🎉' : '💌'}</div>
           <h3 className="font-serif text-3xl mb-3" style={{ color: 'var(--color-dark)' }}>
             {confirmedCount > 0 ? '¡Gracias por confirmar!' : '¡Los tendremos presentes!'}
@@ -138,7 +138,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: '#EDD97A0A' }}>
+    <section id="rsvp" className="py-20 px-6" style={{ background: '#FFFFFF' }}>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
@@ -158,7 +158,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
 
         {/* Children notice */}
         <div className="mb-6 p-4 rounded-2xl"
-          style={{ background: 'var(--color-yellow)22', border: '1px solid var(--color-yellow)66' }}>
+          style={{ background: '#FFFCEB', border: '1.5px solid var(--color-yellow)' }}>
           <p className="font-sans text-sm leading-relaxed text-center" style={{ color: 'var(--color-dark)' }}>
             <span className="font-medium">Celebración para adultos</span> — no se admiten menores de 15 años.
           </p>
@@ -166,7 +166,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
 
         <form onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-6 md:p-8 shadow-sm"
-          style={{ border: '1px solid var(--color-yellow)44' }}>
+          style={{ border: '1.5px solid var(--color-yellow)' }}>
 
           {/* Family members */}
           <div className="space-y-4 mb-8">
@@ -174,8 +174,8 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               <div key={m.guest.id}
                 className="rounded-2xl p-5 transition-all"
                 style={{
-                  background: m.attending ? 'var(--color-yellow)11' : '#f9f9f9',
-                  border: `1px solid ${m.attending ? 'var(--color-yellow)66' : '#e5e5e5'}`,
+                  background: '#FFFFFF',
+                  border: `1.5px solid ${m.attending ? 'var(--color-yellow)' : '#e5e5e5'}`,
                 }}>
                 {/* Name + attending toggle */}
                 <div className="flex items-center justify-between gap-4 mb-3">

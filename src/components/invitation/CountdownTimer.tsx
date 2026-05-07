@@ -43,7 +43,7 @@ export default function CountdownTimer({ weddingDate }: Props) {
 
   return (
     <section id="countdown" className="py-16 px-6 text-center"
-      style={{ background: 'linear-gradient(135deg, #EDD97A0F, #FFFEF5)' }}>
+      style={{ background: '#FFFFFF' }}>
       <p className="font-serif text-lg italic mb-8" style={{ color: 'var(--color-muted)' }}>
         {isPast ? '¡Ya estamos casados! 🎉' : 'Faltan…'}
       </p>
@@ -52,15 +52,18 @@ export default function CountdownTimer({ weddingDate }: Props) {
         {units.map(({ label, value }) => (
           <div key={label} className="flex flex-col items-center">
             <div
-              className="w-20 h-20 md:w-28 md:h-28 rounded-2xl flex items-center justify-center shadow-sm"
-              style={{ background: 'white', border: '1px solid #EDD97A66' }}>
+              className="w-20 h-20 md:w-28 md:h-28 rounded-2xl flex items-center justify-center"
+              style={{
+                background: '#FFFCEB',
+                border: '1.5px solid var(--color-yellow)',
+              }}>
               <span className="font-serif text-4xl md:text-5xl font-light"
                 style={{ color: 'var(--color-dark)' }}>
                 {String(value).padStart(2, '0')}
               </span>
             </div>
             <span className="mt-2 font-sans text-xs tracking-widest uppercase"
-              style={{ color: 'var(--color-muted)' }}>
+              style={{ color: 'var(--color-yellow)' }}>
               {label}
             </span>
           </div>
