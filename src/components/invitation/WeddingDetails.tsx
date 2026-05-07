@@ -107,7 +107,7 @@ export default function WeddingDetails({ config }: Props) {
       {/* Section heading */}
       <div className="text-center mb-12">
         <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-          style={{ color: 'var(--color-rose)' }}>
+          style={{ color: 'var(--color-muted)' }}>
           Los detalles
         </p>
         <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -121,7 +121,7 @@ export default function WeddingDetails({ config }: Props) {
         )}
       </div>
 
-      <FloralDivider icon="✦" color="var(--color-rose)" />
+      <FloralDivider icon="✦" color="var(--color-yellow)" />
 
       {/* Welcome message */}
       {config.welcome_message && (
@@ -137,25 +137,25 @@ export default function WeddingDetails({ config }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {(config.ceremony_venue || config.ceremony_address) && (
           <DetailCard
-            icon={<ChurchIcon color="var(--color-orchid)" />}
+            icon={<ChurchIcon color="var(--color-yellow)" />}
             title="Ceremonia"
             venue={config.ceremony_venue}
             address={config.ceremony_address}
             time={config.ceremony_time}
             mapsUrl={config.ceremony_maps_url}
-            accentColor="var(--color-orchid)"
+            accentColor="var(--color-yellow)"
           />
         )}
 
         {(config.reception_venue || config.reception_address) && (
           <DetailCard
-            icon={<GlassIcon color="var(--color-apricot)" />}
+            icon={<GlassIcon color="var(--color-muted)" />}
             title="Recepción"
             venue={config.reception_venue}
             address={config.reception_address}
             time={config.reception_time}
             mapsUrl={config.reception_maps_url}
-            accentColor="var(--color-apricot)"
+            accentColor="var(--color-muted)"
           />
         )}
       </div>
@@ -163,9 +163,9 @@ export default function WeddingDetails({ config }: Props) {
       {/* Dress code */}
       {config.dress_code && (
         <div className="mt-8 text-center">
-          <FloralDivider icon="✦" color="var(--color-blue)" />
+          <FloralDivider icon="✦" color="var(--color-yellow)" />
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-blue)' }}>
+            style={{ color: 'var(--color-muted)' }}>
             Código de vestimenta
           </p>
           <p className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>

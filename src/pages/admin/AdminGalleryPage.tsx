@@ -71,8 +71,8 @@ export default function AdminGalleryPage() {
         onClick={() => inputRef.current?.click()}
         className="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all mb-6"
         style={{
-          borderColor: dragOver ? 'var(--color-rose)' : 'var(--color-rose)66',
-          background: dragOver ? 'var(--color-rose)11' : 'var(--color-rose)06',
+          borderColor: dragOver ? 'var(--color-yellow)' : 'var(--color-yellow)66',
+          background: dragOver ? 'var(--color-yellow)0A' : 'var(--color-yellow)06',
         }}
       >
         <input
@@ -124,7 +124,7 @@ export default function AdminGalleryPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {photos.map((url, i) => (
             <div key={url} className="relative group rounded-2xl overflow-hidden shadow-sm"
-              style={{ border: url === config?.cover_photo_url ? '3px solid var(--color-yellow)' : '1px solid var(--color-rose)33' }}>
+              style={{ border: url === config?.cover_photo_url ? '3px solid var(--color-yellow)' : '1px solid var(--color-yellow)22' }}>
               <img
                 src={url}
                 alt={`Foto ${i + 1}`}

@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: 'linear-gradient(135deg, #FDF9F5 0%, #F4AABC22 50%, #FDF9F5 100%)' }}>
+      style={{ background: 'linear-gradient(135deg, #FFFEF5 0%, #EDD97A1A 50%, #FFFEF5 100%)' }}>
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-8 shadow-sm"
-          style={{ border: '1px solid var(--color-rose)44' }}>
+          style={{ border: '1px solid var(--color-yellow)33' }}>
 
           <div className="mb-4">
             <label className="block font-sans text-sm mb-2" style={{ color: 'var(--color-muted)' }}>
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white outline-none"
-              style={{ borderColor: 'var(--color-rose)66', color: 'var(--color-dark)' }}
+              style={{ borderColor: 'var(--color-yellow)66', color: 'var(--color-dark)' }}
               placeholder="admin@ejemplo.com"
             />
           </div>
@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white outline-none"
-              style={{ borderColor: 'var(--color-rose)66', color: 'var(--color-dark)' }}
+              style={{ borderColor: 'var(--color-yellow)66', color: 'var(--color-dark)' }}
               placeholder="••••••••"
             />
           </div>
@@ -84,7 +84,7 @@ export default function AdminLoginPage() {
             type="submit"
             disabled={submitting}
             className="w-full py-4 rounded-2xl font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50"
-            style={{ background: 'var(--color-rose)', color: 'white' }}>
+            style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
             {submitting ? 'Ingresando…' : 'Ingresar'}
           </button>
         </form>

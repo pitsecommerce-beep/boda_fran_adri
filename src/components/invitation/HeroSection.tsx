@@ -18,16 +18,16 @@ export default function HeroSection({ config, guestName }: Props) {
       className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden"
       style={{
         background: config.cover_photo_url
-          ? `linear-gradient(rgba(253,249,245,0.55), rgba(253,249,245,0.85)), url(${config.cover_photo_url}) center/cover no-repeat`
-          : `linear-gradient(135deg, #FDF9F5 0%, #F4AABC22 40%, #ACCBD822 70%, #FDF9F5 100%)`,
+          ? `linear-gradient(rgba(255,254,245,0.55), rgba(255,254,245,0.88)), url(${config.cover_photo_url}) center/cover no-repeat`
+          : `linear-gradient(135deg, #FFFFFF 0%, #EDD97A1A 45%, #EDD97A0D 75%, #FFFFFF 100%)`,
       }}
     >
       {/* Decorative circles */}
-      <div className="absolute top-10 right-10 w-40 h-40 rounded-full opacity-20"
-        style={{ background: 'var(--color-rose)' }} />
-      <div className="absolute bottom-16 left-8 w-28 h-28 rounded-full opacity-20"
-        style={{ background: 'var(--color-blue)' }} />
-      <div className="absolute top-1/3 left-4 w-16 h-16 rounded-full opacity-15"
+      <div className="absolute top-10 right-10 w-40 h-40 rounded-full opacity-25"
+        style={{ background: 'var(--color-yellow)' }} />
+      <div className="absolute bottom-16 left-8 w-28 h-28 rounded-full opacity-15"
+        style={{ background: 'var(--color-yellow)' }} />
+      <div className="absolute top-1/3 left-4 w-16 h-16 rounded-full opacity-10"
         style={{ background: 'var(--color-yellow)' }} />
 
       <div className="relative z-10 max-w-2xl mx-auto">
@@ -60,7 +60,7 @@ export default function HeroSection({ config, guestName }: Props) {
             style={{ color: 'var(--color-dark)' }}>
             {config.groom_name}
           </h1>
-          <p className="font-serif text-2xl my-3" style={{ color: 'var(--color-rose)' }}>
+          <p className="font-serif text-2xl my-3" style={{ color: 'var(--color-yellow)' }}>
             &amp;
           </p>
           <h1 className="font-display text-7xl md:text-9xl leading-none"

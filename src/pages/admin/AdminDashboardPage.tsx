@@ -147,23 +147,23 @@ export default function AdminDashboardPage() {
         <div
           className="mb-8 rounded-3xl p-8 text-center"
           style={{
-            background: 'linear-gradient(135deg, #F4AABC22 0%, #ACCBD822 100%)',
-            border: '1px solid var(--color-rose)33',
+            background: 'linear-gradient(135deg, #EDD97A1A 0%, #EDD97A11 100%)',
+            border: '1px solid var(--color-yellow)22',
           }}
         >
-          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-1" style={{ color: 'var(--color-rose)' }}>
+          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-1" style={{ color: 'var(--color-yellow)' }}>
             La boda de {config?.groom_name} &amp; {config?.bride_name}
           </p>
           <p className="font-serif text-2xl capitalize mb-2" style={{ color: 'var(--color-dark)' }}>
             {format(weddingDate, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })}
           </p>
           {daysUntil !== null && daysUntil > 0 && (
-            <p className="font-display text-6xl" style={{ color: 'var(--color-rose)' }}>
+            <p className="font-display text-6xl" style={{ color: 'var(--color-yellow)' }}>
               {daysUntil} días
             </p>
           )}
           {daysUntil !== null && daysUntil <= 0 && (
-            <p className="font-display text-5xl" style={{ color: 'var(--color-rose)' }}>
+            <p className="font-display text-5xl" style={{ color: 'var(--color-yellow)' }}>
               ¡Ya están casados! 🎉
             </p>
           )}
@@ -232,7 +232,7 @@ export default function AdminDashboardPage() {
           {totalGuests > 0 && (
             <div
               className="bg-white rounded-2xl p-6 shadow-sm mb-8"
-              style={{ border: '1px solid var(--color-blue)33' }}
+              style={{ border: '1px solid var(--color-yellow)22' }}
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>
@@ -249,25 +249,25 @@ export default function AdminDashboardPage() {
                     className="h-full transition-all duration-700"
                     style={{
                       width: `${(attending / totalGuests) * 100}%`,
-                      background: 'var(--color-jade)',
+                      background: 'var(--color-yellow)',
                     }}
                   />
                   <div
                     className="h-full transition-all duration-700"
                     style={{
                       width: `${(declined / totalGuests) * 100}%`,
-                      background: 'var(--color-rose)',
+                      background: 'var(--color-yellow)',
                     }}
                   />
                 </div>
               </div>
               <div className="flex gap-4 mt-3">
                 <span className="flex items-center gap-1.5 font-sans text-xs" style={{ color: 'var(--color-muted)' }}>
-                  <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: 'var(--color-jade)' }} />
+                  <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: 'var(--color-yellow)' }} />
                   Confirman ({attending})
                 </span>
                 <span className="flex items-center gap-1.5 font-sans text-xs" style={{ color: 'var(--color-muted)' }}>
-                  <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: 'var(--color-rose)' }} />
+                  <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: 'var(--color-yellow)' }} />
                   No asisten ({declined})
                 </span>
                 <span className="flex items-center gap-1.5 font-sans text-xs" style={{ color: 'var(--color-muted)' }}>
@@ -284,12 +284,12 @@ export default function AdminDashboardPage() {
       {!loading && dietaryList.length > 0 && (
         <div
           className="bg-white rounded-2xl p-6 shadow-sm mb-8"
-          style={{ border: '1px solid var(--color-apricot)44' }}
+          style={{ border: '1px solid var(--color-yellow)33' }}
         >
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
             Restricciones alimentarias
           </h2>
-          <div className="divide-y" style={{ borderColor: 'var(--color-apricot)22' }}>
+          <div className="divide-y" style={{ borderColor: 'var(--color-yellow)1A' }}>
             {dietaryList.map(({ name, note }) => (
               <div key={name + note} className="py-3 flex items-start gap-4">
                 <span className="font-sans text-sm font-medium flex-shrink-0 w-40 truncate"
@@ -336,11 +336,11 @@ export default function AdminDashboardPage() {
           target="_blank"
           rel="noopener noreferrer"
           className="bg-white rounded-2xl p-5 shadow-sm flex items-start gap-4 transition-all hover:shadow-md hover:-translate-y-0.5"
-          style={{ border: '1px solid var(--color-rose)33', textDecoration: 'none' }}
+          style={{ border: '1px solid var(--color-yellow)22', textDecoration: 'none' }}
         >
           <div
             className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center text-2xl"
-            style={{ background: 'var(--color-rose)22' }}
+            style={{ background: 'var(--color-yellow)1A' }}
           >
             🌸
           </div>
@@ -360,7 +360,7 @@ export default function AdminDashboardPage() {
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
-            style={{ color: 'var(--color-rose)' }}
+            style={{ color: 'var(--color-yellow)' }}
           >
             <path
               d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"
@@ -402,7 +402,7 @@ export default function AdminDashboardPage() {
           <Link
             to="/admin/configuracion"
             className="inline-flex items-center gap-1.5 mt-5 font-sans text-xs transition-opacity hover:opacity-70"
-            style={{ color: 'var(--color-orchid)' }}
+            style={{ color: 'var(--color-yellow)' }}
           >
             Editar configuración →
           </Link>

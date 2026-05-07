@@ -72,11 +72,11 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
     >
       <div
         className="bg-white rounded-2xl shadow-xl w-full max-w-md"
-        style={{ border: '1px solid var(--color-rose)33' }}
+        style={{ border: '1px solid var(--color-yellow)22' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4"
-          style={{ borderBottom: '1px solid var(--color-rose)22' }}>
+          style={{ borderBottom: '1px solid var(--color-yellow)1A' }}>
           <h2 className="font-serif text-xl" style={{ color: 'var(--color-dark)' }}>
             Agregar invitado
           </h2>
@@ -93,7 +93,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
           {/* Nombre */}
           <div className="flex flex-col gap-1.5">
             <label className="font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
-              Nombre <span style={{ color: 'var(--color-rose)' }}>*</span>
+              Nombre <span style={{ color: 'var(--color-yellow)' }}>*</span>
             </label>
             <input
               type="text"
@@ -102,7 +102,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
               placeholder="Nombre completo"
               autoFocus
               className="border rounded-xl px-4 py-2.5 font-sans text-sm bg-white outline-none focus:ring-2"
-              style={{ borderColor: 'var(--color-rose)66', '--tw-ring-color': 'var(--color-rose)44' } as React.CSSProperties}
+              style={{ borderColor: 'var(--color-yellow)66', '--tw-ring-color': 'var(--color-yellow)33' } as React.CSSProperties}
             />
           </div>
 
@@ -117,7 +117,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Ej. 3001234567"
               className="border rounded-xl px-4 py-2.5 font-sans text-sm bg-white outline-none focus:ring-2"
-              style={{ borderColor: 'var(--color-rose)66', '--tw-ring-color': 'var(--color-rose)44' } as React.CSSProperties}
+              style={{ borderColor: 'var(--color-yellow)66', '--tw-ring-color': 'var(--color-yellow)33' } as React.CSSProperties}
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
               value={maxComp}
               onChange={(e) => setMaxComp(Number(e.target.value))}
               className="border rounded-xl px-4 py-2.5 font-sans text-sm bg-white outline-none focus:ring-2 w-28"
-              style={{ borderColor: 'var(--color-rose)66', '--tw-ring-color': 'var(--color-rose)44' } as React.CSSProperties}
+              style={{ borderColor: 'var(--color-yellow)66', '--tw-ring-color': 'var(--color-yellow)33' } as React.CSSProperties}
             />
           </div>
 
@@ -146,7 +146,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
               value={familyOption}
               onChange={(e) => { setFamilyOption(e.target.value as FamilyOption); setIsFamilyHead(false) }}
               className="border rounded-xl px-4 py-2.5 font-sans text-sm bg-white outline-none focus:ring-2"
-              style={{ borderColor: 'var(--color-rose)66', '--tw-ring-color': 'var(--color-rose)44' } as React.CSSProperties}
+              style={{ borderColor: 'var(--color-yellow)66', '--tw-ring-color': 'var(--color-yellow)33' } as React.CSSProperties}
             >
               <option value="none">Sin grupo familiar</option>
               <option value="new">✦ Crear nuevo grupo</option>
@@ -166,7 +166,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
                 onChange={(e) => setNewFamilyName(e.target.value)}
                 placeholder="Nombre del grupo (solo referencia)"
                 className="border rounded-xl px-4 py-2.5 font-sans text-sm bg-white outline-none focus:ring-2"
-                style={{ borderColor: 'var(--color-orchid)66', '--tw-ring-color': 'var(--color-orchid)44' } as React.CSSProperties}
+                style={{ borderColor: 'var(--color-yellow)66', '--tw-ring-color': 'var(--color-yellow)33' } as React.CSSProperties}
               />
             )}
 
@@ -207,7 +207,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
               type="submit"
               disabled={saving}
               className="flex-1 px-4 py-2.5 rounded-xl font-sans text-sm font-medium transition-all hover:shadow-sm disabled:opacity-50"
-              style={{ background: 'var(--color-rose)', color: 'white' }}>
+              style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
               {saving ? 'Guardando…' : 'Agregar invitado'}
             </button>
           </div>

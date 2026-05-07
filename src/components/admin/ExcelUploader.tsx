@@ -126,7 +126,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
           type="button"
           onClick={downloadGuestTemplate}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-sans text-xs font-medium transition-all hover:shadow-sm"
-          style={{ background: 'var(--color-jade)33', color: 'var(--color-dark)', border: '1px solid var(--color-jade)88' }}
+          style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)', border: '1px solid var(--color-yellow)66' }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" strokeLinecap="round" strokeLinejoin="round" />
@@ -141,7 +141,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
         onDragOver={(e) => e.preventDefault()}
         onClick={() => inputRef.current?.click()}
         className="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all hover:shadow-sm"
-        style={{ borderColor: 'var(--color-rose)88', background: 'var(--color-rose)08' }}
+        style={{ borderColor: 'var(--color-yellow)88', background: 'var(--color-yellow)08' }}
       >
         <input
           ref={inputRef}
@@ -191,17 +191,17 @@ export default function ExcelUploader({ onSuccess }: Props) {
                 onClick={handleImport}
                 disabled={uploading}
                 className="px-4 py-2 rounded-xl font-sans text-xs font-medium transition-all hover:shadow-sm disabled:opacity-50"
-                style={{ background: 'var(--color-jade)', color: 'var(--color-dark)' }}
+                style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}
               >
                 {uploading ? 'Importando…' : `Importar ${preview.length} invitados`}
               </button>
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: 'var(--color-rose)33' }}>
+          <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: 'var(--color-yellow)22' }}>
             <table className="w-full text-sm font-sans">
               <thead>
-                <tr style={{ background: 'var(--color-rose)22' }}>
+                <tr style={{ background: 'var(--color-yellow)1A' }}>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Nombre</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Celular</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>ID Familia</th>
@@ -210,12 +210,12 @@ export default function ExcelUploader({ onSuccess }: Props) {
               </thead>
               <tbody>
                 {preview.slice(0, 10).map((row, i) => (
-                  <tr key={i} style={{ borderTop: '1px solid var(--color-rose)22' }}>
+                  <tr key={i} style={{ borderTop: '1px solid var(--color-yellow)1A' }}>
                     <td className="px-4 py-2" style={{ color: 'var(--color-dark)' }}>{row.nombre}</td>
                     <td className="px-4 py-2" style={{ color: 'var(--color-muted)' }}>{row.celular || '—'}</td>
                     <td className="px-4 py-2">
                       {row.id_familia
-                        ? <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--color-orchid)33', color: 'var(--color-dark)' }}>{row.id_familia}</span>
+                        ? <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)' }}>{row.id_familia}</span>
                         : <span style={{ color: 'var(--color-muted)' }}>—</span>}
                     </td>
                     <td className="px-4 py-2 text-center">
@@ -235,7 +235,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
           {/* Family grouping explanation */}
           {familyCount > 0 && (
             <div className="mt-3 p-3 rounded-xl font-sans text-xs flex gap-2"
-              style={{ background: 'var(--color-orchid)22', color: 'var(--color-dark)' }}>
+              style={{ background: 'var(--color-yellow)1A', color: 'var(--color-dark)' }}>
               <span>👨‍👩‍👧</span>
               <span>
                 Los invitados con el mismo <strong>id_familia</strong> se agruparán.
