@@ -18,8 +18,8 @@ export default function HeroSection({ config, guestName }: Props) {
       className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden"
       style={{
         background: config.cover_photo_url
-          ? `linear-gradient(rgba(255,254,245,0.55), rgba(255,254,245,0.88)), url(${config.cover_photo_url}) center/cover no-repeat`
-          : `linear-gradient(135deg, #FFFFFF 0%, #EDD97A1A 45%, #EDD97A0D 75%, #FFFFFF 100%)`,
+          ? `linear-gradient(rgba(255,255,255,0.50), rgba(255,255,255,0.82)), url(${config.cover_photo_url}) center/cover no-repeat`
+          : '#FFFFFF',
       }}
     >
       {/* Decorative circles */}
@@ -94,6 +94,9 @@ export default function HeroSection({ config, guestName }: Props) {
           </button>
         </div>
       </div>
+      {/* Yellow accent line at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-1"
+        style={{ background: 'var(--color-yellow)' }} />
     </section>
   )
 }

@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: 'linear-gradient(135deg, #FFFEF5 0%, #EDD97A1A 50%, #FFFEF5 100%)' }}>
+      style={{ background: '#FFFFFF' }}>
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-8 shadow-sm"
-          style={{ border: '1px solid var(--color-yellow)33' }}>
+          style={{ border: '1.5px solid var(--color-yellow)', boxShadow: '0 2px 16px rgba(237,217,122,0.12)' }}>
 
           <div className="mb-4">
             <label className="block font-sans text-sm mb-2" style={{ color: 'var(--color-muted)' }}>

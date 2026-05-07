@@ -52,11 +52,11 @@ export default function GuestSearchForm({ onGuestSelected }: Props) {
   }
 
   return (
-    <section id="buscar" className="py-20 px-6" style={{ background: '#EDD97A0A' }}>
+    <section id="buscar" className="py-20 px-6" style={{ background: '#FFFFFF' }}>
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-10">
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-muted)' }}>
+            style={{ color: 'var(--color-yellow)' }}>
             Tu confirmación
           </p>
           <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -71,8 +71,8 @@ export default function GuestSearchForm({ onGuestSelected }: Props) {
 
         <div
           ref={containerRef}
-          className="bg-white rounded-3xl p-8 shadow-sm relative"
-          style={{ border: '1px solid var(--color-yellow)44' }}>
+          className="bg-white rounded-3xl p-8 relative"
+          style={{ border: '1.5px solid var(--color-yellow)', boxShadow: '0 2px 16px rgba(237,217,122,0.12)' }}>
 
           <label
             htmlFor="guest-search"

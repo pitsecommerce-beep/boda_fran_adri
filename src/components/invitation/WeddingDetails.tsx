@@ -55,8 +55,8 @@ function DetailCard({
   accentColor: string
 }) {
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-sm flex flex-col items-center text-center gap-3"
-      style={{ border: `1px solid ${accentColor}44` }}>
+    <div className="bg-white rounded-3xl p-8 flex flex-col items-center text-center gap-3"
+      style={{ border: `1.5px solid ${accentColor}`, boxShadow: '0 2px 12px rgba(237,217,122,0.10)' }}>
       <div className="w-16 h-16 rounded-full flex items-center justify-center"
         style={{ background: `${accentColor}22` }}>
         {icon}
@@ -107,7 +107,7 @@ export default function WeddingDetails({ config }: Props) {
       {/* Section heading */}
       <div className="text-center mb-12">
         <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-          style={{ color: 'var(--color-muted)' }}>
+          style={{ color: 'var(--color-yellow)' }}>
           Los detalles
         </p>
         <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -165,7 +165,7 @@ export default function WeddingDetails({ config }: Props) {
         <div className="mt-8 text-center">
           <FloralDivider icon="✦" color="var(--color-yellow)" />
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-muted)' }}>
+            style={{ color: 'var(--color-yellow)' }}>
             Código de vestimenta
           </p>
           <p className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -176,8 +176,8 @@ export default function WeddingDetails({ config }: Props) {
 
       {/* Gift section */}
       {hasGiftSection && (
-        <div className="mt-8 text-center bg-white rounded-3xl p-8 shadow-sm"
-          style={{ border: '1px solid var(--color-yellow)44' }}>
+        <div className="mt-8 text-center bg-white rounded-3xl p-8"
+          style={{ border: '1.5px solid var(--color-yellow)', boxShadow: '0 2px 12px rgba(237,217,122,0.10)' }}>
           <div className="flex justify-center mb-4">
             <GiftIcon color="var(--color-yellow)" />
           </div>
@@ -195,9 +195,9 @@ export default function WeddingDetails({ config }: Props) {
               rel="noopener noreferrer"
               className="mt-5 inline-flex items-center gap-2 px-7 py-3 rounded-full font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95"
               style={{
-                background: 'var(--color-yellow)22',
+                background: 'var(--color-yellow)',
                 color: 'var(--color-dark)',
-                border: '1px solid var(--color-yellow)',
+                border: 'none',
               }}>
               Ver mesa de regalos
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

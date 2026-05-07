@@ -10,11 +10,11 @@ export default function GallerySection({ photos }: Props) {
   if (!photos.length) return null
 
   return (
-    <section className="py-20 px-6" style={{ background: '#EDD97A08' }}>
+    <section className="py-20 px-6" style={{ background: '#FFFFFF' }}>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-muted)' }}>
+            style={{ color: 'var(--color-yellow)' }}>
             Nuestra historia
           </p>
           <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>

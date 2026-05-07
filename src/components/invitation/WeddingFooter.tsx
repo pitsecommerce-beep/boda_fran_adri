@@ -9,7 +9,7 @@ export default function WeddingFooter({ brideName, groomName, weddingDate }: Pro
 
   return (
     <footer className="py-16 px-6 text-center"
-      style={{ background: 'linear-gradient(135deg, #EDD97A14, #FFFEF5)' }}>
+      style={{ background: '#FFFFFF', borderTop: '1.5px solid var(--color-yellow)' }}>
       <div className="text-4xl mb-4">🌸</div>
       <h3 className="font-display text-5xl mb-2" style={{ color: 'var(--color-dark)' }}>
         {groomName} &amp; {brideName}

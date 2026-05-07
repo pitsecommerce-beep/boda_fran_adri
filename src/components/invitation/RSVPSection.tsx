@@ -48,7 +48,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
     return (
       <section className="py-20 px-6 text-center">
         <div className="max-w-lg mx-auto bg-white rounded-3xl p-10 shadow-sm"
-          style={{ border: '1px solid var(--color-yellow)55' }}>
+          style={{ border: '1.5px solid var(--color-yellow)', boxShadow: '0 2px 16px rgba(237,217,122,0.12)' }}>
           <div className="text-5xl mb-4">{attending ? '🎉' : '💌'}</div>
           <h3 className="font-serif text-3xl mb-3" style={{ color: 'var(--color-dark)' }}>
             {attending ? '¡Nos vemos pronto!' : '¡Te echaremos de menos!'}
@@ -78,11 +78,11 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: '#EDD97A0A' }}>
+    <section id="rsvp" className="py-20 px-6" style={{ background: '#FFFFFF' }}>
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-10">
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-muted)' }}>
+            style={{ color: 'var(--color-yellow)' }}>
             Tu respuesta
           </p>
           <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -95,7 +95,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
 
         <form onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-8 shadow-sm"
-          style={{ border: '1px solid var(--color-yellow)55' }}>
+          style={{ border: '1.5px solid var(--color-yellow)', boxShadow: '0 2px 16px rgba(237,217,122,0.12)' }}>
 
           {/* Attending choice */}
           <div className="mb-6">
