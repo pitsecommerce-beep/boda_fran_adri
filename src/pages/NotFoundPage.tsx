@@ -14,7 +14,7 @@ export default function NotFoundPage() {
       <Link
         to="/"
         className="px-8 py-3 rounded-full font-sans text-sm font-medium"
-        style={{ background: 'var(--color-rose)', color: 'white' }}>
+        style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
         Ir a la invitación
       </Link>
     </div>

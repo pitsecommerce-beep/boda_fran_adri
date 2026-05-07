@@ -32,7 +32,7 @@ function AttendanceBadge({ rsvp }: { rsvp: RSVP | null }) {
       <div className="flex flex-wrap gap-1">
         {rsvp.attending ? (
           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
-            style={{ background: 'var(--color-jade)44', color: '#4A7A4A' }}>
+            style={{ background: 'var(--color-yellow)33', color: '#4A7A4A' }}>
             ✓ Confirmado{rsvp.companion_count > 0 ? ` +${rsvp.companion_count}` : ''}
           </span>
         ) : (
@@ -43,7 +43,7 @@ function AttendanceBadge({ rsvp }: { rsvp: RSVP | null }) {
         )}
         {rsvp.attending && rsvp.needs_accommodation && (
           <span className="px-2 py-1 rounded-full text-xs font-sans"
-            style={{ background: 'var(--color-blue)22', color: 'var(--color-blue)', border: '1px solid var(--color-blue)44' }}>
+            style={{ background: 'var(--color-yellow)1A', color: 'var(--color-yellow)', border: '1px solid var(--color-yellow)33' }}>
             Hospedaje
           </span>
         )}
@@ -101,14 +101,14 @@ function GuestRow({
 
   return (
     <>
-      <tr style={{ borderTop: '1px solid var(--color-rose)22' }}>
+      <tr style={{ borderTop: '1px solid var(--color-yellow)1A' }}>
         <td className="px-4 py-3">
           {editing ? (
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="border rounded-lg px-2 py-1 text-sm w-full"
-              style={{ borderColor: 'var(--color-rose)66' }}
+              style={{ borderColor: 'var(--color-yellow)66' }}
             />
           ) : (
             <div className="flex flex-col gap-1">
@@ -133,7 +133,7 @@ function GuestRow({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="border rounded-lg px-2 py-1 text-sm w-full"
-              style={{ borderColor: 'var(--color-rose)66' }}
+              style={{ borderColor: 'var(--color-yellow)66' }}
             />
           ) : (
             <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
@@ -150,7 +150,7 @@ function GuestRow({
               value={maxComp}
               onChange={(e) => setMaxComp(Number(e.target.value))}
               className="border rounded-lg px-2 py-1 text-sm w-16"
-              style={{ borderColor: 'var(--color-rose)66' }}
+              style={{ borderColor: 'var(--color-yellow)66' }}
             />
           ) : (
             <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
@@ -169,7 +169,7 @@ function GuestRow({
                   onClick={handleSave}
                   disabled={saving}
                   className="px-3 py-1 rounded-lg text-xs font-sans"
-                  style={{ background: 'var(--color-jade)', color: 'var(--color-dark)' }}>
+                  style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
                   {saving ? '…' : 'Guardar'}
                 </button>
                 <button
@@ -185,14 +185,14 @@ function GuestRow({
                   onClick={handleCopy}
                   title="Copiar enlace"
                   className="p-1.5 rounded-lg text-sm transition-all"
-                  style={{ background: copied ? 'var(--color-jade)33' : 'var(--color-blue)22' }}>
+                  style={{ background: copied ? 'var(--color-yellow)22' : 'var(--color-yellow)1A' }}>
                   {copied ? '✓' : '🔗'}
                 </button>
                 <button
                   onClick={() => setShowQR(!showQR)}
                   title="Ver QR"
                   className="p-1.5 rounded-lg text-sm"
-                  style={{ background: 'var(--color-orchid)22' }}>
+                  style={{ background: 'var(--color-yellow)1A' }}>
                   QR
                 </button>
                 {guest.family_id && (
@@ -258,12 +258,12 @@ const FILTER_LABELS: Record<FilterType, string> = {
 }
 
 const FILTER_COLORS: Record<FilterType, string> = {
-  all: 'var(--color-rose)',
-  confirmed: 'var(--color-rose)',
-  declined: 'var(--color-rose)',
-  pending: 'var(--color-rose)',
-  accommodation: 'var(--color-blue)',
-  dietary: 'var(--color-apricot)',
+  all: 'var(--color-yellow)',
+  confirmed: 'var(--color-yellow)',
+  declined: 'var(--color-yellow)',
+  pending: 'var(--color-yellow)',
+  accommodation: 'var(--color-yellow)',
+  dietary: 'var(--color-yellow)',
 }
 
 export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
@@ -291,12 +291,12 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const withDietary        = rsvps.filter((r) => r.attending && !!r.dietary_notes).length
 
   const stats = [
-    { label: 'Total invitados',             value: guests.length,       color: 'var(--color-orchid)' },
-    { label: 'Confirmados',                 value: totalConfirmed,      color: 'var(--color-jade)' },
-    { label: 'No asistirán',                value: totalDeclined,       color: 'var(--color-apricot)' },
-    { label: 'Sin respuesta',               value: totalPending,        color: 'var(--color-blue)' },
+    { label: 'Total invitados',             value: guests.length,       color: 'var(--color-yellow)' },
+    { label: 'Confirmados',                 value: totalConfirmed,      color: 'var(--color-yellow)' },
+    { label: 'No asistirán',                value: totalDeclined,       color: 'var(--color-yellow)' },
+    { label: 'Sin respuesta',               value: totalPending,        color: 'var(--color-yellow)' },
     { label: 'Necesitan hospedaje',         value: needsAccommodation,  color: 'var(--color-yellow)' },
-    { label: 'Restricción alimentaria',     value: withDietary,         color: 'var(--color-rose)' },
+    { label: 'Restricción alimentaria',     value: withDietary,         color: 'var(--color-yellow)' },
   ]
 
   return (
@@ -321,7 +321,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por nombre o celular…"
           className="flex-1 min-w-48 border rounded-xl px-4 py-2 font-sans text-sm bg-white"
-          style={{ borderColor: 'var(--color-rose)66' }}
+          style={{ borderColor: 'var(--color-yellow)66' }}
         />
         <div className="flex gap-2 flex-wrap">
           {(Object.keys(FILTER_LABELS) as FilterType[]).map((f) => (
@@ -341,11 +341,11 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden"
-        style={{ border: '1px solid var(--color-rose)33' }}>
+        style={{ border: '1px solid var(--color-yellow)22' }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ background: 'var(--color-rose)22' }}>
+              <tr style={{ background: 'var(--color-yellow)1A' }}>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Nombre</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"

@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-yellow: #EDD97A;
-  --color-apricot: #F2B896;
-  --color-rose: #F4AABC;
-  --color-orchid: #D4AACC;
-  --color-blue: #ACCBD8;
-  --color-jade: #C8D89A;
-  --color-cream: #FDF9F5;
-  --color-dark: #4A3F3F;
-  --color-muted: #7A6868;
+  /* Pantone 12-0711 TCX — Mellow Yellow + White */
+  --color-yellow: #EDD97A;   /* Mellow Yellow · primary accent */
+  --color-apricot: #EDD97A;
+  --color-rose: #EDD97A;
+  --color-orchid: #D4B84A;   /* yellow darkened slightly for contrast */
+  --color-blue: #EDD97A;
+  --color-jade: #C8A830;     /* deeper gold for "yes" state */
+  --color-cream: #FFFEF5;    /* warm near-white background */
+  --color-dark: #3D2E00;     /* deep golden-brown for headings/body */
+  --color-muted: #8B6F1A;    /* warm mid-gold for secondary text */
   --color-white: #FFFFFF;
 
   --font-display: 'Great Vibes', cursive;
@@ -29,7 +30,7 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--color-dark);
-  background-color: var(--color-cream);
+  background-color: var(--color-white);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -83,4 +84,4 @@ body {
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--color-cream); }
-::-webkit-scrollbar-thumb { background: var(--color-rose); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--color-yellow); border-radius: 3px; }

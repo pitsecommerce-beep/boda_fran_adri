@@ -10,11 +10,11 @@ export default function GallerySection({ photos }: Props) {
   if (!photos.length) return null
 
   return (
-    <section className="py-20 px-6" style={{ background: '#F4AABC11' }}>
+    <section className="py-20 px-6" style={{ background: '#EDD97A08' }}>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-rose)' }}>
+            style={{ color: 'var(--color-muted)' }}>
             Nuestra historia
           </p>
           <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -59,7 +59,7 @@ export default function GallerySection({ photos }: Props) {
             <button
               onClick={() => setSelected(null)}
               className="absolute -top-4 -right-4 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg"
-              style={{ background: 'var(--color-rose)' }}
+              style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}
             >
               ✕
             </button>

@@ -49,7 +49,7 @@ function Field({ label, name, type = 'text', placeholder, hint, form, onChange }
           placeholder={placeholder}
           rows={3}
           className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white resize-none outline-none"
-          style={{ borderColor: 'var(--color-rose)66' }}
+          style={{ borderColor: 'var(--color-yellow)66' }}
         />
       ) : (
         <input
@@ -58,7 +58,7 @@ function Field({ label, name, type = 'text', placeholder, hint, form, onChange }
           onChange={(e) => onChange(name, e.target.value)}
           placeholder={placeholder}
           className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white outline-none"
-          style={{ borderColor: 'var(--color-rose)66' }}
+          style={{ borderColor: 'var(--color-yellow)66' }}
         />
       )}
       {hint && <p className="mt-1 font-sans text-xs" style={{ color: 'var(--color-muted)' }}>{hint}</p>}
@@ -136,7 +136,7 @@ export default function AdminSettingsPage() {
       <form onSubmit={handleSubmit}>
         {/* Section: Couple */}
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
-          style={{ border: '1px solid var(--color-rose)33' }}>
+          style={{ border: '1px solid var(--color-yellow)22' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
             Los novios
           </h2>
@@ -170,7 +170,7 @@ export default function AdminSettingsPage() {
 
         {/* Section: Ceremony */}
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
-          style={{ border: '1px solid var(--color-orchid)44' }}>
+          style={{ border: '1px solid var(--color-yellow)33' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
             Ceremonia religiosa
           </h2>
@@ -187,7 +187,7 @@ export default function AdminSettingsPage() {
 
         {/* Section: Reception */}
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
-          style={{ border: '1px solid var(--color-apricot)44' }}>
+          style={{ border: '1px solid var(--color-yellow)33' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
             Recepción
           </h2>
@@ -204,7 +204,7 @@ export default function AdminSettingsPage() {
 
         {/* Section: Extras */}
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
-          style={{ border: '1px solid var(--color-blue)44' }}>
+          style={{ border: '1px solid var(--color-yellow)33' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
             Extras
           </h2>
@@ -262,7 +262,7 @@ export default function AdminSettingsPage() {
           <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
         )}
         {saved && (
-          <p className="text-sm mb-4 text-center" style={{ color: 'var(--color-jade)' }}>
+          <p className="text-sm mb-4 text-center" style={{ color: 'var(--color-yellow)' }}>
             ✓ Guardado correctamente
           </p>
         )}
@@ -270,7 +270,7 @@ export default function AdminSettingsPage() {
           type="submit"
           disabled={saving}
           className="w-full py-4 rounded-2xl font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50"
-          style={{ background: 'var(--color-rose)', color: 'white' }}>
+          style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
           {saving ? 'Guardando…' : 'Guardar configuración'}
         </button>
       </form>

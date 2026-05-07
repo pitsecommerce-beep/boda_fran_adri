@@ -18,7 +18,7 @@ export default function AdminLayout({ children, title }: Props) {
     <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
       {/* Top bar */}
       <header className="sticky top-0 z-40 bg-white shadow-sm"
-        style={{ borderBottom: '1px solid var(--color-rose)44' }}>
+        style={{ borderBottom: '1px solid var(--color-yellow)33' }}>
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2">
           {/* Logo */}
           <div className="flex items-center gap-2 mr-4 flex-shrink-0">
@@ -27,7 +27,7 @@ export default function AdminLayout({ children, title }: Props) {
               Fran &amp; Adri
             </span>
             <span className="font-sans text-xs px-2 py-0.5 rounded-full"
-              style={{ background: 'var(--color-rose)33', color: 'var(--color-muted)' }}>
+              style={{ background: 'var(--color-yellow)22', color: 'var(--color-muted)' }}>
               Admin
             </span>
           </div>
@@ -44,7 +44,7 @@ export default function AdminLayout({ children, title }: Props) {
                   }`
                 }
                 style={({ isActive }) => ({
-                  background: isActive ? 'var(--color-rose)22' : 'transparent',
+                  background: isActive ? 'var(--color-yellow)1A' : 'transparent',
                   color: 'var(--color-dark)',
                 })}
               >

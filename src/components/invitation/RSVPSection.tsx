@@ -48,7 +48,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
     return (
       <section className="py-20 px-6 text-center">
         <div className="max-w-lg mx-auto bg-white rounded-3xl p-10 shadow-sm"
-          style={{ border: '1px solid var(--color-rose)44' }}>
+          style={{ border: '1px solid var(--color-yellow)55' }}>
           <div className="text-5xl mb-4">{attending ? '🎉' : '💌'}</div>
           <h3 className="font-serif text-3xl mb-3" style={{ color: 'var(--color-dark)' }}>
             {attending ? '¡Nos vemos pronto!' : '¡Te echaremos de menos!'}
@@ -60,7 +60,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
           </p>
           {attending && needsAccommodation && (
             <div className="mt-4 p-3 rounded-xl font-sans text-sm"
-              style={{ background: 'var(--color-blue)22', color: 'var(--color-dark)' }}>
+              style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)' }}>
               Registramos que necesitas ayuda con hospedaje. Los novios se pondrán en contacto.
             </div>
           )}
@@ -78,11 +78,11 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: '#ACCBD811' }}>
+    <section id="rsvp" className="py-20 px-6" style={{ background: '#EDD97A0A' }}>
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-10">
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-blue)' }}>
+            style={{ color: 'var(--color-muted)' }}>
             Tu respuesta
           </p>
           <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -95,7 +95,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
 
         <form onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-8 shadow-sm"
-          style={{ border: '1px solid var(--color-blue)44' }}>
+          style={{ border: '1px solid var(--color-yellow)55' }}>
 
           {/* Attending choice */}
           <div className="mb-6">
@@ -114,12 +114,12 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                   className="py-4 rounded-2xl font-sans text-sm transition-all"
                   style={{
                     background: attending === value
-                      ? value ? 'var(--color-jade)' : 'var(--color-rose)'
-                      : '#f9f9f9',
+                      ? 'var(--color-yellow)'
+                      : '#ffffff',
                     color: attending === value ? 'var(--color-dark)' : 'var(--color-muted)',
                     border: `2px solid ${attending === value
-                      ? value ? 'var(--color-jade)' : 'var(--color-rose)'
-                      : '#e5e5e5'}`,
+                      ? 'var(--color-yellow)'
+                      : '#e8dca0'}`,
                     fontWeight: attending === value ? 600 : 400,
                   }}>
                   <span className="block text-2xl mb-1">{emoji}</span>
@@ -139,7 +139,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                 value={companionCount}
                 onChange={(e) => setCompanionCount(Number(e.target.value))}
                 className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white"
-                style={{ borderColor: 'var(--color-blue)66', color: 'var(--color-dark)' }}>
+                style={{ borderColor: 'var(--color-yellow)88', color: 'var(--color-dark)' }}>
                 {Array.from({ length: guest.max_companions + 1 }, (_, i) => (
                   <option key={i} value={i}>{i === 0 ? 'Sólo yo' : `${i} acompañante${i > 1 ? 's' : ''}`}</option>
                 ))}
@@ -159,7 +159,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                 onChange={(e) => setDietaryNotes(e.target.value)}
                 placeholder="Ej. vegetariano, alergia al mariscos…"
                 className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white"
-                style={{ borderColor: 'var(--color-blue)66', color: 'var(--color-dark)' }}
+                style={{ borderColor: 'var(--color-yellow)88', color: 'var(--color-dark)' }}
               />
             </div>
           )}
@@ -172,13 +172,13 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                 onClick={() => setNeedsAccommodation(!needsAccommodation)}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
                 style={{
-                  background: needsAccommodation ? 'var(--color-blue)22' : '#f9f9f9',
-                  border: `1px solid ${needsAccommodation ? 'var(--color-blue)88' : '#e5e5e5'}`,
+                  background: needsAccommodation ? 'var(--color-yellow)22' : '#f9f9f9',
+                  border: `1px solid ${needsAccommodation ? 'var(--color-yellow)AA' : '#e8dca0'}`,
                 }}>
                 <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0"
                   style={{
-                    background: needsAccommodation ? 'var(--color-blue)' : 'white',
-                    border: `2px solid ${needsAccommodation ? 'var(--color-blue)' : '#ccc'}`,
+                    background: needsAccommodation ? 'var(--color-yellow)' : 'white',
+                    border: `2px solid ${needsAccommodation ? 'var(--color-yellow)' : '#e8dca0'}`,
                   }}>
                   {needsAccommodation && (
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -210,7 +210,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
               rows={3}
               placeholder="¡Con mucho cariño y emoción…!"
               className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white resize-none"
-              style={{ borderColor: 'var(--color-rose)66', color: 'var(--color-dark)' }}
+              style={{ borderColor: 'var(--color-yellow)88', color: 'var(--color-dark)' }}
             />
           </div>
 
@@ -222,7 +222,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
             type="submit"
             disabled={submitting || attending === null}
             className="w-full py-4 rounded-2xl font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: 'var(--color-rose)', color: 'white' }}>
+            style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
             {submitting ? 'Enviando…' : 'Confirmar respuesta'}
           </button>
         </form>

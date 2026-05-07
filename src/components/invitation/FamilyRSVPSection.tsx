@@ -108,9 +108,9 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
 
   if (submitted) {
     return (
-      <section id="rsvp" className="py-20 px-6 text-center" style={{ background: '#ACCBD811' }}>
+      <section id="rsvp" className="py-20 px-6 text-center" style={{ background: '#EDD97A0A' }}>
         <div className="max-w-lg mx-auto bg-white rounded-3xl p-10 shadow-sm"
-          style={{ border: '1px solid var(--color-blue)44' }}>
+          style={{ border: '1px solid var(--color-yellow)44' }}>
           <div className="text-5xl mb-4">{confirmedCount > 0 ? '🎉' : '💌'}</div>
           <h3 className="font-serif text-3xl mb-3" style={{ color: 'var(--color-dark)' }}>
             {confirmedCount > 0 ? '¡Gracias por confirmar!' : '¡Los tendremos presentes!'}
@@ -122,7 +122,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
           </p>
           {needsAccommodation && (
             <div className="mt-4 p-3 rounded-xl font-sans text-sm"
-              style={{ background: 'var(--color-blue)22', color: 'var(--color-dark)' }}>
+              style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)' }}>
               Registramos que necesitan ayuda con hospedaje. Los novios se pondrán en contacto.
             </div>
           )}
@@ -138,11 +138,11 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: '#ACCBD811' }}>
+    <section id="rsvp" className="py-20 px-6" style={{ background: '#EDD97A0A' }}>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-blue)' }}>
+            style={{ color: 'var(--color-yellow)' }}>
             Confirmación de asistencia
           </p>
           <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
@@ -166,7 +166,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
 
         <form onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-6 md:p-8 shadow-sm"
-          style={{ border: '1px solid var(--color-blue)44' }}>
+          style={{ border: '1px solid var(--color-yellow)44' }}>
 
           {/* Family members */}
           <div className="space-y-4 mb-8">
@@ -174,14 +174,14 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               <div key={m.guest.id}
                 className="rounded-2xl p-5 transition-all"
                 style={{
-                  background: m.attending ? 'var(--color-jade)11' : '#f9f9f9',
-                  border: `1px solid ${m.attending ? 'var(--color-jade)66' : '#e5e5e5'}`,
+                  background: m.attending ? 'var(--color-yellow)11' : '#f9f9f9',
+                  border: `1px solid ${m.attending ? 'var(--color-yellow)66' : '#e5e5e5'}`,
                 }}>
                 {/* Name + attending toggle */}
                 <div className="flex items-center justify-between gap-4 mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center text-base flex-shrink-0"
-                      style={{ background: 'var(--color-rose)33' }}>
+                      style={{ background: 'var(--color-yellow)22' }}>
                       {m.guest.name.charAt(0).toUpperCase()}
                     </div>
                     <p className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>
@@ -196,7 +196,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
                       onClick={() => updateMember(m.guest.id, { attending: true })}
                       className="px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all"
                       style={{
-                        background: m.attending ? 'var(--color-jade)' : '#f0f0f0',
+                        background: m.attending ? 'var(--color-yellow)' : '#f0f0f0',
                         color: m.attending ? 'var(--color-dark)' : 'var(--color-muted)',
                       }}>
                       ✓ Asistirá
@@ -206,7 +206,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
                       onClick={() => updateMember(m.guest.id, { attending: false })}
                       className="px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all"
                       style={{
-                        background: !m.attending ? 'var(--color-rose)' : '#f0f0f0',
+                        background: !m.attending ? 'var(--color-dark)' : '#f0f0f0',
                         color: !m.attending ? 'white' : 'var(--color-muted)',
                       }}>
                       ✗ No asistirá
@@ -227,7 +227,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
                       onChange={(e) => updateMember(m.guest.id, { dietary_notes: e.target.value })}
                       placeholder="Ej. vegetariano, alérgico al gluten, sin mariscos…"
                       className="w-full border rounded-xl px-3 py-2 font-sans text-sm bg-white outline-none"
-                      style={{ borderColor: 'var(--color-jade)88' }}
+                      style={{ borderColor: 'var(--color-yellow)88' }}
                     />
                   </div>
                 )}
@@ -242,13 +242,13 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               onClick={() => setNeedsAccommodation(!needsAccommodation)}
               className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
               style={{
-                background: needsAccommodation ? 'var(--color-blue)22' : '#f9f9f9',
-                border: `1px solid ${needsAccommodation ? 'var(--color-blue)88' : '#e5e5e5'}`,
+                background: needsAccommodation ? 'var(--color-yellow)22' : '#f9f9f9',
+                border: `1px solid ${needsAccommodation ? 'var(--color-yellow)88' : '#e5e5e5'}`,
               }}>
               <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0"
                 style={{
-                  background: needsAccommodation ? 'var(--color-blue)' : 'white',
-                  border: `2px solid ${needsAccommodation ? 'var(--color-blue)' : '#ccc'}`,
+                  background: needsAccommodation ? 'var(--color-yellow)' : 'white',
+                  border: `2px solid ${needsAccommodation ? 'var(--color-yellow)' : '#ccc'}`,
                 }}>
                 {needsAccommodation && (
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -280,15 +280,15 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               rows={3}
               placeholder="¡Con mucho amor y emoción los acompañamos…!"
               className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white resize-none outline-none"
-              style={{ borderColor: 'var(--color-rose)66' }}
+              style={{ borderColor: 'var(--color-yellow)66' }}
             />
           </div>
 
           {/* Summary */}
           <div className="mb-6 p-4 rounded-2xl font-sans text-sm text-center"
-            style={{ background: 'var(--color-cream)', border: '1px solid var(--color-rose)33' }}>
+            style={{ background: 'var(--color-cream)', border: '1px solid var(--color-yellow)22' }}>
             <span style={{ color: 'var(--color-muted)' }}>Confirmarás la asistencia de </span>
-            <span className="font-semibold" style={{ color: 'var(--color-rose)' }}>
+            <span className="font-semibold" style={{ color: 'var(--color-dark)' }}>
               {confirmedCount} de {members.length} {members.length === 1 ? 'persona' : 'personas'}
             </span>
           </div>
@@ -311,7 +311,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               type="submit"
               disabled={submitting}
               className="flex-1 py-4 rounded-2xl font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50"
-              style={{ background: 'var(--color-rose)', color: 'white' }}>
+              style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
               {submitting ? 'Enviando…' : 'Confirmar asistencia'}
             </button>
           </div>
