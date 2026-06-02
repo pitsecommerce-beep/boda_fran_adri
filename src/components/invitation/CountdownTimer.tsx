@@ -24,7 +24,7 @@ interface Props {
 }
 
 export default function CountdownTimer({ weddingDate }: Props) {
-  const target = new Date(weddingDate)
+  const target = new Date(weddingDate.slice(0, 10) + 'T12:00:00')
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(target))
 
   useEffect(() => {

@@ -20,7 +20,9 @@ const cornerStyle = (pos: { top?: number; bottom?: number; left?: number; right?
   })
 
 export default function HeroSection({ config, guestName }: Props) {
-  const weddingDate = config.wedding_date ? new Date(config.wedding_date + 'T12:00:00') : null
+  const weddingDate = config.wedding_date
+    ? (() => { const d = new Date(config.wedding_date!.slice(0, 10) + 'T12:00:00'); return isNaN(d.getTime()) ? null : d })()
+    : null
   const formattedDate = weddingDate
     ? format(weddingDate, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })
     : null
