@@ -10,24 +10,25 @@ export default function GallerySection({ photos }: Props) {
   if (!photos.length) return null
 
   return (
-    <section className="py-20 px-6" style={{ background: '#FFFFFF' }}>
+    <section className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-yellow)' }}>
+          <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
             Nuestra historia
           </p>
-          <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
+          <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: 'clamp(2.2rem,7vw,3.5rem)', margin: 0 }}>
             Galería
           </h2>
         </div>
 
-        {/* Masonry-style grid */}
         <div className="columns-2 md:columns-3 gap-4 space-y-4">
           {photos.map((url, i) => (
             <button
               key={i}
-              className="w-full break-inside-avoid overflow-hidden rounded-2xl shadow-sm cursor-pointer transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-rose-300"
+              className="w-full break-inside-avoid overflow-hidden rounded-xl shadow-sm cursor-pointer focus:outline-none"
+              style={{ transition: 'transform 0.4s ease' }}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.015)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
               onClick={() => setSelected(url)}
             >
               <img
@@ -42,24 +43,23 @@ export default function GallerySection({ photos }: Props) {
         </div>
       </div>
 
-      {/* Lightbox */}
       {selected && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(74,63,63,0.85)', backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(30,20,10,0.88)', backdropFilter: 'blur(4px)' }}
           onClick={() => setSelected(null)}
         >
           <div className="relative max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
             <img
               src={selected}
               alt="Foto ampliada"
-              className="w-full rounded-3xl shadow-2xl"
+              className="w-full rounded-xl shadow-2xl"
               style={{ maxHeight: '85vh', objectFit: 'contain' }}
             />
             <button
               onClick={() => setSelected(null)}
-              className="absolute -top-4 -right-4 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg"
-              style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}
+              className="absolute -top-4 -right-4 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
+              style={{ background: 'var(--color-gold)', color: '#FFFFFF', fontSize: '0.8rem' }}
             >
               ✕
             </button>

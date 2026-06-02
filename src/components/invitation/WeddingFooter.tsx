@@ -5,28 +5,48 @@ interface Props {
 }
 
 export default function WeddingFooter({ brideName, groomName, weddingDate }: Props) {
-  const year = weddingDate ? new Date(weddingDate).getFullYear() : new Date().getFullYear()
+  const year = weddingDate
+    ? new Date(weddingDate.slice(0, 10) + 'T12:00:00').getFullYear()
+    : new Date().getFullYear()
 
   return (
-    <footer className="py-16 px-6 text-center"
-      style={{ background: '#FFFFFF', borderTop: '1.5px solid var(--color-yellow)' }}>
-      <div className="text-4xl mb-4">🌸</div>
-      <h3 className="font-display text-5xl mb-2" style={{ color: 'var(--color-dark)' }}>
+    <footer
+      className="py-16 px-6 text-center"
+      style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)' }}
+    >
+      <h3
+        className="font-display"
+        style={{ color: 'var(--color-dark)', fontSize: 'clamp(2.8rem,10vw,4rem)', margin: '0 0 8px' }}
+      >
         {groomName} &amp; {brideName}
       </h3>
-      <p className="font-serif italic text-sm" style={{ color: 'var(--color-muted)' }}>
+      <p
+        className="font-sans"
+        style={{
+          color: 'var(--color-muted)',
+          fontSize: '0.65rem',
+          letterSpacing: '0.3em',
+          textTransform: 'uppercase',
+          fontStyle: 'normal',
+          margin: 0,
+        }}
+      >
         Para siempre · {year}
       </p>
-      <div className="mt-8 flex justify-center gap-2 items-center">
-        {['#EDD97A', '#D4B84A', '#FFFEF5', '#EDD97A', '#C8A830'].map((c, i) => (
+      <div className="mt-8 flex justify-center items-center" style={{ gap: 16 }}>
+        {[
+          'var(--color-gold)',
+          'var(--color-paper-dark)',
+          'var(--color-gold)',
+        ].map((c, i) => (
           <div
             key={i}
             style={{
               background: c,
-              width: i === 2 ? '10px' : '12px',
-              height: i === 2 ? '10px' : '12px',
+              width: 8,
+              height: 8,
               borderRadius: '50%',
-              border: i === 2 ? '1px solid #EDD97A66' : 'none',
+              opacity: i === 1 ? 0.5 : 0.8,
             }}
           />
         ))}

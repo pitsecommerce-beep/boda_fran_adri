@@ -46,28 +46,28 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
 
   if (submitted && attending !== null) {
     return (
-      <section className="py-20 px-6 text-center">
-        <div className="max-w-lg mx-auto bg-white rounded-3xl p-10 shadow-sm"
-          style={{ border: '1.5px solid var(--color-yellow)', boxShadow: '0 2px 16px rgba(237,217,122,0.12)' }}>
+      <section className="py-20 px-6 text-center" style={{ background: 'var(--color-surface)' }}>
+        <div
+          className="max-w-lg mx-auto rounded-2xl p-10"
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)' }}
+        >
           <div className="text-5xl mb-4">{attending ? '🎉' : '💌'}</div>
-          <h3 className="font-serif text-3xl mb-3" style={{ color: 'var(--color-dark)' }}>
+          <h3 className="font-serif mb-3" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '1.8rem' }}>
             {attending ? '¡Nos vemos pronto!' : '¡Te echaremos de menos!'}
           </h3>
-          <p className="font-serif text-lg italic" style={{ color: 'var(--color-muted)' }}>
+          <p className="font-serif italic" style={{ color: 'var(--color-muted)', fontWeight: 300 }}>
             {attending
               ? 'Gracias por confirmar tu asistencia. ¡Será una noche inolvidable!'
               : 'Recibimos tu respuesta. Gracias por hacernos saber.'}
           </p>
           {attending && needsAccommodation && (
-            <div className="mt-4 p-3 rounded-xl font-sans text-sm"
-              style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)' }}>
+            <div className="mt-4 p-3 rounded-lg font-sans text-sm"
+              style={{ background: 'rgba(184,150,110,0.10)', color: 'var(--color-dark)' }}>
               Registramos que necesitas ayuda con hospedaje. Los novios se pondrán en contacto.
             </div>
           )}
           {attending && (
-            <button
-              onClick={() => setSubmitted(false)}
-              className="mt-6 text-sm underline"
+            <button onClick={() => setSubmitted(false)} className="mt-6 text-sm underline"
               style={{ color: 'var(--color-muted)' }}>
               Modificar respuesta
             </button>
@@ -78,50 +78,57 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: '#FFFFFF' }}>
+    <section id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-10">
-          <p className="font-sans text-xs tracking-[0.3em] uppercase mb-3"
-            style={{ color: 'var(--color-yellow)' }}>
+          <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>
             Tu respuesta
           </p>
-          <h2 className="font-serif text-4xl md:text-5xl" style={{ color: 'var(--color-dark)' }}>
+          <h2
+            className="font-serif"
+            style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: 'clamp(2rem,6vw,3.2rem)', margin: 0 }}
+          >
             Confirmación
           </h2>
-          <p className="mt-3 font-serif italic" style={{ color: 'var(--color-muted)' }}>
+          <p className="mt-3 font-serif italic" style={{ color: 'var(--color-muted)', fontWeight: 300 }}>
             Por favor confirma tu asistencia antes de la boda
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}
-          className="bg-white rounded-3xl p-8 shadow-sm"
-          style={{ border: '1.5px solid var(--color-yellow)', boxShadow: '0 2px 16px rgba(237,217,122,0.12)' }}>
-
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-2xl p-8"
+          style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            boxShadow: '0 2px 24px rgba(44,32,18,0.07)',
+          }}
+        >
           {/* Attending choice */}
           <div className="mb-6">
-            <p className="font-serif text-lg mb-4 text-center" style={{ color: 'var(--color-dark)' }}>
-              ¿Podrás acompañarnos, <strong>{guest.name}</strong>?
+            <p className="font-serif text-lg mb-4 text-center" style={{ color: 'var(--color-dark)', fontWeight: 300 }}>
+              ¿Podrás acompañarnos, <em>{guest.name}</em>?
             </p>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { value: true,  label: '¡Sí, asistiré!',  emoji: '🎊' },
-                { value: false, label: 'No podré asistir', emoji: '💌' },
+                { value: true,  label: '¡Sí, asistiré!',   emoji: '🎊' },
+                { value: false, label: 'No podré asistir',  emoji: '💌' },
               ].map(({ value, label, emoji }) => (
                 <button
                   key={String(value)}
                   type="button"
                   onClick={() => setAttending(value)}
-                  className="py-4 rounded-2xl font-sans text-sm transition-all"
+                  className="py-4 font-sans transition-all"
                   style={{
-                    background: attending === value
-                      ? 'var(--color-yellow)'
-                      : '#ffffff',
-                    color: attending === value ? 'var(--color-dark)' : 'var(--color-muted)',
-                    border: `2px solid ${attending === value
-                      ? 'var(--color-yellow)'
-                      : '#e8dca0'}`,
-                    fontWeight: attending === value ? 600 : 400,
-                  }}>
+                    background: attending === value ? 'var(--color-gold)' : '#FFFFFF',
+                    color: attending === value ? '#FFFFFF' : 'var(--color-muted)',
+                    border: `1px solid ${attending === value ? 'var(--color-gold)' : 'rgba(184,150,110,0.28)'}`,
+                    borderRadius: 4,
+                    fontSize: '0.75rem',
+                    fontWeight: attending === value ? 500 : 400,
+                    letterSpacing: '0.05em',
+                  }}
+                >
                   <span className="block text-2xl mb-1">{emoji}</span>
                   {label}
                 </button>
@@ -138,8 +145,15 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
               <select
                 value={companionCount}
                 onChange={(e) => setCompanionCount(Number(e.target.value))}
-                className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white"
-                style={{ borderColor: 'var(--color-yellow)88', color: 'var(--color-dark)' }}>
+                className="w-full font-sans text-sm outline-none"
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(184,150,110,0.30)',
+                  borderRadius: 4,
+                  padding: '12px 16px',
+                  color: 'var(--color-dark)',
+                }}
+              >
                 {Array.from({ length: guest.max_companions + 1 }, (_, i) => (
                   <option key={i} value={i}>{i === 0 ? 'Sólo yo' : `${i} acompañante${i > 1 ? 's' : ''}`}</option>
                 ))}
@@ -157,9 +171,15 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                 type="text"
                 value={dietaryNotes}
                 onChange={(e) => setDietaryNotes(e.target.value)}
-                placeholder="Ej. vegetariano, alergia al mariscos…"
-                className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white"
-                style={{ borderColor: 'var(--color-yellow)88', color: 'var(--color-dark)' }}
+                placeholder="Ej. vegetariano, alergia al marisco…"
+                className="w-full font-sans text-sm outline-none"
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(184,150,110,0.30)',
+                  borderRadius: 4,
+                  padding: '12px 16px',
+                  color: 'var(--color-dark)',
+                }}
               />
             </div>
           )}
@@ -170,19 +190,21 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
               <button
                 type="button"
                 onClick={() => setNeedsAccommodation(!needsAccommodation)}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all"
                 style={{
-                  background: needsAccommodation ? 'var(--color-yellow)22' : '#f9f9f9',
-                  border: `1px solid ${needsAccommodation ? 'var(--color-yellow)AA' : '#e8dca0'}`,
-                }}>
-                <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0"
+                  background: needsAccommodation ? 'rgba(184,150,110,0.08)' : 'rgba(44,32,18,0.03)',
+                  border: `1px solid ${needsAccommodation ? 'rgba(184,150,110,0.35)' : 'rgba(44,32,18,0.08)'}`,
+                }}
+              >
+                <div
+                  className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
                   style={{
-                    background: needsAccommodation ? 'var(--color-yellow)' : 'white',
-                    border: `2px solid ${needsAccommodation ? 'var(--color-yellow)' : '#e8dca0'}`,
-                  }}>
+                    background: needsAccommodation ? 'var(--color-gold)' : 'white',
+                    border: `1.5px solid ${needsAccommodation ? 'var(--color-gold)' : 'rgba(44,32,18,0.20)'}`,
+                  }}
+                >
                   {needsAccommodation && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                      stroke="white" strokeWidth="3" strokeLinecap="round">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
                       <path d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -209,20 +231,35 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
               placeholder="¡Con mucho cariño y emoción…!"
-              className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white resize-none"
-              style={{ borderColor: 'var(--color-yellow)88', color: 'var(--color-dark)' }}
+              className="w-full font-sans text-sm resize-none outline-none"
+              style={{
+                background: '#FFFFFF',
+                border: '1px solid rgba(184,150,110,0.30)',
+                borderRadius: 4,
+                padding: '12px 16px',
+                color: 'var(--color-dark)',
+              }}
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-500 mb-4 text-center">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-500 mb-4 text-center">{error}</p>}
 
           <button
             type="submit"
             disabled={submitting || attending === null}
-            className="w-full py-4 rounded-2xl font-sans text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
+            className="w-full font-sans transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              background: 'var(--color-gold)',
+              color: '#FFFFFF',
+              borderRadius: 4,
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              padding: '16px',
+              border: 'none',
+            }}
+          >
             {submitting ? 'Enviando…' : 'Confirmar respuesta'}
           </button>
         </form>

@@ -42,28 +42,39 @@ export default function CountdownTimer({ weddingDate }: Props) {
   ]
 
   return (
-    <section id="countdown" className="py-16 px-6 text-center"
-      style={{ background: 'var(--color-white)' }}>
-      <p className="font-serif text-lg italic mb-8" style={{ color: 'var(--color-muted)' }}>
-        {isPast ? '¡Ya estamos casados! 🎉' : 'Faltan…'}
+    <section id="countdown" className="py-20 px-6 text-center"
+      style={{ background: 'var(--color-surface)' }}>
+
+      <p className="section-label mb-12" style={{ color: 'var(--color-gold)', display: 'block' }}>
+        {isPast ? '¡Ya estamos casados!' : 'Faltan'}
       </p>
 
-      <div className="flex justify-center gap-4 md:gap-8">
+      <div className="flex justify-center gap-8 md:gap-16">
         {units.map(({ label, value }) => (
-          <div key={label} className="flex flex-col items-center">
-            <div
-              className="w-20 h-20 md:w-28 md:h-28 rounded-2xl flex items-center justify-center"
+          <div key={label} className="flex flex-col items-center gap-3">
+            <span
+              className="font-serif"
               style={{
-                background: 'var(--color-white)',
-                border: '1.5px solid rgba(184,150,110,0.35)',
-              }}>
-              <span className="font-serif text-4xl md:text-5xl font-light"
-                style={{ color: 'var(--color-dark)' }}>
-                {String(value).padStart(2, '0')}
-              </span>
-            </div>
-            <span className="mt-2 font-sans text-xs tracking-widest uppercase"
-              style={{ color: 'var(--color-gold)' }}>
+                fontSize: 'clamp(3rem, 10vw, 5rem)',
+                fontWeight: 300,
+                color: 'var(--color-dark)',
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {String(value).padStart(2, '0')}
+            </span>
+            <div style={{ width: 32, height: 1, background: 'var(--color-gold)', opacity: 0.5 }} />
+            <span
+              className="font-sans"
+              style={{
+                fontSize: '0.55rem',
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                color: 'var(--color-muted)',
+                fontWeight: 500,
+              }}
+            >
               {label}
             </span>
           </div>
