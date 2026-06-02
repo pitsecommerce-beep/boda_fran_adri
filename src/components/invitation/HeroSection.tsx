@@ -7,96 +7,136 @@ interface Props {
   guestName?: string
 }
 
+const cornerStyle = (pos: { top?: number; bottom?: number; left?: number; right?: number }) =>
+  ({
+    position: 'absolute' as const,
+    width: 48,
+    height: 48,
+    borderTop: pos.top !== undefined ? '1px solid rgba(184,150,110,0.4)' : undefined,
+    borderBottom: pos.bottom !== undefined ? '1px solid rgba(184,150,110,0.4)' : undefined,
+    borderLeft: pos.left !== undefined ? '1px solid rgba(184,150,110,0.4)' : undefined,
+    borderRight: pos.right !== undefined ? '1px solid rgba(184,150,110,0.4)' : undefined,
+    ...pos,
+  })
+
 export default function HeroSection({ config, guestName }: Props) {
-  const weddingDate = config.wedding_date ? new Date(config.wedding_date) : null
+  const weddingDate = config.wedding_date ? new Date(config.wedding_date + 'T12:00:00') : null
   const formattedDate = weddingDate
     ? format(weddingDate, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })
     : null
 
   return (
     <section
-      className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden"
       style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '60px 24px',
         background: config.cover_photo_url
-          ? `linear-gradient(rgba(255,255,255,0.50), rgba(255,255,255,0.82)), url(${config.cover_photo_url}) center/cover no-repeat`
-          : '#FFFFFF',
+          ? `linear-gradient(rgba(240,235,225,0.42), rgba(240,235,225,0.78)), url(${config.cover_photo_url}) center/cover no-repeat`
+          : 'var(--color-khaki)',
+        position: 'relative',
       }}
     >
-      {/* Decorative circles */}
-      <div className="absolute top-10 right-10 w-40 h-40 rounded-full opacity-25"
-        style={{ background: 'var(--color-yellow)' }} />
-      <div className="absolute bottom-16 left-8 w-28 h-28 rounded-full opacity-15"
-        style={{ background: 'var(--color-yellow)' }} />
-      <div className="absolute top-1/3 left-4 w-16 h-16 rounded-full opacity-10"
-        style={{ background: 'var(--color-yellow)' }} />
+      {/* Corner accents */}
+      <div style={cornerStyle({ top: 24, left: 24 })} />
+      <div style={cornerStyle({ top: 24, right: 24 })} />
+      <div style={cornerStyle({ bottom: 24, left: 24 })} />
+      <div style={cornerStyle({ bottom: 24, right: 24 })} />
 
-      <div className="relative z-10 max-w-2xl mx-auto">
-        {/* Top floral accent */}
-        <div className="animate-fade-in-up text-4xl mb-4 animate-float">🌸</div>
-
-        {/* Saludo personalizado */}
-        {guestName && (
-          <p className="animate-fade-in-up delay-100 font-serif text-lg mb-3 italic"
-            style={{ color: 'var(--color-muted)' }}>
-            Con todo nuestro cariño, para
-          </p>
-        )}
-        {guestName && (
-          <p className="animate-fade-in-up delay-200 font-serif text-2xl md:text-3xl mb-6"
-            style={{ color: 'var(--color-dark)' }}>
-            {guestName}
-          </p>
-        )}
-
-        {/* Invitation text */}
-        <p className="animate-fade-in-up delay-200 font-serif tracking-[0.25em] uppercase text-sm mb-4"
-          style={{ color: 'var(--color-muted)' }}>
-          Nos complace invitarte a la celebración de nuestra boda
+      <div style={{ maxWidth: 380, position: 'relative', zIndex: 1 }}>
+        {/* Label */}
+        <p className="animate-fade-in-up section-label" style={{ margin: '0 0 24px' }}>
+          Nos casamos
         </p>
 
-        {/* Names */}
-        <div className="animate-fade-in-up delay-300">
-          <h1 className="font-display text-7xl md:text-9xl leading-none"
-            style={{ color: 'var(--color-dark)' }}>
-            {config.groom_name}
-          </h1>
-          <p className="font-serif text-2xl my-3" style={{ color: 'var(--color-yellow)' }}>
+        {/* Groom name */}
+        <h1
+          className="animate-fade-in-up delay-100 font-display"
+          style={{
+            fontSize: 'clamp(3.2rem, 17vw, 4.8rem)',
+            lineHeight: 1.05,
+            color: 'var(--color-dark)',
+            margin: 0,
+          }}
+        >
+          {config.groom_name}
+        </h1>
+
+        {/* & divider */}
+        <div
+          className="animate-fade-in-up delay-200"
+          style={{ margin: '14px auto', display: 'flex', alignItems: 'center', gap: 12, width: 160 }}
+        >
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold))' }} />
+          <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '1.1rem' }}>
             &amp;
-          </p>
-          <h1 className="font-display text-7xl md:text-9xl leading-none"
-            style={{ color: 'var(--color-dark)' }}>
-            {config.bride_name}
-          </h1>
+          </span>
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, var(--color-gold))' }} />
         </div>
 
-        {/* Date */}
+        {/* Bride name */}
+        <h1
+          className="animate-fade-in-up delay-300 font-display"
+          style={{
+            fontSize: 'clamp(3.2rem, 17vw, 4.8rem)',
+            lineHeight: 1.05,
+            color: 'var(--color-dark)',
+            margin: 0,
+          }}
+        >
+          {config.bride_name}
+        </h1>
+
+        {/* Wedding date */}
         {formattedDate && (
-          <div className="animate-fade-in-up delay-400 mt-8">
-            <p className="font-serif text-xl md:text-2xl capitalize"
-              style={{ color: 'var(--color-muted)' }}>
-              {formattedDate}
+          <p
+            className="animate-fade-in-up delay-400 font-serif"
+            style={{
+              marginTop: 28,
+              fontSize: '0.95rem',
+              fontStyle: 'italic',
+              color: 'var(--color-muted)',
+              textTransform: 'capitalize',
+              lineHeight: 1.6,
+            }}
+          >
+            {formattedDate}
+          </p>
+        )}
+
+        {/* Guest greeting card */}
+        {guestName && (
+          <div
+            className="animate-fade-in-up delay-500"
+            style={{
+              marginTop: 28,
+              padding: '14px 22px',
+              border: '1px solid rgba(184,150,110,0.30)',
+              borderRadius: 2,
+              background: 'rgba(255,255,255,0.55)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+            }}
+          >
+            <p
+              className="font-sans"
+              style={{ margin: 0, color: 'var(--color-muted)', fontSize: '0.6rem', letterSpacing: '0.25em', textTransform: 'uppercase' }}
+            >
+              Con cariño, para
+            </p>
+            <p
+              className="font-serif"
+              style={{ margin: '5px 0 0', color: 'var(--color-dark)', fontSize: '1.1rem', fontStyle: 'italic' }}
+            >
+              {guestName}
             </p>
           </div>
         )}
-
-        {/* Scroll cue */}
-        <div className="animate-fade-in-up delay-600 mt-12">
-          <button
-            type="button"
-            onClick={() => document.getElementById('detalles')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex flex-col items-center gap-2 transition-opacity hover:opacity-70"
-            style={{ color: 'var(--color-muted)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-            <span className="font-serif italic text-sm">Desplázate para descubrir</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="1.5" className="animate-bounce">
-              <path d="M12 5v14M5 12l7 7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
       </div>
-      {/* Yellow accent line at the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-1"
-        style={{ background: 'var(--color-yellow)' }} />
     </section>
   )
 }
