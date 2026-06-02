@@ -24,6 +24,7 @@ const defaultForm: FormData = {
   favicon_url: '',
   account_number: '',
   gift_registry_url: '',
+  music_url: '',
 }
 
 interface FieldProps {
@@ -93,6 +94,7 @@ export default function AdminSettingsPage() {
         favicon_url:         config.favicon_url ?? '',
         account_number:      config.account_number ?? '',
         gift_registry_url:   config.gift_registry_url ?? '',
+        music_url:           config.music_url ?? '',
       })
     }
   }, [config])
