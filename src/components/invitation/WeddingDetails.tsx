@@ -99,7 +99,7 @@ function DetailCard({
 }
 
 export default function WeddingDetails({ config }: Props) {
-  const weddingDate = config.wedding_date ? new Date(config.wedding_date) : null
+  const weddingDate = config.wedding_date ? new Date(config.wedding_date.slice(0, 10) + 'T12:00:00') : null
   const hasGiftSection = config.account_number || config.gift_registry_url
 
   return (

@@ -23,11 +23,12 @@ export default function SealedEnvelope({ guest, brideName, groomName, weddingDat
   const totalPeople = guest ? 1 + guest.max_companions : null
 
   const formattedDate = weddingDate
-    ? new Date(weddingDate + 'T12:00:00').toLocaleDateString('es-MX', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
+    ? (() => {
+        const d = new Date(weddingDate.slice(0, 10) + 'T12:00:00')
+        return isNaN(d.getTime())
+          ? null
+          : d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
+      })()
     : null
 
   const brideInitial = brideName.charAt(0).toUpperCase()
