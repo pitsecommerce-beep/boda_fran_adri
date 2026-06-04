@@ -52,38 +52,72 @@ export default function SealedEnvelope({ guest, brideName, groomName, weddingDat
         <div className="wax-seal-wrapper">
           <svg
             className="wax-seal-svg"
-            width="86"
-            height="86"
-            viewBox="0 0 86 86"
+            width="140"
+            height="140"
+            viewBox="0 0 140 140"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <circle cx="43" cy="43" r="42" fill="#6B2437" />
-            <circle cx="43" cy="43" r="37" fill="none" stroke="#8B3450" strokeWidth="0.8" strokeDasharray="2.5 2.5" />
-            <circle cx="43" cy="43" r="32" fill="#7D2B41" />
-            <line x1="22" y1="37" x2="64" y2="37" stroke="#F0E8E0" strokeWidth="0.5" opacity="0.5" />
+            <circle cx="70" cy="70" r="68" fill="#6B2437" />
+            <circle cx="70" cy="70" r="62" fill="none" stroke="#8B3450" strokeWidth="0.8" strokeDasharray="3 3" />
+            <circle cx="70" cy="70" r="55" fill="#7D2B41" />
+            {/* Top decorative line */}
+            <line x1="32" y1="50" x2="108" y2="50" stroke="#F0E8E0" strokeWidth="0.5" opacity="0.4" />
+            {/* Groom name */}
             <text
-              x="43" y="44"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontFamily="Cormorant Garamond, Georgia, serif"
-              fontSize="18"
-              fill="#F0E8E0"
-              fontWeight="300"
-              letterSpacing="4"
-            >
-              {groomInitial}&amp;{brideInitial}
-            </text>
-            <line x1="22" y1="51" x2="64" y2="51" stroke="#F0E8E0" strokeWidth="0.5" opacity="0.5" />
-            <text
-              x="43" y="61"
+              x="70" y="46"
               textAnchor="middle"
               dominantBaseline="middle"
               fontFamily="Montserrat, system-ui, sans-serif"
-              fontSize="6"
+              fontSize="8"
               fill="#F0E8E0"
-              opacity="0.75"
+              opacity="0.9"
               letterSpacing="3"
+            >
+              {groomName.toUpperCase()}
+            </text>
+            {/* Inner divider top */}
+            <line x1="38" y1="58" x2="102" y2="58" stroke="#F0E8E0" strokeWidth="0.4" opacity="0.5" />
+            {/* Initials center */}
+            <text
+              x="70" y="74"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontFamily="Cormorant Garamond, Georgia, serif"
+              fontSize="24"
+              fill="#F0E8E0"
+              fontWeight="300"
+              letterSpacing="5"
+            >
+              {groomInitial}&amp;{brideInitial}
+            </text>
+            {/* Inner divider bottom */}
+            <line x1="38" y1="86" x2="102" y2="86" stroke="#F0E8E0" strokeWidth="0.4" opacity="0.5" />
+            {/* Bride name */}
+            <text
+              x="70" y="97"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontFamily="Montserrat, system-ui, sans-serif"
+              fontSize="8"
+              fill="#F0E8E0"
+              opacity="0.9"
+              letterSpacing="3"
+            >
+              {brideName.toUpperCase()}
+            </text>
+            {/* Bottom decorative line */}
+            <line x1="32" y1="108" x2="108" y2="108" stroke="#F0E8E0" strokeWidth="0.5" opacity="0.4" />
+            {/* BODA label */}
+            <text
+              x="70" y="118"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontFamily="Montserrat, system-ui, sans-serif"
+              fontSize="5.5"
+              fill="#F0E8E0"
+              opacity="0.6"
+              letterSpacing="4"
             >
               BODA
             </text>
@@ -92,15 +126,6 @@ export default function SealedEnvelope({ guest, brideName, groomName, weddingDat
 
         {/* Envelope body */}
         <div className="envelope-body">
-          {/* Couple names */}
-          <div className="envelope-initials">
-            {groomName}
-            <span className="envelope-ampersand">&amp;</span>
-            {brideName}
-          </div>
-
-          <div className="envelope-divider" />
-
           {/* Guest address */}
           {guest ? (
             <>

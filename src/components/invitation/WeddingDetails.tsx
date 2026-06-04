@@ -191,6 +191,23 @@ export default function WeddingDetails({ config }: Props) {
           >
             {config.dress_code}
           </p>
+          {config.dress_code_image_url && (
+            <div className="mt-6 flex justify-center">
+              <img
+                src={config.dress_code_image_url}
+                alt="Inspiración de vestimenta"
+                style={{
+                  maxWidth: 'min(480px, 90vw)',
+                  maxHeight: '420px',
+                  width: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '4px',
+                  border: '1px solid var(--color-border)',
+                  boxShadow: '0 4px 24px rgba(44,32,18,0.10)',
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
 

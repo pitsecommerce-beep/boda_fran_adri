@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { useWeddingConfig } from '@/hooks/useWeddingConfig'
-import { updateWeddingConfig } from '@/lib/supabase'
+import { updateWeddingConfig, uploadPhoto } from '@/lib/supabase'
 import type { WeddingConfig } from '@/types'
 
-type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary'>
+type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url'>
 
 const defaultForm: FormData = {
   bride_name: 'Adriana',
@@ -67,9 +67,77 @@ function Field({ label, name, type = 'text', placeholder, hint, form, onChange }
   )
 }
 
+interface ImageUploaderProps {
+  label: string
+  currentUrl: string | null | undefined
+  onUploaded: (url: string) => void
+  hint?: string
+  accept?: string
+}
+
+function ImageUploader({ label, currentUrl, onUploaded, hint, accept = 'image/*' }: ImageUploaderProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleFile = async (file: File) => {
+    setUploading(true)
+    setError(null)
+    const url = await uploadPhoto(file)
+    if (url) {
+      onUploaded(url)
+    } else {
+      setError('No se pudo subir el archivo.')
+    }
+    setUploading(false)
+  }
+
+  return (
+    <div>
+      <label className="block font-sans text-sm font-medium mb-2" style={{ color: 'var(--color-dark)' }}>
+        {label}
+      </label>
+      <div
+        className="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all"
+        style={{ borderColor: 'var(--color-yellow)55', background: 'var(--color-yellow)06' }}
+        onClick={() => inputRef.current?.click()}
+        onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) void handleFile(f) }}
+        onDragOver={(e) => e.preventDefault()}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f) }}
+        />
+        {uploading ? (
+          <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>Subiendo…</p>
+        ) : currentUrl ? (
+          <div className="flex flex-col items-center gap-2">
+            {accept.startsWith('image') ? (
+              <img src={currentUrl} alt="" className="max-h-24 rounded object-cover" style={{ maxWidth: '100%' }} />
+            ) : (
+              <p className="font-sans text-xs break-all" style={{ color: 'var(--color-muted)' }}>{currentUrl}</p>
+            )}
+            <p className="font-sans text-xs" style={{ color: 'var(--color-gold)' }}>Clic para cambiar</p>
+          </div>
+        ) : (
+          <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
+            Arrastra o <span style={{ color: 'var(--color-gold)' }}>selecciona un archivo</span>
+          </p>
+        )}
+      </div>
+      {error && <p className="mt-1 font-sans text-xs text-red-500">{error}</p>}
+      {hint && <p className="mt-1 font-sans text-xs" style={{ color: 'var(--color-muted)' }}>{hint}</p>}
+    </div>
+  )
+}
+
 export default function AdminSettingsPage() {
   const { config, loading, refresh } = useWeddingConfig()
   const [form, setForm] = useState<FormData>(defaultForm)
+  const [dressCodeImageUrl, setDressCodeImageUrl] = useState<string>('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -96,6 +164,7 @@ export default function AdminSettingsPage() {
         gift_registry_url:   config.gift_registry_url ?? '',
         music_url:           config.music_url ?? '',
       })
+      setDressCodeImageUrl(config.dress_code_image_url ?? '')
     }
   }, [config])
 
@@ -112,6 +181,7 @@ export default function AdminSettingsPage() {
     const updates: Partial<WeddingConfig> = {
       ...form,
       wedding_date: form.wedding_date ? new Date(form.wedding_date).toISOString() : null,
+      dress_code_image_url: dressCodeImageUrl || null,
     }
 
     const { error } = await updateWeddingConfig(updates)
@@ -168,6 +238,14 @@ export default function AdminSettingsPage() {
               onChange={handleChange}
             />
           </div>
+          <div className="mt-4">
+            <ImageUploader
+              label="Imagen de inspiración (código de vestimenta)"
+              currentUrl={dressCodeImageUrl}
+              onUploaded={(url) => { setDressCodeImageUrl(url); setSaved(false) }}
+              hint="Sube una foto de inspiración que se mostrará junto al código de vestimenta"
+            />
+          </div>
         </div>
 
         {/* Section: Ceremony */}
@@ -204,13 +282,19 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Section: Extras */}
+        {/* Section: Media */}
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
           style={{ border: '1px solid var(--color-yellow)33' }}>
           <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
-            Extras
+            Imagen y audio
           </h2>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-6">
+            <ImageUploader
+              label="Logo / ícono del sitio (favicon)"
+              currentUrl={form.favicon_url}
+              onUploaded={(url) => { handleChange('favicon_url', url) }}
+              hint="Se mostrará como el ícono en la pestaña del navegador. Se recomienda imagen cuadrada (PNG o SVG)."
+            />
             <Field
               label="Foto de portada (URL)"
               name="cover_photo_url"
@@ -219,14 +303,35 @@ export default function AdminSettingsPage() {
               form={form}
               onChange={handleChange}
             />
-            <Field
-              label="Ícono de pestaña (favicon)"
-              name="favicon_url"
-              placeholder="https://… (.png, .ico o .svg)"
-              hint="URL pública del ícono que aparece en la pestaña del navegador"
-              form={form}
-              onChange={handleChange}
-            />
+            <div>
+              <label className="block font-sans text-sm font-medium mb-2" style={{ color: 'var(--color-dark)' }}>
+                Canción de fondo
+              </label>
+              <p className="font-sans text-xs mb-3" style={{ color: 'var(--color-muted)' }}>
+                Se reproducirá automáticamente al abrir la carta. Sube un archivo de audio o pega una URL pública (MP3, OGG, WAV).
+              </p>
+              <div className="grid grid-cols-1 gap-3">
+                <ImageUploader
+                  label="Subir archivo de audio"
+                  currentUrl={form.music_url || null}
+                  onUploaded={(url) => { handleChange('music_url', url) }}
+                  accept="audio/*"
+                  hint="Formatos: MP3, OGG, WAV, M4A"
+                />
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
+                  <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>o pega URL</span>
+                  <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
+                </div>
+                <Field
+                  label=""
+                  name="music_url"
+                  placeholder="https://… (.mp3, .ogg, .wav)"
+                  form={form}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
           </div>
         </div>
 

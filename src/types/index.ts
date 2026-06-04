@@ -17,6 +17,7 @@ export interface WeddingConfig {
   favicon_url: string | null
   gallery_urls: string[]
   music_url: string | null
+  dress_code_image_url: string | null
   account_number: string | null
   gift_registry_url: string | null
   itinerary: ItineraryItem[]
