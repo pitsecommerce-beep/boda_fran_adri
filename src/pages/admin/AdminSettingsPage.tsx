@@ -295,13 +295,11 @@ export default function AdminSettingsPage() {
               onUploaded={(url) => { handleChange('favicon_url', url) }}
               hint="Se mostrará como el ícono en la pestaña del navegador. Se recomienda imagen cuadrada (PNG o SVG)."
             />
-            <Field
-              label="Foto de portada (URL)"
-              name="cover_photo_url"
-              placeholder="https://…"
-              hint="URL pública de la imagen que aparecerá de fondo en el hero"
-              form={form}
-              onChange={handleChange}
+            <ImageUploader
+              label="Foto de portada"
+              currentUrl={form.cover_photo_url}
+              onUploaded={(url) => { handleChange('cover_photo_url', url) }}
+              hint="Aparecerá de fondo en la primera pantalla de la invitación"
             />
             <div>
               <label className="block font-sans text-sm font-medium mb-2" style={{ color: 'var(--color-dark)' }}>
