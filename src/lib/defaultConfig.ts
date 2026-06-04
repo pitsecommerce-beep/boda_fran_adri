@@ -19,6 +19,7 @@ export const DEFAULT_CONFIG: WeddingConfig = {
   favicon_url: null,
   gallery_urls: [],
   music_url: null,
+  dress_code_image_url: null,
   account_number: null,
   gift_registry_url: null,
   itinerary: [],

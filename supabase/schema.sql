@@ -28,6 +28,8 @@ create table if not exists public.wedding_config (
   account_number   text,
   gift_registry_url text,
   favicon_url      text,
+  music_url        text,
+  dress_code_image_url text,
   itinerary        jsonb   not null default '[]',
   updated_at       timestamptz not null default now()
 );
@@ -72,6 +74,8 @@ create table if not exists public.rsvps (
 -- alter table public.rsvps  add column if not exists needs_accommodation boolean not null default false;
 -- alter table public.wedding_config add column if not exists gift_registry_url text;
 -- alter table public.wedding_config add column if not exists favicon_url text;
+-- alter table public.wedding_config add column if not exists music_url text;
+-- alter table public.wedding_config add column if not exists dress_code_image_url text;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
 
