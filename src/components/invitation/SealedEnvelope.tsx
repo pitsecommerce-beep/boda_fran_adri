@@ -65,9 +65,6 @@ export default function SealedEnvelope({
           <line x1="100" y1="0" x2="0" y2="100" stroke="rgba(44,32,18,0.09)" strokeWidth="0.3" />
         </svg>
 
-        {/* Top space */}
-        <div style={{ flex: '1 1 0' }} />
-
         {/* Wax seal */}
         <div className={`letter-seal-wrap${phase === 'opening' ? ' seal-dissolving' : ''}`}>
           {sealImageUrl ? (
@@ -78,8 +75,8 @@ export default function SealedEnvelope({
             />
           ) : (
             <svg
-              width="150"
-              height="150"
+              width="190"
+              height="190"
               viewBox="0 0 140 140"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -134,13 +131,10 @@ export default function SealedEnvelope({
           )}
         </div>
 
-        {/* Bottom space */}
-        <div style={{ flex: '1 1 0' }} />
-
-        {/* Blessing text */}
+        {/* Blessing text — absolute bottom */}
         <p className="letter-blessing">{blessingText}</p>
 
-        {/* Tap hint */}
+        {/* Tap hint — absolute bottom */}
         <div className={`letter-hint${phase === 'opening' ? ' letter-hint-hiding' : ''}`}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

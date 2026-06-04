@@ -61,11 +61,12 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
+  height: 100dvh;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 32px 36px;
+  justify-content: center;
   box-sizing: border-box;
   /* Subtle left/right shadow to separate from desktop sides */
   box-shadow: 0 0 60px rgba(44,32,18,0.06);
@@ -93,16 +94,16 @@ body {
 
 /* Custom seal image (transparent background) */
 .letter-seal-img {
-  width: 150px;
-  height: 150px;
+  width: min(200px, 46vw);
+  height: min(200px, 46vw);
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 4px 18px rgba(107,36,55,0.40));
+  filter: drop-shadow(0 6px 22px rgba(107,36,55,0.42));
 }
 
 /* Guest info block below seal */
 .letter-guest-block {
-  margin-top: 28px;
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -151,24 +152,33 @@ body {
   text-align: center;
 }
 
-/* Blessing / welcome text at bottom */
+/* Blessing / welcome text — fixed at bottom of envelope */
 .letter-blessing {
+  position: absolute;
+  bottom: 56px;
+  left: 0;
+  right: 0;
   font-family: var(--font-serif);
   font-size: 0.82rem;
   font-style: italic;
   color: var(--color-muted);
   text-align: center;
   line-height: 1.65;
-  max-width: 260px;
-  margin: 0 0 12px;
+  padding: 0 40px;
+  margin: 0;
   z-index: 2;
   opacity: 0.85;
 }
 
-/* Tap hint */
+/* Tap hint — fixed at bottom below blessing */
 .letter-hint {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   font-family: var(--font-serif);
   font-size: 0.7rem;
