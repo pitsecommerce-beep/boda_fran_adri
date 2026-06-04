@@ -30,6 +30,7 @@ create table if not exists public.wedding_config (
   favicon_url      text,
   music_url        text,
   dress_code_image_url text,
+  seal_image_url   text,
   itinerary        jsonb   not null default '[]',
   updated_at       timestamptz not null default now()
 );

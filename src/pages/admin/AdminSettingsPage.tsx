@@ -4,7 +4,7 @@ import { useWeddingConfig } from '@/hooks/useWeddingConfig'
 import { updateWeddingConfig, uploadPhoto } from '@/lib/supabase'
 import type { WeddingConfig } from '@/types'
 
-type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url'>
+type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url' | 'seal_image_url'>
 
 const defaultForm: FormData = {
   bride_name: 'Adriana',
@@ -138,6 +138,7 @@ export default function AdminSettingsPage() {
   const { config, loading, refresh } = useWeddingConfig()
   const [form, setForm] = useState<FormData>(defaultForm)
   const [dressCodeImageUrl, setDressCodeImageUrl] = useState<string>('')
+  const [sealImageUrl, setSealImageUrl] = useState<string>('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -165,6 +166,7 @@ export default function AdminSettingsPage() {
         music_url:           config.music_url ?? '',
       })
       setDressCodeImageUrl(config.dress_code_image_url ?? '')
+      setSealImageUrl(config.seal_image_url ?? '')
     }
   }, [config])
 
@@ -182,6 +184,7 @@ export default function AdminSettingsPage() {
       ...form,
       wedding_date: form.wedding_date ? new Date(form.wedding_date).toISOString() : null,
       dress_code_image_url: dressCodeImageUrl || null,
+      seal_image_url: sealImageUrl || null,
     }
 
     const { error } = await updateWeddingConfig(updates)
@@ -300,6 +303,12 @@ export default function AdminSettingsPage() {
               currentUrl={form.cover_photo_url}
               onUploaded={(url) => { handleChange('cover_photo_url', url) }}
               hint="Aparecerá de fondo en la primera pantalla de la invitación"
+            />
+            <ImageUploader
+              label="Imagen del sello de cera (fondo transparente)"
+              currentUrl={sealImageUrl}
+              onUploaded={(url) => { setSealImageUrl(url); setSaved(false) }}
+              hint="Sube una imagen PNG con fondo transparente del sello. Si no se sube, se usa el sello generado automáticamente con los nombres."
             />
             <div>
               <label className="block font-sans text-sm font-medium mb-2" style={{ color: 'var(--color-dark)' }}>
