@@ -208,13 +208,22 @@ body {
 }
 
 /* ── Letter opening animations ────────────────────────── */
-.letter-is-opening .letter-seal-wrap {
-  animation: sealDissolve 0.9s cubic-bezier(0.25, 0, 0.5, 1) 0.1s forwards;
+
+/* Everything except the seal fades out quickly */
+.letter-is-opening .letter-creases,
+.letter-is-opening .letter-guest-block,
+.letter-is-opening .letter-blessing {
+  animation: contentFadeOut 0.5s ease-out 0.05s forwards;
 }
 
-.letter-is-opening .letter-sealed-bg,
+/* Seal grows and then fades */
+.letter-is-opening .letter-seal-wrap {
+  animation: sealGrowFade 1.4s cubic-bezier(0.22, 0, 0.36, 1) 0.0s forwards;
+}
+
+/* Background fades out after the seal has grown */
 .letter-is-opening {
-  animation: bgFade 0.7s ease-in 1.8s forwards;
+  animation: bgFade 0.65s ease-in 1.3s forwards;
 }
 
 /* ── Legacy envelope classes kept for safety ───────────── */
@@ -306,10 +315,18 @@ body {
 }
 
 /* ── Shared animation keyframes ────────────────────────── */
-@keyframes sealDissolve {
-  0%   { transform: scale(1);                   opacity: 1; }
-  30%  { transform: scale(1.08) rotate(4deg);   opacity: 0.85; }
-  100% { transform: scale(0.5)  rotate(-10deg); opacity: 0; }
+
+/* Seal grows to ~1.9× then gently fades out — never fills screen */
+@keyframes sealGrowFade {
+  0%   { transform: scale(1);    opacity: 1; }
+  55%  { transform: scale(1.85); opacity: 0.92; }
+  100% { transform: scale(1.90); opacity: 0; }
+}
+
+/* Everything else on the envelope disappears quickly */
+@keyframes contentFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 @keyframes bgFade {
