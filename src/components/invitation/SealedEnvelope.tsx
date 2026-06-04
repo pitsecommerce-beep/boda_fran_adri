@@ -27,7 +27,7 @@ export default function SealedEnvelope({
   const handleClick = () => {
     if (phase !== 'idle') return
     setPhase('opening')
-    setTimeout(() => onOpen(), 2400)
+    setTimeout(() => onOpen(), 2050)
   }
 
   const formattedDate = weddingDate
