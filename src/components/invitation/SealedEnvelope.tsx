@@ -30,8 +30,6 @@ export default function SealedEnvelope({
     setTimeout(() => onOpen(), 2400)
   }
 
-  const totalPeople = guest ? 1 + guest.max_companions : null
-
   const formattedDate = weddingDate
     ? (() => {
         const d = new Date(weddingDate.slice(0, 10) + 'T12:00:00')
@@ -116,16 +114,6 @@ export default function SealedEnvelope({
               Invitación personal
             </p>
           )}
-          {totalPeople !== null && (
-            <div className="letter-validity">
-              <span style={{ color: 'var(--color-gold)', fontSize: '0.45rem' }}>✦</span>
-              <span>
-                Válida para <strong style={{ fontWeight: 600 }}>{totalPeople}</strong>{' '}
-                {totalPeople === 1 ? 'persona' : 'personas'}
-              </span>
-              <span style={{ color: 'var(--color-gold)', fontSize: '0.45rem' }}>✦</span>
-            </div>
-          )}
           {formattedDate && (
             <p className="letter-date">{formattedDate}</p>
           )}
@@ -134,15 +122,6 @@ export default function SealedEnvelope({
         {/* Blessing text — absolute bottom */}
         <p className="letter-blessing">{blessingText}</p>
 
-        {/* Tap hint — absolute bottom */}
-        <div className={`letter-hint${phase === 'opening' ? ' letter-hint-hiding' : ''}`}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 8l-9-5-9 5v10a1 1 0 001 1h16a1 1 0 001-1V8z" />
-            <polyline points="9 21 9 12 15 12 15 21" />
-          </svg>
-          <span>Toca para abrir tu invitación</span>
-        </div>
       </div>
     </div>
   )
