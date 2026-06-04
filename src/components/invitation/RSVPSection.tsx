@@ -93,6 +93,20 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
           <p className="mt-3 font-serif italic" style={{ color: 'var(--color-muted)', fontWeight: 300 }}>
             Por favor confirma tu asistencia antes de la boda
           </p>
+          {guest.max_companions >= 0 && (
+            <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full font-sans text-xs tracking-widest uppercase"
+              style={{ background: 'rgba(184,150,110,0.12)', color: 'var(--color-muted)', letterSpacing: '0.2em' }}>
+              <span style={{ color: 'var(--color-gold)', fontSize: '0.4rem' }}>✦</span>
+              <span>
+                Invitación válida para{' '}
+                <strong style={{ fontWeight: 600, color: 'var(--color-dark)' }}>
+                  {1 + guest.max_companions}
+                </strong>{' '}
+                {1 + guest.max_companions === 1 ? 'persona' : 'personas'}
+              </span>
+              <span style={{ color: 'var(--color-gold)', fontSize: '0.4rem' }}>✦</span>
+            </div>
+          )}
         </div>
 
         <form

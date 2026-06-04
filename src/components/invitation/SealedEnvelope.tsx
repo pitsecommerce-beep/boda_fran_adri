@@ -30,8 +30,6 @@ export default function SealedEnvelope({
     setTimeout(() => onOpen(), 2400)
   }
 
-  const totalPeople = guest ? 1 + guest.max_companions : null
-
   const formattedDate = weddingDate
     ? (() => {
         const d = new Date(weddingDate.slice(0, 10) + 'T12:00:00')
@@ -54,15 +52,54 @@ export default function SealedEnvelope({
     >
       {/* Centered phone-width envelope column */}
       <div className="letter-column">
-        {/* Diagonal fold crease lines (corner-to-corner X) */}
+        {/* Paper fold creases with shadow + highlight to simulate real paper doblez */}
         <svg
           className="letter-creases"
           preserveAspectRatio="none"
           viewBox="0 0 100 100"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <line x1="0" y1="0" x2="100" y2="100" stroke="rgba(44,32,18,0.09)" strokeWidth="0.3" />
-          <line x1="100" y1="0" x2="0" y2="100" stroke="rgba(44,32,18,0.09)" strokeWidth="0.3" />
+          <defs>
+            {/* Gradient for triangular panel shading */}
+            <linearGradient id="topShade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.10)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+            </linearGradient>
+            <linearGradient id="bottomShade" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="rgba(44,32,18,0.045)" />
+              <stop offset="100%" stopColor="rgba(44,32,18,0)" />
+            </linearGradient>
+            <linearGradient id="leftShade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="rgba(44,32,18,0.03)" />
+              <stop offset="100%" stopColor="rgba(44,32,18,0)" />
+            </linearGradient>
+            <linearGradient id="rightShade" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.07)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+            </linearGradient>
+          </defs>
+
+          {/* Triangular flap panels — subtle tonal difference per section */}
+          <polygon points="0,0 100,0 50,50" fill="url(#topShade)" />
+          <polygon points="0,100 100,100 50,50" fill="url(#bottomShade)" />
+          <polygon points="0,0 0,100 50,50" fill="url(#leftShade)" />
+          <polygon points="100,0 100,100 50,50" fill="url(#rightShade)" />
+
+          {/* ── Diagonal TL→BR ── */}
+          {/* Shadow strip (below/right of fold) */}
+          <line x1="0.8" y1="0" x2="100" y2="99.2" stroke="rgba(44,32,18,0.14)" strokeWidth="0.55" />
+          {/* Main crease */}
+          <line x1="0" y1="0" x2="100" y2="100" stroke="rgba(44,32,18,0.08)" strokeWidth="0.25" />
+          {/* Highlight strip (above/left of fold) */}
+          <line x1="0" y1="0.8" x2="99.2" y2="100" stroke="rgba(255,255,255,0.40)" strokeWidth="0.45" />
+
+          {/* ── Diagonal TR→BL ── */}
+          {/* Shadow strip */}
+          <line x1="99.2" y1="0" x2="0" y2="99.2" stroke="rgba(44,32,18,0.14)" strokeWidth="0.55" />
+          {/* Main crease */}
+          <line x1="100" y1="0" x2="0" y2="100" stroke="rgba(44,32,18,0.08)" strokeWidth="0.25" />
+          {/* Highlight strip */}
+          <line x1="100" y1="0.8" x2="0.8" y2="100" stroke="rgba(255,255,255,0.40)" strokeWidth="0.45" />
         </svg>
 
         {/* Wax seal */}
@@ -116,16 +153,6 @@ export default function SealedEnvelope({
               Invitación personal
             </p>
           )}
-          {totalPeople !== null && (
-            <div className="letter-validity">
-              <span style={{ color: 'var(--color-gold)', fontSize: '0.45rem' }}>✦</span>
-              <span>
-                Válida para <strong style={{ fontWeight: 600 }}>{totalPeople}</strong>{' '}
-                {totalPeople === 1 ? 'persona' : 'personas'}
-              </span>
-              <span style={{ color: 'var(--color-gold)', fontSize: '0.45rem' }}>✦</span>
-            </div>
-          )}
           {formattedDate && (
             <p className="letter-date">{formattedDate}</p>
           )}
@@ -134,15 +161,6 @@ export default function SealedEnvelope({
         {/* Blessing text — absolute bottom */}
         <p className="letter-blessing">{blessingText}</p>
 
-        {/* Tap hint — absolute bottom */}
-        <div className={`letter-hint${phase === 'opening' ? ' letter-hint-hiding' : ''}`}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 8l-9-5-9 5v10a1 1 0 001 1h16a1 1 0 001-1V8z" />
-            <polyline points="9 21 9 12 15 12 15 21" />
-          </svg>
-          <span>Toca para abrir tu invitación</span>
-        </div>
       </div>
     </div>
   )
