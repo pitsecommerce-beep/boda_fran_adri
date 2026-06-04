@@ -54,28 +54,29 @@ export default function HeroSection({ config, guestName }: Props) {
 
       <div style={{ maxWidth: 420, position: 'relative', zIndex: 1, width: '100%' }}>
 
-        {/* Guest name — protagonist */}
+        {/* Guest name — above couple, clearly secondary */}
         {guestName ? (
-          <div className="animate-fade-in-up" style={{ marginBottom: 36 }}>
+          <div className="animate-fade-in-up" style={{ marginBottom: 48 }}>
             <p
               className="font-sans"
-              style={{ margin: '0 0 10px', color: 'var(--color-gold)', fontSize: '0.58rem', letterSpacing: '0.38em', textTransform: 'uppercase' }}
+              style={{ margin: '0 0 8px', color: 'var(--color-gold)', fontSize: '0.55rem', letterSpacing: '0.38em', textTransform: 'uppercase' }}
             >
               Con cariño, para
             </p>
             <p
-              className="font-display"
+              className="font-serif"
               style={{
                 margin: 0,
-                fontSize: 'clamp(3rem, 14vw, 5rem)',
-                lineHeight: 1.1,
+                fontSize: 'clamp(1.5rem, 6.5vw, 2.2rem)',
+                lineHeight: 1.2,
                 color: 'var(--color-dark)',
-                fontWeight: 400,
+                fontWeight: 300,
+                fontStyle: 'italic',
               }}
             >
               {guestName}
             </p>
-            <div style={{ margin: '16px auto 0', width: 60, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)' }} />
+            <div style={{ margin: '14px auto 0', width: 48, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)' }} />
           </div>
         ) : (
           <p className="animate-fade-in-up section-label" style={{ margin: '0 0 24px' }}>
@@ -87,7 +88,7 @@ export default function HeroSection({ config, guestName }: Props) {
         <h1
           className={`animate-fade-in-up delay-100 font-display`}
           style={{
-            fontSize: guestName ? 'clamp(2.8rem, 13vw, 4.5rem)' : 'clamp(3.8rem, 18vw, 6rem)',
+            fontSize: 'clamp(3.8rem, 18vw, 6rem)',
             lineHeight: 1.05,
             fontWeight: 400,
             letterSpacing: '-0.01em',
@@ -114,7 +115,7 @@ export default function HeroSection({ config, guestName }: Props) {
         <h1
           className="animate-fade-in-up delay-300 font-display"
           style={{
-            fontSize: guestName ? 'clamp(2.8rem, 13vw, 4.5rem)' : 'clamp(3.8rem, 18vw, 6rem)',
+            fontSize: 'clamp(3.8rem, 18vw, 6rem)',
             lineHeight: 1.05,
             fontWeight: 400,
             letterSpacing: '-0.01em',

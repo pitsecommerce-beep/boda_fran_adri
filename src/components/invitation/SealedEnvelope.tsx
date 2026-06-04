@@ -17,7 +17,7 @@ export default function SealedEnvelope({ guest, brideName, groomName, weddingDat
   const handleClick = () => {
     if (phase !== 'idle') return
     setPhase('opening')
-    setTimeout(() => onOpen(), 2600)
+    setTimeout(() => onOpen(), 3500)
   }
 
   const totalPeople = guest ? 1 + guest.max_companions : null
