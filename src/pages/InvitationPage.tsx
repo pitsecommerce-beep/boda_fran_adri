@@ -75,39 +75,41 @@ export default function InvitationPage() {
   return (
     <>
       <MusicPlayer musicUrl={config.music_url ?? null} started={true} />
-      <div className="invitation-revealed" style={{ background: 'var(--color-khaki)', minHeight: '100dvh' }}>
-        <HeroSection
-          config={config}
-          guestName={activeGuest?.name ?? searchedGuest?.name}
-        />
+      <div className="invitation-revealed" style={{ background: 'var(--color-paper-dark)', minHeight: '100dvh' }}>
+        <div className="invitation-column">
+          <HeroSection
+            config={config}
+            guestName={activeGuest?.name ?? searchedGuest?.name}
+          />
 
-        {config.wedding_date && (
-          <CountdownTimer weddingDate={config.wedding_date} />
-        )}
+          {config.wedding_date && (
+            <CountdownTimer weddingDate={config.wedding_date} />
+          )}
 
-        <WeddingDetails config={config} />
+          <WeddingDetails config={config} />
 
-        <GallerySection photos={config.gallery_urls ?? []} />
+          <GallerySection photos={config.gallery_urls ?? []} />
 
-        {activeGuest && activeGuest.is_family_head && activeGuest.family_id ? (
-          <FamilyRSVPSection selectedGuest={activeGuest} />
-        ) : activeGuest ? (
-          <RSVPSection guest={activeGuest} existingRSVP={rsvp} onSubmitted={refresh} />
-        ) : null}
+          {activeGuest && activeGuest.is_family_head && activeGuest.family_id ? (
+            <FamilyRSVPSection selectedGuest={activeGuest} />
+          ) : activeGuest ? (
+            <RSVPSection guest={activeGuest} existingRSVP={rsvp} onSubmitted={refresh} />
+          ) : null}
 
-        {!activeGuest && !searchedGuest && (
-          <GuestSearchForm onGuestSelected={(g) => setSearchedGuest(g)} />
-        )}
+          {!activeGuest && !searchedGuest && (
+            <GuestSearchForm onGuestSelected={(g) => setSearchedGuest(g)} />
+          )}
 
-        {!activeGuest && searchedGuest && (
-          <FamilyRSVPSection selectedGuest={searchedGuest} onBack={() => setSearchedGuest(null)} />
-        )}
+          {!activeGuest && searchedGuest && (
+            <FamilyRSVPSection selectedGuest={searchedGuest} onBack={() => setSearchedGuest(null)} />
+          )}
 
-        <WeddingFooter
-          brideName={config.bride_name}
-          groomName={config.groom_name}
-          weddingDate={config.wedding_date}
-        />
+          <WeddingFooter
+            brideName={config.bride_name}
+            groomName={config.groom_name}
+            weddingDate={config.wedding_date}
+          />
+        </div>
       </div>
     </>
   )

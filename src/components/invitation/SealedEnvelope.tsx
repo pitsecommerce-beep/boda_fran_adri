@@ -103,7 +103,10 @@ export default function SealedEnvelope({
         </svg>
 
         {/* Wax seal */}
-        <div className={`letter-seal-wrap${phase === 'opening' ? ' seal-dissolving' : ''}`}>
+        <div
+          className="letter-seal-wrap"
+          style={phase === 'opening' ? { willChange: 'transform, opacity' } : undefined}
+        >
           {sealImageUrl ? (
             <img
               src={sealImageUrl}

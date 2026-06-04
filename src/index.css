@@ -85,14 +85,13 @@ body {
   display: block;
 }
 
-/* Wax seal container */
+/* Wax seal container — NO filter/will-change here, causes gray box on mobile */
 .letter-seal-wrap {
   position: relative;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  will-change: transform, opacity;
 }
 
 /* Custom seal image (transparent background) */
@@ -101,7 +100,8 @@ body {
   height: min(200px, 46vw);
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 6px 22px rgba(107,36,55,0.42));
+  /* drop-shadow on element directly — avoids compositing artifact on mobile */
+  filter: drop-shadow(0 5px 18px rgba(107,36,55,0.38));
 }
 
 /* Guest info block below seal */
@@ -342,6 +342,27 @@ body {
 @keyframes invitationReveal {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Phone-width column for the revealed invitation — matches envelope width */
+.invitation-column {
+  max-width: 430px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  /* Lift off the desktop background */
+  box-shadow:
+    0 0 0 1px rgba(44,32,18,0.06),
+    0 8px 48px rgba(44,32,18,0.16),
+    0 2px 8px rgba(44,32,18,0.10);
+}
+
+/* Neutralize wide max-width overrides inside sections */
+.invitation-column .max-w-4xl,
+.invitation-column .max-w-5xl,
+.invitation-column .max-w-xl,
+.invitation-column .max-w-lg {
+  max-width: 100% !important;
 }
 
 /* ── Music button ──────────────────────────────────────── */
