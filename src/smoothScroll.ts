@@ -1,11 +1,9 @@
 const WHEEL_FACTOR = 0.68   // desktop wheel distance damping
-const TOUCH_FACTOR = 0.88   // touch drag — closer to 1 = closer to native speed
 const LERP = 0.11           // easing — higher = faster/snappier
 
 let targetY = 0
 let rafId: number | null = null
 let initialized = false
-let touchPrevY = 0
 
 function tick() {
   const current = window.scrollY
@@ -29,7 +27,7 @@ export function initSmoothScroll() {
   initialized = true
   targetY = window.scrollY
 
-  // ── Desktop: mouse wheel ──────────────────────────────
+  // ── Desktop only: mouse wheel smooth scroll ──────────────
   window.addEventListener(
     'wheel',
     (e) => {
@@ -40,26 +38,7 @@ export function initSmoothScroll() {
     { passive: false },
   )
 
-  // ── Mobile: touch drag ────────────────────────────────
-  window.addEventListener('touchstart', (e) => {
-    touchPrevY = e.touches[0].clientY
-    // Sync target on new touch so there's no jump
-    if (!rafId) targetY = window.scrollY
-  }, { passive: true })
-
-  window.addEventListener(
-    'touchmove',
-    (e) => {
-      if (e.touches.length !== 1) return
-      const y = e.touches[0].clientY
-      const delta = touchPrevY - y
-      touchPrevY = y
-      targetY = clampTarget(targetY + delta * TOUCH_FACTOR)
-      if (!rafId) rafId = requestAnimationFrame(tick)
-      e.preventDefault()
-    },
-    { passive: false },
-  )
+  // Touch scroll: let the browser handle it natively (fastest on mobile)
 
   // Keyboard / programmatic scroll: keep target in sync
   window.addEventListener('scroll', () => {

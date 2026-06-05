@@ -33,6 +33,21 @@ export default function MusicPlayer({ musicUrl, started }: Props) {
     audioRef.current.muted = muted
   }, [muted])
 
+  // Pause / resume when the tab or app loses / regains visibility
+  useEffect(() => {
+    if (isYouTube || !audioRef.current) return
+    const audio = audioRef.current
+    const onVisChange = () => {
+      if (document.hidden) {
+        audio.pause()
+      } else if (started && !muted) {
+        audio.play().catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', onVisChange)
+    return () => document.removeEventListener('visibilitychange', onVisChange)
+  }, [isYouTube, started, muted])
+
   // Show button as soon as YouTube iframe starts
   useEffect(() => {
     if (isYouTube && started) setVisible(true)
