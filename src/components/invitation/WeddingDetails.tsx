@@ -114,7 +114,7 @@ export default function WeddingDetails({ config }: Props) {
   const hasGiftSection = config.account_number || config.gift_registry_url
 
   return (
-    <section id="detalles" className="py-24 px-6 max-w-4xl mx-auto">
+    <section id="detalles" className="py-16 px-6" style={{ background: 'var(--color-surface)' }}>
       {/* Section heading */}
       <div className="text-center mb-12">
         <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>
@@ -151,8 +151,8 @@ export default function WeddingDetails({ config }: Props) {
         </div>
       )}
 
-      {/* Venue cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Venue cards — always stacked for the phone-width column */}
+      <div className="grid grid-cols-1 gap-5">
         {(config.ceremony_venue || config.ceremony_address) && (
           <DetailCard
             icon={<ChurchIcon color="var(--color-gold)" />}
@@ -180,47 +180,47 @@ export default function WeddingDetails({ config }: Props) {
 
       {/* Dress code */}
       {config.dress_code && (
-        <div className="mt-8 text-center">
-          <FloralDivider icon="◆" color="var(--color-gold)" />
-          <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>
-            Código de vestimenta
-          </p>
-          <p
-            className="font-serif"
-            style={{ color: 'var(--color-dark)', fontSize: '2rem', fontWeight: 300, fontStyle: 'italic' }}
-          >
-            {config.dress_code}
-          </p>
-          {config.dress_code_image_url && (
-            <div className="mt-6 flex justify-center">
-              <img
-                src={config.dress_code_image_url}
-                alt="Inspiración de vestimenta"
-                style={{
-                  maxWidth: 'min(480px, 90vw)',
-                  maxHeight: '420px',
-                  width: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '4px',
-                  border: '1px solid var(--color-border)',
-                  boxShadow: '0 4px 24px rgba(44,32,18,0.10)',
-                }}
-              />
-            </div>
-          )}
+        <div className="mt-10">
+          <div className="section-block-divider" />
+          <div className="text-center py-8 px-6" style={{ background: 'var(--color-khaki)' }}>
+            <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
+              Código de vestimenta
+            </p>
+            <p
+              className="font-serif"
+              style={{ color: 'var(--color-dark)', fontSize: '2rem', fontWeight: 300, fontStyle: 'italic' }}
+            >
+              {config.dress_code}
+            </p>
+            {config.dress_code_image_url && (
+              <div className="mt-6 flex justify-center">
+                <img
+                  src={config.dress_code_image_url}
+                  alt="Inspiración de vestimenta"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '380px',
+                    width: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '4px',
+                    border: '1px solid var(--color-border)',
+                    boxShadow: '0 4px 24px rgba(44,32,18,0.10)',
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* Gift section */}
       {hasGiftSection && (
-        <div
-          className="mt-8 text-center rounded-2xl p-8"
-          style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            boxShadow: '0 1px 8px rgba(44,32,18,0.06)',
-          }}
-        >
+        <div className="mt-0">
+          <div className="section-block-divider" />
+          <div
+            className="text-center py-8 px-6"
+            style={{ background: 'var(--color-surface)' }}
+          >
           <div className="flex justify-center mb-4">
             <GiftIcon color="var(--color-gold)" />
           </div>
@@ -266,6 +266,7 @@ export default function WeddingDetails({ config }: Props) {
               </p>
             </div>
           )}
+          </div>
         </div>
       )}
     </section>

@@ -41,7 +41,7 @@ export default function HeroSection({ config, guestName }: Props) {
         textAlign: 'center',
         padding: '60px 24px',
         background: config.cover_photo_url
-          ? `linear-gradient(rgba(250,247,242,0.42), rgba(250,247,242,0.78)), url(${config.cover_photo_url}) center/cover no-repeat`
+          ? `linear-gradient(rgba(30,18,8,0.38) 0%, rgba(30,18,8,0.52) 100%), url(${config.cover_photo_url}) center/cover no-repeat`
           : 'var(--color-surface)',
         position: 'relative',
       }}
@@ -59,7 +59,14 @@ export default function HeroSection({ config, guestName }: Props) {
           <div className="animate-fade-in-up" style={{ marginBottom: 40 }}>
             <p
               className="font-sans"
-              style={{ margin: '0 0 8px', color: 'var(--color-gold)', fontSize: '0.62rem', letterSpacing: '0.36em', textTransform: 'uppercase' }}
+              style={{
+                margin: '0 0 8px',
+                color: '#D4A96A',
+                fontSize: '0.65rem',
+                letterSpacing: '0.38em',
+                textTransform: 'uppercase',
+                textShadow: '0 1px 6px rgba(0,0,0,0.55)',
+              }}
             >
               Con cariño, para
             </p>
@@ -69,9 +76,10 @@ export default function HeroSection({ config, guestName }: Props) {
                 margin: 0,
                 fontSize: '1.7rem',
                 lineHeight: 1.2,
-                color: 'var(--color-dark)',
+                color: '#FFFFFF',
                 fontWeight: 300,
                 fontStyle: 'italic',
+                textShadow: '0 2px 12px rgba(0,0,0,0.50)',
               }}
             >
               {guestName}
@@ -79,7 +87,7 @@ export default function HeroSection({ config, guestName }: Props) {
             <div style={{ margin: '14px auto 0', width: 48, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)' }} />
           </div>
         ) : (
-          <p className="animate-fade-in-up section-label" style={{ margin: '0 0 24px' }}>
+          <p className="animate-fade-in-up section-label hero-label" style={{ margin: '0 0 24px' }}>
             Nos casamos
           </p>
         )}
@@ -91,8 +99,9 @@ export default function HeroSection({ config, guestName }: Props) {
             fontSize: '4rem',
             lineHeight: 1.05,
             fontWeight: 400,
-            color: 'var(--color-dark)',
+            color: '#FFFFFF',
             margin: 0,
+            textShadow: '0 2px 16px rgba(0,0,0,0.40)',
           }}
         >
           {config.groom_name}
@@ -104,7 +113,7 @@ export default function HeroSection({ config, guestName }: Props) {
           style={{ margin: '10px auto', display: 'flex', alignItems: 'center', gap: 12, width: 160 }}
         >
           <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold))' }} />
-          <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '1.1rem' }}>
+          <span className="font-serif" style={{ color: '#D4A96A', fontSize: '1.1rem', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>
             &amp;
           </span>
           <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, var(--color-gold))' }} />
@@ -117,8 +126,9 @@ export default function HeroSection({ config, guestName }: Props) {
             fontSize: '4rem',
             lineHeight: 1.05,
             fontWeight: 400,
-            color: 'var(--color-dark)',
+            color: '#FFFFFF',
             margin: 0,
+            textShadow: '0 2px 16px rgba(0,0,0,0.40)',
           }}
         >
           {config.bride_name}
@@ -134,8 +144,9 @@ export default function HeroSection({ config, guestName }: Props) {
               fontStyle: 'italic',
               fontWeight: 300,
               letterSpacing: '0.06em',
-              color: 'var(--color-muted)',
+              color: 'rgba(255,255,255,0.82)',
               lineHeight: 1.6,
+              textShadow: '0 1px 8px rgba(0,0,0,0.45)',
             }}
           >
             {formattedDate}
@@ -144,7 +155,7 @@ export default function HeroSection({ config, guestName }: Props) {
 
         {/* "Nos casamos" label when guest is shown */}
         {guestName && (
-          <p className="animate-fade-in-up delay-500 section-label" style={{ margin: '18px 0 0' }}>
+          <p className="animate-fade-in-up delay-500 section-label hero-label" style={{ margin: '18px 0 0' }}>
             Nos casamos
           </p>
         )}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import type { Guest } from '@/types'
 import { useWeddingConfig } from '@/hooks/useWeddingConfig'
@@ -21,9 +21,26 @@ export default function InvitationPage() {
   const { guest, rsvp, loading: guestLoading, notFound, refresh } = useGuest(token)
   const [letterOpened, setLetterOpened] = useState(false)
   const [searchedGuest, setSearchedGuest] = useState<Guest | null>(null)
+  const [assetsReady, setAssetsReady] = useState(false)
+
+  // Preload cover photo (and seal) before showing the sealed envelope
+  useEffect(() => {
+    if (!config) return
+    const urls = [config.cover_photo_url, config.seal_image_url].filter(Boolean) as string[]
+    if (urls.length === 0) { setAssetsReady(true); return }
+    let loaded = 0
+    const done = () => { loaded++; if (loaded >= urls.length) setAssetsReady(true) }
+    urls.forEach((src) => {
+      const img = new Image()
+      img.onload = done
+      img.onerror = done
+      img.src = src
+    })
+  }, [config?.cover_photo_url, config?.seal_image_url])
 
   if (configLoading || (token && guestLoading)) return <LoadingScreen />
   if (!config) return <LoadingScreen />
+  if (!assetsReady) return <LoadingScreen />
 
   if (token && notFound) {
     return (

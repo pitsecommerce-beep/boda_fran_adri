@@ -9,6 +9,8 @@ export default function AdminGalleryPage() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const photos: string[] = config?.gallery_urls ?? []
 
@@ -16,28 +18,28 @@ export default function AdminGalleryPage() {
     setUploading(true)
     setError(null)
     const urls: string[] = []
-
     for (const file of Array.from(files)) {
       if (!file.type.startsWith('image/')) continue
       const url = await uploadPhoto(file)
       if (url) urls.push(url)
     }
-
     if (urls.length) {
-      const updated = [...photos, ...urls]
-      const { error } = await updateWeddingConfig({ gallery_urls: updated })
+      const { error } = await updateWeddingConfig({ gallery_urls: [...photos, ...urls] })
       if (error) setError('Error al guardar fotos.')
       else void refresh()
     }
     setUploading(false)
   }
 
-  const handleDelete = async (url: string) => {
-    if (!confirm('¿Eliminar esta foto?')) return
-    await deletePhoto(url)
-    const updated = photos.filter((p) => p !== url)
+  const confirmAndDelete = async () => {
+    if (!confirmDelete) return
+    setDeleting(true)
+    await deletePhoto(confirmDelete)
+    const updated = photos.filter((p) => p !== confirmDelete)
     await updateWeddingConfig({ gallery_urls: updated })
     void refresh()
+    setConfirmDelete(null)
+    setDeleting(false)
   }
 
   const handleSetCover = async (url: string) => {
@@ -63,6 +65,48 @@ export default function AdminGalleryPage() {
 
   return (
     <AdminLayout title="Galería de Fotos">
+      {/* Delete confirmation modal */}
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: 'rgba(44,32,18,0.55)', backdropFilter: 'blur(4px)' }}
+        >
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center"
+            style={{ border: '1px solid var(--color-border)' }}>
+            <div className="text-4xl mb-4">🗑️</div>
+            <h3 className="font-serif text-xl mb-2" style={{ color: 'var(--color-dark)', fontWeight: 300 }}>
+              ¿Eliminar esta foto?
+            </h3>
+            <p className="font-sans text-sm mb-6" style={{ color: 'var(--color-muted)' }}>
+              Esta acción no se puede deshacer.
+            </p>
+            <img
+              src={confirmDelete}
+              alt=""
+              className="w-full h-32 object-cover rounded-xl mb-6"
+              style={{ border: '1px solid var(--color-border)' }}
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 py-3 rounded-xl font-sans text-sm"
+                style={{ background: 'var(--color-khaki)', color: 'var(--color-muted)', border: '1px solid var(--color-border)' }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => void confirmAndDelete()}
+                disabled={deleting}
+                className="flex-1 py-3 rounded-xl font-sans text-sm font-medium disabled:opacity-50"
+                style={{ background: '#E05555', color: 'white' }}
+              >
+                {deleting ? 'Eliminando…' : 'Sí, eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Upload zone */}
       <div
         onDrop={(e) => { e.preventDefault(); setDragOver(false); void handleFiles(e.dataTransfer.files) }}
@@ -106,7 +150,6 @@ export default function AdminGalleryPage() {
         </div>
       )}
 
-      {/* Cover photo note */}
       {config?.cover_photo_url && (
         <div className="mb-4 p-3 rounded-xl font-sans text-sm"
           style={{ background: 'var(--color-yellow)33', color: 'var(--color-dark)' }}>
@@ -115,7 +158,6 @@ export default function AdminGalleryPage() {
         </div>
       )}
 
-      {/* Photo grid */}
       {photos.length === 0 ? (
         <div className="text-center py-16 font-serif italic" style={{ color: 'var(--color-muted)' }}>
           No hay fotos en la galería todavía.
@@ -125,12 +167,7 @@ export default function AdminGalleryPage() {
           {photos.map((url, i) => (
             <div key={url} className="relative group rounded-2xl overflow-hidden shadow-sm"
               style={{ border: url === config?.cover_photo_url ? '3px solid var(--color-yellow)' : '1px solid var(--color-yellow)22' }}>
-              <img
-                src={url}
-                alt={`Foto ${i + 1}`}
-                className="w-full h-40 object-cover"
-                loading="lazy"
-              />
+              <img src={url} alt={`Foto ${i + 1}`} className="w-full h-40 object-cover" loading="lazy" />
 
               {url === config?.cover_photo_url && (
                 <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-sans"
@@ -139,35 +176,26 @@ export default function AdminGalleryPage() {
                 </div>
               )}
 
-              {/* Overlay actions */}
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: 'rgba(74,63,63,0.6)' }}>
+                style={{ background: 'rgba(44,28,18,0.62)' }}>
                 <button
-                  onClick={() => handleSetCover(url)}
+                  onClick={() => void handleSetCover(url)}
                   className="px-3 py-1.5 rounded-lg text-xs font-sans font-medium"
                   style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)' }}>
                   ⭐ Portada
                 </button>
                 <div className="flex gap-2">
-                  <button
-                    disabled={i === 0}
-                    onClick={() => void handleReorder(i, i - 1)}
+                  <button disabled={i === 0} onClick={() => void handleReorder(i, i - 1)}
                     className="px-2 py-1 rounded-lg text-xs font-sans disabled:opacity-40"
-                    style={{ background: 'white', color: 'var(--color-dark)' }}>
-                    ←
-                  </button>
-                  <button
-                    disabled={i === photos.length - 1}
-                    onClick={() => void handleReorder(i, i + 1)}
+                    style={{ background: 'white', color: 'var(--color-dark)' }}>←</button>
+                  <button disabled={i === photos.length - 1} onClick={() => void handleReorder(i, i + 1)}
                     className="px-2 py-1 rounded-lg text-xs font-sans disabled:opacity-40"
-                    style={{ background: 'white', color: 'var(--color-dark)' }}>
-                    →
-                  </button>
+                    style={{ background: 'white', color: 'var(--color-dark)' }}>→</button>
                 </div>
                 <button
-                  onClick={() => void handleDelete(url)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-sans"
-                  style={{ background: '#FF8080', color: 'white' }}>
+                  onClick={() => setConfirmDelete(url)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-sans font-medium"
+                  style={{ background: '#E05555', color: 'white' }}>
                   🗑️ Eliminar
                 </button>
               </div>
