@@ -20,11 +20,19 @@ export default function GiftSection({ config }: Props) {
   if (!config.account_number && !config.gift_registry_url) return null
 
   return (
-    <section style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)' }}>
-      <div className="section-block-divider" />
+    <section
+      style={{
+        background: 'var(--color-surface)',
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        borderTop: '1px solid var(--color-border)',
+      }}
+    >
       <div
-        className="text-center py-8 px-6"
-        style={{ background: 'var(--color-surface)' }}
+        className="text-center px-8"
+        style={{ background: 'var(--color-surface)', paddingTop: '3rem', paddingBottom: '3rem' }}
       >
         <div className="flex justify-center mb-4">
           <GiftIcon color="var(--color-gold)" />

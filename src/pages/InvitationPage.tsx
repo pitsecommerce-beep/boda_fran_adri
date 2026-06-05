@@ -136,9 +136,13 @@ export default function InvitationPage() {
           )}
         </div>
 
-        {/* Gift registry — own phone-column section */}
+        {/* Gift registry — full-screen phone-column section */}
         <div className="invitation-column">
           <GiftSection config={config} />
+        </div>
+
+        {/* Footer */}
+        <div className="invitation-column">
           <WeddingFooter
             brideName={config.bride_name}
             groomName={config.groom_name}
