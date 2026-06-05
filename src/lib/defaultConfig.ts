@@ -24,5 +24,6 @@ export const DEFAULT_CONFIG: WeddingConfig = {
   account_number: null,
   gift_registry_url: null,
   itinerary: [],
+  accommodations: [],
   updated_at: new Date().toISOString(),
 }

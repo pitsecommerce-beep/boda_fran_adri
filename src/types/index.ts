@@ -22,7 +22,16 @@ export interface WeddingConfig {
   account_number: string | null
   gift_registry_url: string | null
   itinerary: ItineraryItem[]
+  accommodations: Accommodation[]
   updated_at: string
+}
+
+export interface Accommodation {
+  id: string
+  name: string
+  description: string
+  photo_url: string
+  details_url: string
 }
 
 export interface ItineraryItem {
