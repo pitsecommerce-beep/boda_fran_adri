@@ -143,7 +143,7 @@ export default function WeddingDetails({ config }: Props) {
         </h2>
         {weddingDate && (
           <p className="font-serif italic mt-3"
-            style={{ color: 'var(--color-muted)', fontWeight: 300, fontSize: '0.95rem' }}>
+            style={{ color: 'var(--color-gold)', fontWeight: 400, fontSize: '1.45rem' }}>
             {(() => {
               const s = format(weddingDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })
               return s.charAt(0).toUpperCase() + s.slice(1)

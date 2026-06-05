@@ -221,6 +221,13 @@ export async function submitFamilyRSVP(entries: Array<{
   return { error: error as Error | null }
 }
 
+export async function deleteRSVPByGuestId(guestId: string): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  const { error } = await db.from('rsvps').delete().eq('guest_id', guestId)
+  return { error: error as Error | null }
+}
+
 export async function listRSVPs(): Promise<RSVP[]> {
   const db = getClient()
   if (!db) return []
