@@ -38,8 +38,6 @@ body {
   color: var(--color-dark);
   background-color: var(--color-surface);
   -webkit-font-smoothing: antialiased;
-  /* Promote to GPU layer for smooth composited scroll */
-  -webkit-transform: translateZ(0);
   /* Faster tap response — disables 300ms delay */
   touch-action: manipulation;
 }
