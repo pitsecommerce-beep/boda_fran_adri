@@ -1,69 +1,178 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 interface Props {
   photos: string[]
 }
 
 export default function GallerySection({ photos }: Props) {
-  const [selected, setSelected] = useState<string | null>(null)
+  const [index, setIndex] = useState(0)
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
 
   if (!photos.length) return null
 
+  const prev = () => setIndex(i => (i - 1 + photos.length) % photos.length)
+  const next = () => setIndex(i => (i + 1) % photos.length)
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    // Only trigger if horizontal swipe is dominant
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      dx < 0 ? next() : prev()
+    }
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
   return (
-    <section className="py-16 px-4" style={{ background: 'var(--color-khaki)' }}>
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-10">
-          <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
-            Nuestra historia
-          </p>
-          <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}>
-            Galería
-          </h2>
+    <section className="py-14 px-0" style={{ background: 'var(--color-khaki)' }}>
+      <div className="text-center mb-8 px-5">
+        <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
+          Nuestra historia
+        </p>
+        <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}>
+          Galería
+        </h2>
+      </div>
+
+      {/* Carousel */}
+      <div
+        className="relative select-none"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        {/* Photo */}
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', overflow: 'hidden' }}>
+          {photos.map((url, i) => (
+            <img
+              key={url}
+              src={url}
+              alt={`Foto ${i + 1}`}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                opacity: i === index ? 1 : 0,
+                transition: 'opacity 0.45s ease',
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
         </div>
 
-        <div className="columns-2 md:columns-3 gap-4 space-y-4">
-          {photos.map((url, i) => (
-            <button
-              key={i}
-              className="w-full break-inside-avoid overflow-hidden rounded-xl shadow-sm cursor-pointer focus:outline-none"
-              style={{ transition: 'transform 0.4s ease' }}
-              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.015)')}
-              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
-              onClick={() => setSelected(url)}
-            >
-              <img
-                src={url}
-                alt={`Foto ${i + 1}`}
-                loading="lazy"
-                className="w-full object-cover"
-                style={{ aspectRatio: i % 4 === 0 ? '3/4' : i % 4 === 2 ? '1/1' : '4/3' }}
-              />
-            </button>
-          ))}
+        {/* Prev arrow */}
+        {photos.length > 1 && (
+          <button
+            onClick={prev}
+            aria-label="Foto anterior"
+            style={{
+              position: 'absolute',
+              left: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: 'rgba(250,247,242,0.82)',
+              border: '1px solid rgba(184,150,110,0.30)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'var(--color-dark)',
+              boxShadow: '0 2px 10px rgba(44,32,18,0.14)',
+              zIndex: 2,
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+        )}
+
+        {/* Next arrow */}
+        {photos.length > 1 && (
+          <button
+            onClick={next}
+            aria-label="Siguiente foto"
+            style={{
+              position: 'absolute',
+              right: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: 'rgba(250,247,242,0.82)',
+              border: '1px solid rgba(184,150,110,0.30)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'var(--color-dark)',
+              boxShadow: '0 2px 10px rgba(44,32,18,0.14)',
+              zIndex: 2,
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        )}
+
+        {/* Counter */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 14,
+            right: 14,
+            background: 'rgba(44,32,18,0.42)',
+            backdropFilter: 'blur(6px)',
+            borderRadius: 20,
+            padding: '3px 10px',
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.65rem',
+            letterSpacing: '0.12em',
+            color: 'rgba(255,255,255,0.90)',
+            zIndex: 2,
+          }}
+        >
+          {index + 1} / {photos.length}
         </div>
       </div>
 
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(30,20,10,0.88)', backdropFilter: 'blur(4px)' }}
-          onClick={() => setSelected(null)}
-        >
-          <div className="relative max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={selected}
-              alt="Foto ampliada"
-              className="w-full rounded-xl shadow-2xl"
-              style={{ maxHeight: '85vh', objectFit: 'contain' }}
-            />
+      {/* Dot indicators */}
+      {photos.length > 1 && (
+        <div className="flex justify-center gap-2 mt-5">
+          {photos.map((_, i) => (
             <button
-              onClick={() => setSelected(null)}
-              className="absolute -top-4 -right-4 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
-              style={{ background: 'var(--color-gold)', color: '#FFFFFF', fontSize: '0.8rem' }}
-            >
-              ✕
-            </button>
-          </div>
+              key={i}
+              onClick={() => setIndex(i)}
+              aria-label={`Ir a foto ${i + 1}`}
+              style={{
+                width: i === index ? 20 : 7,
+                height: 7,
+                borderRadius: 4,
+                background: i === index ? 'var(--color-gold)' : 'rgba(184,150,110,0.35)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'width 0.3s ease, background 0.3s ease',
+              }}
+            />
+          ))}
         </div>
       )}
     </section>
