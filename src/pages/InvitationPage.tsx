@@ -14,6 +14,7 @@ import RSVPSection from '@/components/invitation/RSVPSection'
 import GuestSearchForm from '@/components/invitation/GuestSearchForm'
 import FamilyRSVPSection from '@/components/invitation/FamilyRSVPSection'
 import WeddingFooter from '@/components/invitation/WeddingFooter'
+import GiftSection from '@/components/invitation/GiftSection'
 
 export default function InvitationPage() {
   const { token } = useParams<{ token?: string }>()
@@ -120,6 +121,8 @@ export default function InvitationPage() {
           {!activeGuest && searchedGuest && (
             <FamilyRSVPSection selectedGuest={searchedGuest} onBack={() => setSearchedGuest(null)} />
           )}
+
+          <GiftSection config={config} />
 
           <WeddingFooter
             brideName={config.bride_name}

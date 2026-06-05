@@ -36,7 +36,7 @@ export default function GallerySection({ photos }: Props) {
                 alt={`Foto ${i + 1}`}
                 loading="lazy"
                 className="w-full object-cover"
-                style={{ aspectRatio: i % 3 === 1 ? '4/5' : '4/3' }}
+                style={{ aspectRatio: i % 4 === 0 ? '3/4' : i % 4 === 2 ? '1/1' : '4/3' }}
               />
             </button>
           ))}

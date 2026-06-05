@@ -168,11 +168,11 @@ body {
   left: 0;
   right: 0;
   font-family: var(--font-serif);
-  font-size: 0.80rem;
+  font-size: 1.05rem;
   font-style: italic;
   font-weight: 400;
   /* Same warm ink tone as reference */
-  color: rgba(107,72,42,0.60);
+  color: rgba(107,72,42,0.72);
   text-align: center;
   line-height: 1.70;
   padding: 0 48px;
