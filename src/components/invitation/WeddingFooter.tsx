@@ -11,45 +11,66 @@ export default function WeddingFooter({ brideName, groomName, weddingDate }: Pro
 
   return (
     <footer
-      className="py-16 px-6 text-center"
-      style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)' }}
+      style={{
+        minHeight: '100svh',
+        background: 'var(--color-surface)',
+        borderTop: '1px solid var(--color-border)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '4rem 2rem',
+        textAlign: 'center',
+        position: 'relative',
+      }}
     >
-      <h3
+      {/* Top ornament */}
+      <div style={{ marginBottom: '2.5rem', opacity: 0.35 }}>
+        <svg width="120" height="24" viewBox="0 0 120 24" fill="none">
+          <line x1="0" y1="12" x2="48" y2="12" stroke="var(--color-gold)" strokeWidth="0.8" />
+          <circle cx="56" cy="12" r="3" fill="var(--color-gold)" />
+          <circle cx="64" cy="12" r="5" fill="none" stroke="var(--color-gold)" strokeWidth="0.8" />
+          <circle cx="64" cy="12" r="1.5" fill="var(--color-gold)" />
+          <circle cx="72" cy="12" r="3" fill="var(--color-gold)" />
+          <line x1="80" y1="12" x2="120" y2="12" stroke="var(--color-gold)" strokeWidth="0.8" />
+        </svg>
+      </div>
+
+      {/* Names */}
+      <h2
         className="font-display"
-        style={{ color: 'var(--color-dark)', fontSize: '3.2rem', margin: '0 0 8px' }}
+        style={{
+          color: 'var(--color-dark)',
+          fontSize: 'clamp(2.8rem, 10vw, 4.5rem)',
+          margin: '0 0 0.5rem',
+          lineHeight: 1.1,
+        }}
       >
         {groomName} &amp; {brideName}
-      </h3>
+      </h2>
+
+      {/* Tagline */}
       <p
         className="font-sans"
         style={{
           color: 'var(--color-muted)',
-          fontSize: '0.65rem',
-          letterSpacing: '0.3em',
+          fontSize: '0.7rem',
+          letterSpacing: '0.35em',
           textTransform: 'uppercase',
-          fontStyle: 'normal',
-          margin: 0,
+          margin: '0.75rem 0 0',
         }}
       >
         Para siempre · {year}
       </p>
-      <div className="mt-8 flex justify-center items-center" style={{ gap: 16 }}>
-        {[
-          'var(--color-gold)',
-          'var(--color-paper-dark)',
-          'var(--color-gold)',
-        ].map((c, i) => (
-          <div
-            key={i}
-            style={{
-              background: c,
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              opacity: i === 1 ? 0.5 : 0.8,
-            }}
-          />
-        ))}
+
+      {/* Bottom ornament */}
+      <div style={{ marginTop: '2.5rem', opacity: 0.35 }}>
+        <svg width="80" height="16" viewBox="0 0 80 16" fill="none">
+          <line x1="0" y1="8" x2="30" y2="8" stroke="var(--color-gold)" strokeWidth="0.8" />
+          <circle cx="40" cy="8" r="4" fill="none" stroke="var(--color-gold)" strokeWidth="0.8" />
+          <circle cx="40" cy="8" r="1.5" fill="var(--color-gold)" />
+          <line x1="50" y1="8" x2="80" y2="8" stroke="var(--color-gold)" strokeWidth="0.8" />
+        </svg>
       </div>
     </footer>
   )
