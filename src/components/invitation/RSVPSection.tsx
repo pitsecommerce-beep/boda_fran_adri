@@ -14,7 +14,6 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   )
   const [companionCount, setCompanionCount] = useState(existingRSVP?.companion_count ?? 0)
   const [dietaryNotes, setDietaryNotes] = useState(existingRSVP?.dietary_notes ?? '')
-  const [needsAccommodation, setNeedsAccommodation] = useState(existingRSVP?.needs_accommodation ?? false)
   const [message, setMessage] = useState(existingRSVP?.message ?? '')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(!!existingRSVP)
@@ -31,7 +30,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
       attending,
       companion_count: attending ? companionCount : 0,
       dietary_notes: dietaryNotes || undefined,
-      needs_accommodation: attending ? needsAccommodation : false,
+      needs_accommodation: false,
       message: message || undefined,
     })
 
@@ -51,7 +50,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
           className="max-w-lg mx-auto rounded-2xl p-10"
           style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)' }}
         >
-          <div className="text-5xl mb-4">{attending ? '🎉' : '💌'}</div>
+          
           <h3 className="font-serif mb-3" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '1.8rem' }}>
             {attending ? '¡Nos vemos pronto!' : '¡Te echaremos de menos!'}
           </h3>
@@ -60,12 +59,6 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
               ? 'Gracias por confirmar tu asistencia. ¡Será una noche inolvidable!'
               : 'Recibimos tu respuesta. Gracias por hacernos saber.'}
           </p>
-          {attending && needsAccommodation && (
-            <div className="mt-4 p-3 rounded-lg font-sans text-sm"
-              style={{ background: 'rgba(184,150,110,0.10)', color: 'var(--color-dark)' }}>
-              Registramos que necesitas ayuda con hospedaje. Los novios se pondrán en contacto.
-            </div>
-          )}
           {attending && (
             <button onClick={() => setSubmitted(false)} className="mt-6 text-sm underline"
               style={{ color: 'var(--color-muted)' }}>
@@ -125,9 +118,9 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
             </p>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { value: true,  label: '¡Sí, asistiré!',   emoji: '🎊' },
-                { value: false, label: 'No podré asistir',  emoji: '💌' },
-              ].map(({ value, label, emoji }) => (
+                { value: true,  label: '¡Sí, asistiré!' },
+                { value: false, label: 'No podré asistir' },
+              ].map(({ value, label }) => (
                 <button
                   key={String(value)}
                   type="button"
@@ -143,7 +136,6 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                     letterSpacing: '0.05em',
                   }}
                 >
-                  <span className="block text-2xl mb-1">{emoji}</span>
                   {label}
                 </button>
               ))}
@@ -195,43 +187,6 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
                   color: 'var(--color-dark)',
                 }}
               />
-            </div>
-          )}
-
-          {/* Accommodation */}
-          {attending && (
-            <div className="mb-6">
-              <button
-                type="button"
-                onClick={() => setNeedsAccommodation(!needsAccommodation)}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all"
-                style={{
-                  background: needsAccommodation ? 'rgba(184,150,110,0.08)' : 'rgba(44,32,18,0.03)',
-                  border: `1px solid ${needsAccommodation ? 'rgba(184,150,110,0.35)' : 'rgba(44,32,18,0.08)'}`,
-                }}
-              >
-                <div
-                  className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
-                  style={{
-                    background: needsAccommodation ? 'var(--color-gold)' : 'white',
-                    border: `1.5px solid ${needsAccommodation ? 'var(--color-gold)' : 'rgba(44,32,18,0.20)'}`,
-                  }}
-                >
-                  {needsAccommodation && (
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
-                      <path d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <p className="font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
-                    Necesito ayuda para encontrar hospedaje
-                  </p>
-                  <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
-                    Los novios te contactarán con opciones de hoteles cercanos
-                  </p>
-                </div>
-              </button>
             </div>
           )}
 

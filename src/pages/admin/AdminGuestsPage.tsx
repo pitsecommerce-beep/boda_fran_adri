@@ -38,7 +38,7 @@ export default function AdminGuestsPage() {
           onClick={() => setShowUploader(!showUploader)}
           className="px-5 py-2.5 rounded-xl font-sans text-sm font-medium transition-all hover:shadow-sm"
           style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)', border: '1px solid var(--color-yellow)66' }}>
-          {showUploader ? '✕ Cerrar importación' : '📊 Importar Excel'}
+          {showUploader ? '✕ Cerrar importación' : 'Importar Excel'}
         </button>
         <button
           onClick={downloadGuestTemplate}
