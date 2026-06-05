@@ -432,8 +432,8 @@ body {
 /* ── Shared section styles ─────────────────────────────── */
 .section-label {
   font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.35em;
+  font-size: 0.68rem;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
   font-weight: 500;
   color: var(--color-gold);

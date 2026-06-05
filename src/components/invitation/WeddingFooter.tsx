@@ -16,7 +16,7 @@ export default function WeddingFooter({ brideName, groomName, weddingDate }: Pro
     >
       <h3
         className="font-display"
-        style={{ color: 'var(--color-dark)', fontSize: 'clamp(2.8rem,10vw,4rem)', margin: '0 0 8px' }}
+        style={{ color: 'var(--color-dark)', fontSize: '3.2rem', margin: '0 0 8px' }}
       >
         {groomName} &amp; {brideName}
       </h3>

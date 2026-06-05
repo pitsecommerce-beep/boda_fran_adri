@@ -122,7 +122,7 @@ export default function WeddingDetails({ config }: Props) {
         </p>
         <h2
           className="font-serif"
-          style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: 'clamp(2.5rem,8vw,4rem)', margin: 0 }}
+          style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.4rem', margin: 0 }}
         >
           Nuestro Gran Día
         </h2>
@@ -187,7 +187,7 @@ export default function WeddingDetails({ config }: Props) {
           </p>
           <p
             className="font-serif"
-            style={{ color: 'var(--color-dark)', fontSize: 'clamp(2rem,6vw,3rem)', fontWeight: 300, fontStyle: 'italic' }}
+            style={{ color: 'var(--color-dark)', fontSize: '2rem', fontWeight: 300, fontStyle: 'italic' }}
           >
             {config.dress_code}
           </p>

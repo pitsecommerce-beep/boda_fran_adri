@@ -16,7 +16,7 @@ export default function GallerySection({ photos }: Props) {
           <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
             Nuestra historia
           </p>
-          <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: 'clamp(2.2rem,7vw,3.5rem)', margin: 0 }}>
+          <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}>
             Galería
           </h2>
         </div>
