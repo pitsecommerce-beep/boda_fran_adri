@@ -8,7 +8,7 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 interface StatCardProps {
-  icon: string
+  icon: React.ReactNode
   label: string
   value: number | string
   sub?: string
@@ -22,7 +22,7 @@ function StatCard({ icon, label, value, sub, accent }: StatCardProps) {
       style={{ border: `1px solid ${accent}44` }}
     >
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+        className="w-10 h-10 rounded-xl flex items-center justify-center"
         style={{ background: `${accent}22` }}
       >
         {icon}
@@ -44,7 +44,7 @@ function StatCard({ icon, label, value, sub, accent }: StatCardProps) {
 
 interface QuickLinkProps {
   to: string
-  icon: string
+  icon: React.ReactNode
   title: string
   description: string
   accent: string
@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
           className="mb-6 rounded-2xl px-5 py-4 font-sans text-sm flex items-start gap-3"
           style={{ background: '#FFF3CD', border: '1px solid #FFCC7066', color: '#856404' }}
         >
-          <span className="text-lg flex-shrink-0">⚙️</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <div>
             <strong>Supabase no configurado o tabla vacía.</strong> Los datos que ves son de ejemplo.
             Configura <code className="bg-yellow-100 px-1 rounded">VITE_SUPABASE_URL</code> y{' '}
@@ -164,7 +164,7 @@ export default function AdminDashboardPage() {
           )}
           {daysUntil !== null && daysUntil <= 0 && (
             <p className="font-display text-5xl" style={{ color: 'var(--color-yellow)' }}>
-              ¡Ya están casados! 🎉
+              ¡Ya están casados!
             </p>
           )}
           {daysUntil !== null && (
@@ -186,41 +186,41 @@ export default function AdminDashboardPage() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
             <StatCard
-              icon="👥"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
               label="Invitados"
               value={totalGuests}
               sub="en la lista"
               accent="var(--color-blue)"
             />
             <StatCard
-              icon="✅"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
               label="Confirmados"
               value={attending}
               sub={`${confirmedWithCompanions} personas en total`}
               accent="var(--color-jade)"
             />
             <StatCard
-              icon="❌"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
               label="No asisten"
               value={declined}
               accent="var(--color-rose)"
             />
             <StatCard
-              icon="⏳"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
               label="Pendientes"
               value={pending}
               sub={`${totalGuests > 0 ? Math.round((pending / totalGuests) * 100) : 0}% sin responder`}
               accent="var(--color-yellow)"
             />
             <StatCard
-              icon="🏨"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
               label="Necesitan hospedaje"
               value={needsAccommodation}
               sub="solicitan apoyo"
               accent="var(--color-orchid)"
             />
             <StatCard
-              icon="🥗"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>}
               label="Restricción alimentaria"
               value={withDietary.length}
               sub={withDietary.length > 0 ? 'ver detalle abajo' : 'ninguna registrada'}
@@ -312,21 +312,21 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <QuickLink
           to="/admin/invitados"
-          icon="👥"
+          icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
           title="Gestión de invitados"
           description="Importar lista, ver RSVPs, generar QR y links personalizados"
           accent="var(--color-blue)"
         />
         <QuickLink
           to="/admin/configuracion"
-          icon="⚙️"
+          icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>}
           title="Configuración de la boda"
           description="Editar nombres, fechas, lugar, mensaje y código de vestimenta"
           accent="var(--color-orchid)"
         />
         <QuickLink
           to="/admin/galeria"
-          icon="🖼️"
+          icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>}
           title="Galería de fotos"
           description="Subir, ordenar y eliminar fotos que verán los invitados"
           accent="var(--color-apricot)"
@@ -339,10 +339,12 @@ export default function AdminDashboardPage() {
           style={{ border: '1px solid var(--color-yellow)22', textDecoration: 'none' }}
         >
           <div
-            className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center text-2xl"
+            className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center"
             style={{ background: 'var(--color-yellow)1A' }}
           >
-            🌸
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
           </div>
           <div>
             <p className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>

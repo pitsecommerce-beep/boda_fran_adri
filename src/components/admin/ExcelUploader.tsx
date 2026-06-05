@@ -150,7 +150,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
           className="hidden"
           onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
         />
-        <div className="text-4xl mb-3">📊</div>
+        
         <p className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>
           {fileName ?? 'Arrastra tu Excel aquí o haz clic para seleccionar'}
         </p>

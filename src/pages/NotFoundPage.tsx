@@ -4,7 +4,6 @@ export default function NotFoundPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-center px-6"
       style={{ background: 'var(--color-cream)' }}>
-      <div className="text-6xl mb-4 animate-float">🌸</div>
       <h1 className="font-serif text-4xl mb-3" style={{ color: 'var(--color-dark)' }}>
         Página no encontrada
       </h1>

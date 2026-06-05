@@ -16,7 +16,6 @@ interface MemberState {
 
 export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   const [members, setMembers] = useState<MemberState[]>([])
-  const [needsAccommodation, setNeedsAccommodation] = useState(false)
   const [globalMessage, setGlobalMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -40,8 +39,6 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
       )
 
       setMembers(states)
-      const anyAccom = states.some((s) => s.existingRSVP?.needs_accommodation)
-      setNeedsAccommodation(anyAccom)
       const anyMsg = states.find((s) => s.existingRSVP?.message)?.existingRSVP?.message
       if (anyMsg) setGlobalMessage(anyMsg)
       setLoading(false)
@@ -68,7 +65,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
       guest_id: e.guest.id,
       attending: e.attending,
       dietary_notes: e.dietary_notes,
-      needs_accommodation: e.attending && needsAccommodation,
+      needs_accommodation: false,
       message: globalMessage,
     }))
 
@@ -100,7 +97,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
           className="max-w-lg mx-auto rounded-2xl p-10"
           style={{ border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)', background: 'var(--color-surface)' }}
         >
-          <div className="text-5xl mb-4">{confirmedCount > 0 ? '🎉' : '💌'}</div>
+          
           <h3 className="font-serif mb-3" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '1.8rem' }}>
             {confirmedCount > 0 ? '¡Gracias por confirmar!' : '¡Los tendremos presentes!'}
           </h3>
@@ -109,12 +106,6 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               ? `Hemos registrado la asistencia de ${confirmedCount} ${confirmedCount === 1 ? 'persona' : 'personas'}. ¡Será una noche increíble!`
               : 'Recibimos que no podrán acompañarnos. Gracias por avisarnos.'}
           </p>
-          {needsAccommodation && (
-            <div className="mt-4 p-3 rounded-lg font-sans text-sm"
-              style={{ background: 'rgba(184,150,110,0.10)', color: 'var(--color-dark)' }}>
-              Registramos que necesitan ayuda con hospedaje. Los novios se pondrán en contacto.
-            </div>
-          )}
           <button
             onClick={() => setSubmitted(false)}
             className="mt-6 text-sm underline"
@@ -252,41 +243,6 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
                 )}
               </div>
             ))}
-          </div>
-
-          {/* Accommodation */}
-          <div className="mb-6">
-            <button
-              type="button"
-              onClick={() => setNeedsAccommodation(!needsAccommodation)}
-              className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all"
-              style={{
-                background: needsAccommodation ? 'rgba(184,150,110,0.08)' : 'rgba(44,32,18,0.03)',
-                border: `1px solid ${needsAccommodation ? 'rgba(184,150,110,0.35)' : 'rgba(44,32,18,0.08)'}`,
-              }}
-            >
-              <div
-                className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
-                style={{
-                  background: needsAccommodation ? 'var(--color-gold)' : 'white',
-                  border: `1.5px solid ${needsAccommodation ? 'var(--color-gold)' : 'rgba(44,32,18,0.20)'}`,
-                }}
-              >
-                {needsAccommodation && (
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
-                    <path d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-              <div>
-                <p className="font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
-                  Necesitamos ayuda para encontrar hospedaje
-                </p>
-                <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
-                  Los novios te contactarán con opciones de hoteles cercanos
-                </p>
-              </div>
-            </button>
           </div>
 
           {/* Message */}

@@ -20,7 +20,7 @@ import AccommodationSection from '@/components/invitation/AccommodationSection'
 export default function InvitationPage() {
   const { token } = useParams<{ token?: string }>()
   const { config, loading: configLoading } = useWeddingConfig()
-  const { guest, rsvp, loading: guestLoading, notFound, refresh } = useGuest(token)
+  const { guest, rsvp, loading: guestLoading, notFound } = useGuest(token)
   const [letterOpened, setLetterOpened] = useState(false)
   const [searchedGuest, setSearchedGuest] = useState<Guest | null>(null)
   const [assetsReady, setAssetsReady] = useState(false)
@@ -58,7 +58,6 @@ export default function InvitationPage() {
           background: 'var(--color-khaki)',
         }}
       >
-        <div style={{ fontSize: '3rem', marginBottom: 16 }}>✉️</div>
         <h2
           className="font-serif"
           style={{ fontSize: '1.8rem', color: 'var(--color-dark)', marginBottom: 12, fontWeight: 300 }}
@@ -123,7 +122,7 @@ export default function InvitationPage() {
           {activeGuest && activeGuest.is_family_head && activeGuest.family_id ? (
             <FamilyRSVPSection selectedGuest={activeGuest} />
           ) : activeGuest ? (
-            <RSVPSection guest={activeGuest} existingRSVP={rsvp} onSubmitted={refresh} />
+            <RSVPSection guest={activeGuest} existingRSVP={rsvp} onSubmitted={() => {}} />
           ) : null}
 
           {!activeGuest && !searchedGuest && (

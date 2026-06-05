@@ -133,7 +133,7 @@ export default function AdminGalleryPage() {
           </p>
         ) : (
           <>
-            <div className="text-4xl mb-3">🖼️</div>
+            
             <p className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>
               Arrastra fotos aquí o haz clic para seleccionar
             </p>

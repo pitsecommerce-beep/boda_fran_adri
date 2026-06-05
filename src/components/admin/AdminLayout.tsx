@@ -2,10 +2,10 @@ import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 
 const NAV_ITEMS = [
-  { to: '/admin/dashboard',     label: 'Dashboard',     icon: '🏠' },
-  { to: '/admin/invitados',     label: 'Invitados',     icon: '👥' },
-  { to: '/admin/configuracion', label: 'Configuración', icon: '⚙️' },
-  { to: '/admin/galeria',       label: 'Galería',       icon: '🖼️' },
+  { to: '/admin/dashboard',     label: 'Dashboard' },
+  { to: '/admin/invitados',     label: 'Invitados' },
+  { to: '/admin/configuracion', label: 'Configuración' },
+  { to: '/admin/galeria',       label: 'Galería' },
 ]
 
 interface Props {
@@ -34,12 +34,12 @@ export default function AdminLayout({ children, title }: Props) {
 
           {/* Nav — scrollable on mobile */}
           <nav className="flex items-center gap-0.5 flex-1 overflow-x-auto">
-            {NAV_ITEMS.map(({ to, label, icon }) => (
+            {NAV_ITEMS.map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded-xl font-sans text-xs transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                  `px-3 py-2 rounded-xl font-sans text-xs transition-all flex items-center whitespace-nowrap ${
                     isActive ? 'font-semibold' : 'opacity-60 hover:opacity-100'
                   }`
                 }
@@ -48,8 +48,7 @@ export default function AdminLayout({ children, title }: Props) {
                   color: 'var(--color-dark)',
                 })}
               >
-                <span>{icon}</span>
-                <span className="hidden md:inline">{label}</span>
+                {label}
               </NavLink>
             ))}
 
@@ -61,7 +60,6 @@ export default function AdminLayout({ children, title }: Props) {
               className="px-3 py-2 rounded-xl font-sans text-xs opacity-60 hover:opacity-100 transition-all flex items-center gap-1.5 whitespace-nowrap ml-1"
               style={{ color: 'var(--color-dark)' }}
             >
-              <span>🌸</span>
               <span className="hidden lg:inline">Ver invitación</span>
             </a>
           </nav>
