@@ -198,6 +198,48 @@ export default function WeddingDetails({ config }: Props) {
                 />
               </div>
             )}
+
+            {(config.dress_code_forbidden_text || config.dress_code_forbidden_image_url) && (
+              <div
+                className="mt-6 rounded-xl px-5 py-5 text-left"
+                style={{
+                  background: 'rgba(107,36,55,0.06)',
+                  border: '1px solid rgba(107,36,55,0.15)',
+                }}
+              >
+                <p
+                  className="font-sans uppercase text-center mb-3"
+                  style={{ fontSize: '0.58rem', letterSpacing: '0.28em', color: 'rgba(107,36,55,0.75)' }}
+                >
+                  Por favor evitar
+                </p>
+                {config.dress_code_forbidden_text && (
+                  <p
+                    className="font-serif italic text-center leading-relaxed"
+                    style={{ color: 'rgba(107,36,55,0.80)', fontWeight: 300, fontSize: '0.95rem', whiteSpace: 'pre-line' }}
+                  >
+                    {config.dress_code_forbidden_text}
+                  </p>
+                )}
+                {config.dress_code_forbidden_image_url && (
+                  <div className="mt-4 flex justify-center">
+                    <img
+                      src={config.dress_code_forbidden_image_url}
+                      alt="Vestimenta no permitida"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '300px',
+                        width: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(107,36,55,0.20)',
+                        boxShadow: '0 2px 12px rgba(107,36,55,0.10)',
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
