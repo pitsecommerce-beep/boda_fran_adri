@@ -215,7 +215,7 @@ export default function AdminSettingsPage() {
 
     const updates: Partial<WeddingConfig> = {
       ...form,
-      wedding_date: form.wedding_date ? new Date(form.wedding_date).toISOString() : null,
+      wedding_date: form.wedding_date ? form.wedding_date + ':00.000Z' : null,
       dress_code_image_url: dressCodeImageUrl || null,
       seal_image_url: sealImageUrl || null,
     }
