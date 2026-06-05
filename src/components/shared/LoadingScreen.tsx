@@ -32,14 +32,6 @@ export default function LoadingScreen() {
         gap: 20,
       }}
     >
-      {/* Monogram / brand mark */}
-      <p
-        className="font-display"
-        style={{ fontSize: '3rem', color: 'var(--color-gold)', margin: 0, lineHeight: 1 }}
-      >
-        F &amp; A
-      </p>
-
       {/* Progress bar */}
       <div
         style={{
