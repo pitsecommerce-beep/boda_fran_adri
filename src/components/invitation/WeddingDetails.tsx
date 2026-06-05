@@ -11,9 +11,13 @@ interface Props {
 function ChurchIcon({ color }: { color: string }) {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 22V10l9-8 9 8v12" />
-      <path d="M9 22V15h6v7" />
-      <path d="M12 2v5M9.5 4.5h5" />
+      {/* Cross — clearly above the roofline */}
+      <line x1="12" y1="1" x2="12" y2="6" />
+      <line x1="9.5" y1="3.2" x2="14.5" y2="3.2" />
+      {/* Church building */}
+      <path d="M4 22V11l8-7 8 7v11" />
+      {/* Door */}
+      <path d="M10 22v-5h4v5" />
     </svg>
   )
 }
@@ -168,7 +172,7 @@ export default function WeddingDetails({ config }: Props) {
       </div>
 
       {/* Dress code */}
-      {config.dress_code && (
+      {(config.dress_code || config.dress_code_forbidden_text || config.dress_code_forbidden_image_url) && (
         <div className="mt-10">
           <div className="section-block-divider" />
           <div className="text-center py-8 px-6" style={{ background: 'var(--color-khaki)' }}>

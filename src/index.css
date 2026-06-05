@@ -435,6 +435,11 @@ body {
 }
 .animate-pulse-soft { animation: pulse-soft 3s ease-in-out infinite; }
 
+@keyframes carouselProgress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
 /* ── Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--color-surface); }
