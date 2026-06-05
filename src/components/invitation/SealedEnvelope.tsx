@@ -6,7 +6,6 @@ interface Props {
   brideName: string
   groomName: string
   weddingDate: string | null
-  welcomeMessage: string | null
   sealImageUrl: string | null
   onOpen: () => void
 }
@@ -18,7 +17,6 @@ export default function SealedEnvelope({
   brideName,
   groomName,
   weddingDate,
-  welcomeMessage,
   sealImageUrl,
   onOpen,
 }: Props) {
@@ -38,8 +36,6 @@ export default function SealedEnvelope({
           : d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
       })()
     : null
-
-  const blessingText = welcomeMessage?.trim() || 'Con la bendición de Dios, nuestro Amor los invita a celebrar.'
 
   return (
     <div
@@ -160,9 +156,6 @@ export default function SealedEnvelope({
             <p className="letter-date">{formattedDate}</p>
           )}
         </div>
-
-        {/* Blessing text — absolute bottom */}
-        <p className="letter-blessing">{blessingText}</p>
 
       </div>
     </div>
