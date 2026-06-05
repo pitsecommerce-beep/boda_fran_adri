@@ -112,16 +112,19 @@ body {
   filter: drop-shadow(0 5px 18px rgba(107,36,55,0.38));
 }
 
-/* Guest info block below seal */
+/* Guest info block — anchored to the lower third where the X lines are far apart */
 .letter-guest-block {
-  margin-top: 56px;
+  position: absolute;
+  bottom: 24%;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
   z-index: 2;
-  /* Constrain width to stay inside the diagonal fold lines */
-  max-width: 195px;
+  /* At 76% height the diagonal lines are at x=24% and x=76%, giving ~52% safe width */
+  max-width: 200px;
   width: 100%;
 }
 
