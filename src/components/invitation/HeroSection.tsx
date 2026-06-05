@@ -52,14 +52,14 @@ export default function HeroSection({ config, guestName }: Props) {
       <div style={cornerStyle({ bottom: 24, left: 24 })} />
       <div style={cornerStyle({ bottom: 24, right: 24 })} />
 
-      <div style={{ maxWidth: 420, position: 'relative', zIndex: 1, width: '100%' }}>
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', padding: '0 8px' }}>
 
         {/* Guest name — above couple, clearly secondary */}
         {guestName ? (
-          <div className="animate-fade-in-up" style={{ marginBottom: 48 }}>
+          <div className="animate-fade-in-up" style={{ marginBottom: 40 }}>
             <p
               className="font-sans"
-              style={{ margin: '0 0 8px', color: 'var(--color-gold)', fontSize: '0.55rem', letterSpacing: '0.38em', textTransform: 'uppercase' }}
+              style={{ margin: '0 0 8px', color: 'var(--color-gold)', fontSize: '0.62rem', letterSpacing: '0.36em', textTransform: 'uppercase' }}
             >
               Con cariño, para
             </p>
@@ -67,7 +67,7 @@ export default function HeroSection({ config, guestName }: Props) {
               className="font-serif"
               style={{
                 margin: 0,
-                fontSize: 'clamp(1.5rem, 6.5vw, 2.2rem)',
+                fontSize: '1.7rem',
                 lineHeight: 1.2,
                 color: 'var(--color-dark)',
                 fontWeight: 300,
@@ -86,12 +86,11 @@ export default function HeroSection({ config, guestName }: Props) {
 
         {/* Groom name */}
         <h1
-          className={`animate-fade-in-up delay-100 font-display`}
+          className="animate-fade-in-up delay-100 font-display"
           style={{
-            fontSize: 'clamp(3.8rem, 18vw, 6rem)',
+            fontSize: '4rem',
             lineHeight: 1.05,
             fontWeight: 400,
-            letterSpacing: '-0.01em',
             color: 'var(--color-dark)',
             margin: 0,
           }}
@@ -102,10 +101,10 @@ export default function HeroSection({ config, guestName }: Props) {
         {/* & divider */}
         <div
           className="animate-fade-in-up delay-200"
-          style={{ margin: '10px auto', display: 'flex', alignItems: 'center', gap: 12, width: 180 }}
+          style={{ margin: '10px auto', display: 'flex', alignItems: 'center', gap: 12, width: 160 }}
         >
           <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold))' }} />
-          <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '1.2rem' }}>
+          <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '1.1rem' }}>
             &amp;
           </span>
           <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, var(--color-gold))' }} />
@@ -115,10 +114,9 @@ export default function HeroSection({ config, guestName }: Props) {
         <h1
           className="animate-fade-in-up delay-300 font-display"
           style={{
-            fontSize: 'clamp(3.8rem, 18vw, 6rem)',
+            fontSize: '4rem',
             lineHeight: 1.05,
             fontWeight: 400,
-            letterSpacing: '-0.01em',
             color: 'var(--color-dark)',
             margin: 0,
           }}
@@ -131,11 +129,11 @@ export default function HeroSection({ config, guestName }: Props) {
           <p
             className="animate-fade-in-up delay-400 font-serif"
             style={{
-              marginTop: 22,
-              fontSize: '0.95rem',
+              marginTop: 20,
+              fontSize: '0.92rem',
               fontStyle: 'italic',
               fontWeight: 300,
-              letterSpacing: '0.08em',
+              letterSpacing: '0.06em',
               color: 'var(--color-muted)',
               lineHeight: 1.6,
             }}

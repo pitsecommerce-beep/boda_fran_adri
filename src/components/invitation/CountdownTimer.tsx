@@ -42,20 +42,20 @@ export default function CountdownTimer({ weddingDate }: Props) {
   ]
 
   return (
-    <section id="countdown" className="py-20 px-6 text-center"
+    <section id="countdown" className="py-16 px-6 text-center"
       style={{ background: 'var(--color-surface)' }}>
 
-      <p className="section-label mb-12" style={{ color: 'var(--color-gold)', display: 'block' }}>
+      <p className="section-label mb-10" style={{ color: 'var(--color-gold)', display: 'block' }}>
         {isPast ? '¡Ya estamos casados!' : 'Faltan'}
       </p>
 
-      <div className="flex justify-center gap-8 md:gap-16">
+      <div className="flex justify-center gap-6">
         {units.map(({ label, value }) => (
-          <div key={label} className="flex flex-col items-center gap-3">
+          <div key={label} className="flex flex-col items-center gap-2" style={{ minWidth: 56 }}>
             <span
               className="font-serif"
               style={{
-                fontSize: 'clamp(3rem, 10vw, 5rem)',
+                fontSize: '2.6rem',
                 fontWeight: 300,
                 color: 'var(--color-dark)',
                 lineHeight: 1,
@@ -64,12 +64,12 @@ export default function CountdownTimer({ weddingDate }: Props) {
             >
               {String(value).padStart(2, '0')}
             </span>
-            <div style={{ width: 32, height: 1, background: 'var(--color-gold)', opacity: 0.5 }} />
+            <div style={{ width: 28, height: 1, background: 'var(--color-gold)', opacity: 0.5 }} />
             <span
               className="font-sans"
               style={{
                 fontSize: '0.55rem',
-                letterSpacing: '0.3em',
+                letterSpacing: '0.28em',
                 textTransform: 'uppercase',
                 color: 'var(--color-muted)',
                 fontWeight: 500,

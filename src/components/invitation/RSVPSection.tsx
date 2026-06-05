@@ -86,7 +86,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
           </p>
           <h2
             className="font-serif"
-            style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: 'clamp(2rem,6vw,3.2rem)', margin: 0 }}
+            style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}
           >
             Confirmación
           </h2>
