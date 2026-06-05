@@ -10,7 +10,7 @@ export default function GallerySection({ photos }: Props) {
   if (!photos.length) return null
 
   return (
-    <section className="py-16 px-4" style={{ background: 'var(--color-khaki)', minHeight: '100dvh' }}>
+    <section className="py-16 px-4" style={{ background: 'var(--color-khaki)' }}>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>

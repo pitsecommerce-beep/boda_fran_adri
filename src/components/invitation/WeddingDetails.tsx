@@ -114,7 +114,7 @@ export default function WeddingDetails({ config }: Props) {
   const hasGiftSection = config.account_number || config.gift_registry_url
 
   return (
-    <section id="detalles" className="py-16 px-6" style={{ background: 'var(--color-surface)', minHeight: '100dvh' }}>
+    <section id="detalles" className="py-16 px-6" style={{ background: 'var(--color-surface)' }}>
       {/* Section heading */}
       <div className="text-center mb-12">
         <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>

@@ -164,20 +164,22 @@ body {
 /* Blessing / welcome text — fixed at bottom of envelope */
 .letter-blessing {
   position: absolute;
-  bottom: 44px;
+  bottom: 48px;
   left: 0;
   right: 0;
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: 0.80rem;
   font-style: italic;
   font-weight: 400;
-  color: rgba(107,72,42,0.70);
+  /* Same warm ink tone as reference */
+  color: rgba(107,72,42,0.60);
   text-align: center;
   line-height: 1.70;
-  padding: 0 40px;
+  padding: 0 48px;
   margin: 0;
   z-index: 2;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.55), 0 -1px 0 rgba(44,28,10,0.05);
+  /* Ink-on-paper shadow */
+  text-shadow: 0 1px 0 rgba(255,255,255,0.50), 0 -1px 0 rgba(44,28,10,0.04);
 }
 
 /* Tap hint — fixed at bottom below blessing */
