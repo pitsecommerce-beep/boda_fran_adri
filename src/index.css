@@ -439,3 +439,30 @@ body {
   color: var(--color-gold);
   margin: 0;
 }
+
+/* Hero-specific label — white with shadow for readability over photos */
+.hero-label {
+  color: #D4A96A !important;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.55);
+}
+
+/* ── Section block dividers ────────────────────────────── */
+/* Elegant horizontal ornament line between major sections */
+.section-block-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 32px;
+  height: 36px;
+  background: var(--color-surface);
+}
+.section-block-divider::before,
+.section-block-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(184,150,110,0.35), transparent);
+}
+.section-block-divider::before { background: linear-gradient(to right, transparent, rgba(184,150,110,0.35)); }
+.section-block-divider::after  { background: linear-gradient(to left,  transparent, rgba(184,150,110,0.35)); }

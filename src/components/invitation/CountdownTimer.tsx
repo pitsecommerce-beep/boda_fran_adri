@@ -43,7 +43,7 @@ export default function CountdownTimer({ weddingDate }: Props) {
 
   return (
     <section id="countdown" className="py-16 px-6 text-center"
-      style={{ background: 'var(--color-surface)' }}>
+      style={{ background: 'var(--color-khaki)' }}>
 
       <p className="section-label mb-10" style={{ color: 'var(--color-gold)', display: 'block' }}>
         {isPast ? '¡Ya estamos casados!' : 'Faltan'}

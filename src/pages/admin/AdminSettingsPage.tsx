@@ -71,32 +71,70 @@ interface ImageUploaderProps {
   label: string
   currentUrl: string | null | undefined
   onUploaded: (url: string) => void
+  onRemove?: () => void
   hint?: string
   accept?: string
 }
 
-function ImageUploader({ label, currentUrl, onUploaded, hint, accept = 'image/*' }: ImageUploaderProps) {
+function ImageUploader({ label, currentUrl, onUploaded, onRemove, hint, accept = 'image/*' }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmRemove, setConfirmRemove] = useState(false)
 
   const handleFile = async (file: File) => {
     setUploading(true)
     setError(null)
     const url = await uploadPhoto(file)
-    if (url) {
-      onUploaded(url)
-    } else {
-      setError('No se pudo subir el archivo.')
-    }
+    if (url) { onUploaded(url) } else { setError('No se pudo subir el archivo.') }
     setUploading(false)
   }
 
   return (
     <div>
-      <label className="block font-sans text-sm font-medium mb-2" style={{ color: 'var(--color-dark)' }}>
-        {label}
-      </label>
+      {/* Confirm remove modal */}
+      {confirmRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: 'rgba(44,32,18,0.50)', backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-2xl p-8 max-w-xs w-full shadow-2xl text-center"
+            style={{ border: '1px solid var(--color-border)' }}>
+            <p className="font-serif text-lg mb-2" style={{ color: 'var(--color-dark)', fontWeight: 300 }}>
+              ¿Quitar esta imagen?
+            </p>
+            <p className="font-sans text-sm mb-6" style={{ color: 'var(--color-muted)' }}>
+              Se quitará del sitio (el archivo en storage no se elimina).
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmRemove(false)}
+                className="flex-1 py-3 rounded-xl font-sans text-sm"
+                style={{ background: 'var(--color-khaki)', color: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>
+                Cancelar
+              </button>
+              <button
+                onClick={() => { onRemove?.(); setConfirmRemove(false) }}
+                className="flex-1 py-3 rounded-xl font-sans text-sm font-medium"
+                style={{ background: '#E05555', color: 'white' }}>
+                Sí, quitar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-2">
+        <label className="block font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
+          {label}
+        </label>
+        {currentUrl && onRemove && (
+          <button
+            type="button"
+            onClick={() => setConfirmRemove(true)}
+            className="font-sans text-xs px-2 py-1 rounded-lg"
+            style={{ color: '#E05555', background: '#FFF0F0', border: '1px solid #FFCCCC' }}>
+            ✕ Quitar
+          </button>
+        )}
+      </div>
       <div
         className="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all"
         style={{ borderColor: 'var(--color-yellow)55', background: 'var(--color-yellow)06' }}
@@ -104,13 +142,8 @@ function ImageUploader({ label, currentUrl, onUploaded, hint, accept = 'image/*'
         onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) void handleFile(f) }}
         onDragOver={(e) => e.preventDefault()}
       >
-        <input
-          ref={inputRef}
-          type="file"
-          accept={accept}
-          className="hidden"
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f) }}
-        />
+        <input ref={inputRef} type="file" accept={accept} className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f) }} />
         {uploading ? (
           <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>Subiendo…</p>
         ) : currentUrl ? (
@@ -246,6 +279,7 @@ export default function AdminSettingsPage() {
               label="Imagen de inspiración (código de vestimenta)"
               currentUrl={dressCodeImageUrl}
               onUploaded={(url) => { setDressCodeImageUrl(url); setSaved(false) }}
+              onRemove={() => { setDressCodeImageUrl(''); setSaved(false) }}
               hint="Sube una foto de inspiración que se mostrará junto al código de vestimenta"
             />
           </div>
@@ -296,18 +330,21 @@ export default function AdminSettingsPage() {
               label="Logo / ícono del sitio (favicon)"
               currentUrl={form.favicon_url}
               onUploaded={(url) => { handleChange('favicon_url', url) }}
+              onRemove={() => { handleChange('favicon_url', ''); setSaved(false) }}
               hint="Se mostrará como el ícono en la pestaña del navegador. Se recomienda imagen cuadrada (PNG o SVG)."
             />
             <ImageUploader
               label="Foto de portada"
               currentUrl={form.cover_photo_url}
               onUploaded={(url) => { handleChange('cover_photo_url', url) }}
+              onRemove={() => { handleChange('cover_photo_url', ''); setSaved(false) }}
               hint="Aparecerá de fondo en la primera pantalla de la invitación"
             />
             <ImageUploader
               label="Imagen del sello de cera (fondo transparente)"
               currentUrl={sealImageUrl}
               onUploaded={(url) => { setSealImageUrl(url); setSaved(false) }}
+              onRemove={() => { setSealImageUrl(''); setSaved(false) }}
               hint="Sube una imagen PNG con fondo transparente del sello. Si no se sube, se usa el sello generado automáticamente con los nombres."
             />
             <div>
@@ -315,7 +352,7 @@ export default function AdminSettingsPage() {
                 Canción de fondo
               </label>
               <p className="font-sans text-xs mb-3" style={{ color: 'var(--color-muted)' }}>
-                Se reproducirá automáticamente al abrir la carta. Sube un archivo de audio o pega una URL pública (MP3, OGG, WAV).
+                Se reproducirá automáticamente al abrir la carta. Sube un archivo de audio, pega una URL pública (MP3, OGG, WAV) <strong>o pega un enlace de YouTube</strong> — solo se reproducirá el audio, sin mostrar video.
               </p>
               <div className="grid grid-cols-1 gap-3">
                 <ImageUploader

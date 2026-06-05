@@ -1,6 +1,6 @@
-const WHEEL_FACTOR = 0.58   // desktop wheel distance damping
-const TOUCH_FACTOR = 0.52   // touch drag damping — lower = slower
-const LERP = 0.048          // easing — smaller = smoother/slower
+const WHEEL_FACTOR = 0.68   // desktop wheel distance damping
+const TOUCH_FACTOR = 0.88   // touch drag — closer to 1 = closer to native speed
+const LERP = 0.11           // easing — higher = faster/snappier
 
 let targetY = 0
 let rafId: number | null = null
