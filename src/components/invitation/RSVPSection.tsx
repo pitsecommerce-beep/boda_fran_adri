@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Guest, RSVP } from '@/types'
 import { submitRSVP } from '@/lib/supabase'
 
@@ -18,6 +18,13 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(!!existingRSVP)
   const [error, setError] = useState<string | null>(null)
+  const confirmRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (submitted && confirmRef.current) {
+      confirmRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [submitted])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,6 +54,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
     return (
       <section className="py-20 px-6 text-center" style={{ background: 'var(--color-surface)' }}>
         <div
+          ref={confirmRef}
           className="max-w-lg mx-auto rounded-2xl p-10"
           style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)' }}
         >
