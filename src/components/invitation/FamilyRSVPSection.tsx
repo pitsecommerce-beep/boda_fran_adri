@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Guest, RSVP, FamilyRSVPEntry } from '@/types'
 import { getFamilyMembers, getRSVPByGuestId, submitFamilyRSVP } from '@/lib/supabase'
 
@@ -21,6 +21,13 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const confirmRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (submitted && confirmRef.current) {
+      confirmRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [submitted])
 
   useEffect(() => {
     const load = async () => {
@@ -94,6 +101,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
     return (
       <section id="rsvp" className="py-20 px-6 text-center" style={{ background: 'var(--color-surface)' }}>
         <div
+          ref={confirmRef}
           className="max-w-lg mx-auto rounded-2xl p-10"
           style={{ border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)', background: 'var(--color-surface)' }}
         >

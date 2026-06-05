@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { WeddingConfig } from '@/types'
 import FloralDivider from '@/components/shared/FloralDivider'
 import { format } from 'date-fns'
@@ -105,9 +106,28 @@ function DetailCard({
 
 export default function WeddingDetails({ config }: Props) {
   const weddingDate = config.wedding_date ? new Date(config.wedding_date.slice(0, 10) + 'T12:00:00') : null
+  const [lightbox, setLightbox] = useState<string | null>(null)
 
   return (
     <section id="detalles" className="py-16 px-6" style={{ background: 'var(--color-surface)' }}>
+      {lightbox && (
+        <div
+          onClick={() => setLightbox(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.88)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '24px',
+            cursor: 'zoom-out',
+          }}
+        >
+          <img
+            src={lightbox}
+            alt="Foto ampliada"
+            style={{ maxWidth: '100%', maxHeight: '90dvh', objectFit: 'contain', borderRadius: 4 }}
+          />
+        </div>
+      )}
       {/* Section heading */}
       <div className="text-center mb-12">
         <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>
@@ -190,6 +210,7 @@ export default function WeddingDetails({ config }: Props) {
                 <img
                   src={config.dress_code_image_url}
                   alt="Inspiración de vestimenta"
+                  onClick={() => setLightbox(config.dress_code_image_url!)}
                   style={{
                     maxWidth: '100%',
                     maxHeight: '380px',
@@ -198,6 +219,7 @@ export default function WeddingDetails({ config }: Props) {
                     borderRadius: '4px',
                     border: '1px solid var(--color-border)',
                     boxShadow: '0 4px 24px rgba(44,32,18,0.10)',
+                    cursor: 'zoom-in',
                   }}
                 />
               </div>
@@ -230,6 +252,7 @@ export default function WeddingDetails({ config }: Props) {
                     <img
                       src={config.dress_code_forbidden_image_url}
                       alt="Vestimenta no permitida"
+                      onClick={() => setLightbox(config.dress_code_forbidden_image_url!)}
                       style={{
                         maxWidth: '100%',
                         maxHeight: '300px',
@@ -238,6 +261,7 @@ export default function WeddingDetails({ config }: Props) {
                         borderRadius: '4px',
                         border: '1px solid rgba(107,36,55,0.20)',
                         boxShadow: '0 2px 12px rgba(107,36,55,0.10)',
+                        cursor: 'zoom-in',
                       }}
                     />
                   </div>
