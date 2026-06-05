@@ -83,7 +83,6 @@ export default function InvitationPage() {
           brideName={config.bride_name}
           groomName={config.groom_name}
           weddingDate={config.wedding_date}
-          welcomeMessage={config.welcome_message ?? null}
           sealImageUrl={config.seal_image_url ?? null}
           onOpen={() => setLetterOpened(true)}
         />
