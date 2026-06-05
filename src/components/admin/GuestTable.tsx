@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Guest, RSVP } from '@/types'
-import { deleteGuest, updateGuest } from '@/lib/supabase'
+import { deleteGuest, updateGuest, submitRSVP, deleteRSVPByGuestId } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 
 async function toggleFamilyHead(guest: Guest, onRefresh: () => void) {
@@ -20,43 +20,38 @@ function getRSVP(guestId: string, rsvps: RSVP[]) {
   return rsvps.find((r) => r.guest_id === guestId) ?? null
 }
 
-function AttendanceBadge({ rsvp }: { rsvp: RSVP | null }) {
+function AttendanceStatus({ rsvp }: { rsvp: RSVP | null }) {
   if (!rsvp) return (
     <span className="px-2 py-1 rounded-full text-xs font-sans"
       style={{ background: '#f5f5f5', color: 'var(--color-muted)' }}>
       Sin respuesta
     </span>
   )
+  if (rsvp.attending) return (
+    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
+      style={{ background: 'var(--color-yellow)33', color: '#4A7A4A' }}>
+      ✓ Confirmado{rsvp.companion_count > 0 ? ` +${rsvp.companion_count}` : ''}
+    </span>
+  )
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex flex-wrap gap-1">
-        {rsvp.attending ? (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-sans"
-            style={{ background: 'var(--color-yellow)33', color: '#4A7A4A' }}>
-            ✓ Confirmado{rsvp.companion_count > 0 ? ` +${rsvp.companion_count}` : ''}
-          </span>
-        ) : (
-          <span className="px-2 py-1 rounded-full text-xs font-sans"
-            style={{ background: '#FFE0E0', color: '#A04040' }}>
-            ✗ No asistirá
-          </span>
-        )}
-        {rsvp.attending && rsvp.needs_accommodation && (
-          <span className="px-2 py-1 rounded-full text-xs font-sans"
-            style={{ background: 'var(--color-yellow)1A', color: 'var(--color-yellow)', border: '1px solid var(--color-yellow)33' }}>
-            Hospedaje
-          </span>
-        )}
-      </div>
-      {rsvp.attending && rsvp.dietary_notes && (
-        <span
-          className="font-sans text-xs italic"
-          style={{ color: 'var(--color-muted)' }}
-          title={rsvp.dietary_notes}>
-          {rsvp.dietary_notes.length > 40 ? rsvp.dietary_notes.slice(0, 40) + '…' : rsvp.dietary_notes}
-        </span>
-      )}
-    </div>
+    <span className="px-2 py-1 rounded-full text-xs font-sans"
+      style={{ background: '#FFE0E0', color: '#A04040' }}>
+      ✗ No asistirá
+    </span>
+  )
+}
+
+function DietaryInfo({ rsvp }: { rsvp: RSVP | null }) {
+  if (!rsvp?.attending || !rsvp.dietary_notes) return (
+    <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>—</span>
+  )
+  return (
+    <span
+      className="font-sans text-xs italic"
+      style={{ color: 'var(--color-dark)' }}
+      title={rsvp.dietary_notes}>
+      {rsvp.dietary_notes.length > 35 ? rsvp.dietary_notes.slice(0, 35) + '…' : rsvp.dietary_notes}
+    </span>
   )
 }
 
@@ -73,6 +68,8 @@ function GuestRow({
   const [name, setName] = useState(guest.name)
   const [phone, setPhone] = useState(guest.phone ?? '')
   const [maxComp, setMaxComp] = useState(guest.max_companions)
+  const [attendingEdit, setAttendingEdit] = useState<'none' | 'yes' | 'no'>('none')
+  const [dietaryEdit, setDietaryEdit] = useState('')
   const [saving, setSaving] = useState(false)
   const [showQR, setShowQR] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -85,9 +82,30 @@ function GuestRow({
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleStartEdit = () => {
+    setName(guest.name)
+    setPhone(guest.phone ?? '')
+    setMaxComp(guest.max_companions)
+    setAttendingEdit(rsvp === null ? 'none' : rsvp.attending ? 'yes' : 'no')
+    setDietaryEdit(rsvp?.dietary_notes ?? '')
+    setEditing(true)
+  }
+
   const handleSave = async () => {
     setSaving(true)
     await updateGuest(guest.id, { name, phone: phone || undefined, max_companions: maxComp })
+    if (attendingEdit === 'none') {
+      await deleteRSVPByGuestId(guest.id)
+    } else {
+      await submitRSVP({
+        guest_id: guest.id,
+        attending: attendingEdit === 'yes',
+        companion_count: rsvp?.companion_count ?? 0,
+        dietary_notes: dietaryEdit || undefined,
+        needs_accommodation: rsvp?.needs_accommodation ?? false,
+        message: rsvp?.message ?? undefined,
+      })
+    }
     setSaving(false)
     setEditing(false)
     onRefresh()
@@ -102,6 +120,7 @@ function GuestRow({
   return (
     <>
       <tr style={{ borderTop: '1px solid var(--color-yellow)1A' }}>
+        {/* Nombre */}
         <td className="px-4 py-3">
           {editing ? (
             <input
@@ -127,6 +146,8 @@ function GuestRow({
             </div>
           )}
         </td>
+
+        {/* Celular */}
         <td className="px-4 py-3">
           {editing ? (
             <input
@@ -141,6 +162,8 @@ function GuestRow({
             </span>
           )}
         </td>
+
+        {/* Acomp. máx. */}
         <td className="px-4 py-3">
           {editing ? (
             <input
@@ -158,9 +181,41 @@ function GuestRow({
             </span>
           )}
         </td>
+
+        {/* Asistencia */}
         <td className="px-4 py-3">
-          <AttendanceBadge rsvp={rsvp} />
+          {editing ? (
+            <select
+              value={attendingEdit}
+              onChange={(e) => setAttendingEdit(e.target.value as 'none' | 'yes' | 'no')}
+              className="border rounded-lg px-2 py-1 text-sm"
+              style={{ borderColor: 'var(--color-yellow)66' }}>
+              <option value="none">Sin respuesta</option>
+              <option value="yes">✓ Confirmado</option>
+              <option value="no">✗ No asistirá</option>
+            </select>
+          ) : (
+            <AttendanceStatus rsvp={rsvp} />
+          )}
         </td>
+
+        {/* Restricciones alimenticias */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <input
+              value={dietaryEdit}
+              onChange={(e) => setDietaryEdit(e.target.value)}
+              placeholder="Ninguna"
+              className="border rounded-lg px-2 py-1 text-sm w-full"
+              style={{ borderColor: 'var(--color-yellow)66' }}
+              disabled={attendingEdit === 'no' || attendingEdit === 'none'}
+            />
+          ) : (
+            <DietaryInfo rsvp={rsvp} />
+          )}
+        </td>
+
+        {/* Acciones */}
         <td className="px-4 py-3">
           <div className="flex items-center gap-2">
             {editing ? (
@@ -205,7 +260,7 @@ function GuestRow({
                   </button>
                 )}
                 <button
-                  onClick={() => setEditing(true)}
+                  onClick={handleStartEdit}
                   title="Editar"
                   className="p-1.5 rounded-lg text-sm"
                   style={{ background: 'var(--color-yellow)33' }}>
@@ -225,7 +280,7 @@ function GuestRow({
       </tr>
       {showQR && (
         <tr style={{ background: 'var(--color-cream)' }}>
-          <td colSpan={5} className="px-4 py-4">
+          <td colSpan={6} className="px-4 py-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div className="p-2 bg-white rounded-xl shadow-sm">
                 <QRCodeSVG value={inviteUrl} size={120} />
@@ -353,7 +408,9 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Acomp. máx.</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
-                  style={{ color: 'var(--color-dark)' }}>RSVP</th>
+                  style={{ color: 'var(--color-dark)' }}>Asistencia</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>Restricciones alimenticias</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Acciones</th>
               </tr>
@@ -361,7 +418,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center font-serif italic"
+                  <td colSpan={6} className="px-4 py-10 text-center font-serif italic"
                     style={{ color: 'var(--color-muted)' }}>
                     No hay invitados que coincidan.
                   </td>

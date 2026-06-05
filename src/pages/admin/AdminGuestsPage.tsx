@@ -4,7 +4,7 @@ import GuestTable from '@/components/admin/GuestTable'
 import ExcelUploader from '@/components/admin/ExcelUploader'
 import AddGuestModal from '@/components/admin/AddGuestModal'
 import { listGuests, listRSVPs } from '@/lib/supabase'
-import { downloadGuestTemplate } from '@/lib/excelTemplate'
+import { downloadGuestTemplate, downloadGuestReport } from '@/lib/excelTemplate'
 import type { Guest, RSVP } from '@/types'
 
 export default function AdminGuestsPage() {
@@ -48,6 +48,16 @@ export default function AdminGuestsPage() {
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Descargar plantilla
+        </button>
+        <button
+          onClick={() => downloadGuestReport(guests, rsvps)}
+          disabled={loading}
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-sans text-sm font-medium transition-all hover:shadow-sm"
+          style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)', border: '1px solid var(--color-yellow)66' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Exportar reporte
         </button>
         <button
           onClick={refresh}
