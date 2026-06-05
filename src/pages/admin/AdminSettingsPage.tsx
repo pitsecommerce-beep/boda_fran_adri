@@ -4,7 +4,7 @@ import { useWeddingConfig } from '@/hooks/useWeddingConfig'
 import { updateWeddingConfig, uploadPhoto } from '@/lib/supabase'
 import type { Accommodation, WeddingConfig } from '@/types'
 
-type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url' | 'seal_image_url' | 'accommodations'>
+type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url' | 'dress_code_forbidden_image_url' | 'seal_image_url' | 'accommodations'>
 
 function newAccommodation(): Accommodation {
   return { id: crypto.randomUUID(), name: '', description: '', photo_url: '', details_url: '' }
@@ -24,6 +24,7 @@ const defaultForm: FormData = {
   reception_maps_url: '',
   welcome_message: '',
   dress_code: '',
+  dress_code_forbidden_text: '',
   cover_photo_url: '',
   favicon_url: '',
   account_number: '',
@@ -175,6 +176,7 @@ export default function AdminSettingsPage() {
   const { config, loading, refresh } = useWeddingConfig()
   const [form, setForm] = useState<FormData>(defaultForm)
   const [dressCodeImageUrl, setDressCodeImageUrl] = useState<string>('')
+  const [dressCodeForbiddenImageUrl, setDressCodeForbiddenImageUrl] = useState<string>('')
   const [sealImageUrl, setSealImageUrl] = useState<string>('')
   const [accommodations, setAccommodations] = useState<Accommodation[]>([])
   const [saving, setSaving] = useState(false)
@@ -196,14 +198,16 @@ export default function AdminSettingsPage() {
         reception_address:   config.reception_address ?? '',
         reception_maps_url:  config.reception_maps_url ?? '',
         welcome_message:     config.welcome_message ?? '',
-        dress_code:          config.dress_code ?? '',
-        cover_photo_url:     config.cover_photo_url ?? '',
+        dress_code:                  config.dress_code ?? '',
+        dress_code_forbidden_text:   config.dress_code_forbidden_text ?? '',
+        cover_photo_url:             config.cover_photo_url ?? '',
         favicon_url:         config.favicon_url ?? '',
         account_number:      config.account_number ?? '',
         gift_registry_url:   config.gift_registry_url ?? '',
         music_url:           config.music_url ?? '',
       })
       setDressCodeImageUrl(config.dress_code_image_url ?? '')
+      setDressCodeForbiddenImageUrl(config.dress_code_forbidden_image_url ?? '')
       setSealImageUrl(config.seal_image_url ?? '')
       setAccommodations(config.accommodations ?? [])
     }
@@ -223,6 +227,7 @@ export default function AdminSettingsPage() {
       ...form,
       wedding_date: form.wedding_date ? form.wedding_date + ':00.000Z' : null,
       dress_code_image_url: dressCodeImageUrl || null,
+      dress_code_forbidden_image_url: dressCodeForbiddenImageUrl || null,
       seal_image_url: sealImageUrl || null,
       accommodations,
     }
@@ -289,6 +294,30 @@ export default function AdminSettingsPage() {
               onRemove={() => { setDressCodeImageUrl(''); setSaved(false) }}
               hint="Sube una foto de inspiración que se mostrará junto al código de vestimenta"
             />
+          </div>
+          <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--color-border)' }}>
+            <p className="font-sans text-xs font-semibold uppercase tracking-wider mb-3"
+              style={{ color: 'var(--color-wine, #6B2437)' }}>
+              Colores / vestimenta no permitida
+            </p>
+            <div className="flex flex-col gap-4">
+              <Field
+                label="Descripción (colores o prendas prohibidas)"
+                name="dress_code_forbidden_text"
+                type="textarea"
+                placeholder={"Ej. Pedimos evitar el color blanco, marfil y dorado.\nNo se permite mezclilla ni ropa casual."}
+                hint="Este texto aparecerá debajo de la inspiración de vestimenta en la invitación"
+                form={form}
+                onChange={handleChange}
+              />
+              <ImageUploader
+                label="Imagen de referencia (colores o prendas no permitidas)"
+                currentUrl={dressCodeForbiddenImageUrl}
+                onUploaded={(url) => { setDressCodeForbiddenImageUrl(url); setSaved(false) }}
+                onRemove={() => { setDressCodeForbiddenImageUrl(''); setSaved(false) }}
+                hint="Foto de ejemplo de lo que se debe evitar"
+              />
+            </div>
           </div>
         </div>
 

@@ -18,6 +18,8 @@ export interface WeddingConfig {
   gallery_urls: string[]
   music_url: string | null
   dress_code_image_url: string | null
+  dress_code_forbidden_text: string | null
+  dress_code_forbidden_image_url: string | null
   seal_image_url: string | null
   account_number: string | null
   gift_registry_url: string | null
