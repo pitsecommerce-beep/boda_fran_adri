@@ -36,7 +36,11 @@ export async function getWeddingConfig(): Promise<WeddingConfig | null> {
     }
     return null
   }
-  return (data ?? null) as WeddingConfig | null
+  if (!data) return null
+  // Normalize fields that may not exist in older DB schemas
+  const config = data as WeddingConfig
+  if (!Array.isArray(config.accommodations)) config.accommodations = []
+  return config
 }
 
 export async function updateWeddingConfig(

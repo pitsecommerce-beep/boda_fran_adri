@@ -2,9 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { useWeddingConfig } from '@/hooks/useWeddingConfig'
 import { updateWeddingConfig, uploadPhoto } from '@/lib/supabase'
-import type { WeddingConfig } from '@/types'
+import type { Accommodation, WeddingConfig } from '@/types'
 
-type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url' | 'seal_image_url'>
+type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url' | 'seal_image_url' | 'accommodations'>
+
+function newAccommodation(): Accommodation {
+  return { id: crypto.randomUUID(), name: '', description: '', photo_url: '', details_url: '' }
+}
 
 const defaultForm: FormData = {
   bride_name: 'Adriana',
@@ -172,6 +176,7 @@ export default function AdminSettingsPage() {
   const [form, setForm] = useState<FormData>(defaultForm)
   const [dressCodeImageUrl, setDressCodeImageUrl] = useState<string>('')
   const [sealImageUrl, setSealImageUrl] = useState<string>('')
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([])
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -200,6 +205,7 @@ export default function AdminSettingsPage() {
       })
       setDressCodeImageUrl(config.dress_code_image_url ?? '')
       setSealImageUrl(config.seal_image_url ?? '')
+      setAccommodations(config.accommodations ?? [])
     }
   }, [config])
 
@@ -218,6 +224,7 @@ export default function AdminSettingsPage() {
       wedding_date: form.wedding_date ? form.wedding_date + ':00.000Z' : null,
       dress_code_image_url: dressCodeImageUrl || null,
       seal_image_url: sealImageUrl || null,
+      accommodations,
     }
 
     const { error } = await updateWeddingConfig(updates)
@@ -406,6 +413,110 @@ export default function AdminSettingsPage() {
               onChange={handleChange}
             />
           </div>
+        </div>
+
+        {/* Section: Accommodations */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
+          style={{ border: '1px solid var(--color-yellow)44' }}>
+          <h2 className="font-serif text-xl mb-1" style={{ color: 'var(--color-dark)' }}>
+            Hospedajes
+          </h2>
+          <p className="font-sans text-xs mb-5" style={{ color: 'var(--color-muted)' }}>
+            Agrega los hoteles u opciones de hospedaje que quieres mostrar en la invitación.
+          </p>
+
+          <div className="flex flex-col gap-6">
+            {accommodations.map((h, idx) => (
+              <div key={h.id} className="rounded-xl p-4 flex flex-col gap-3"
+                style={{ background: 'var(--color-khaki)', border: '1px solid var(--color-border)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="font-sans text-xs font-medium uppercase tracking-wider"
+                    style={{ color: 'var(--color-gold)' }}>
+                    Hospedaje {idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { setAccommodations(prev => prev.filter(a => a.id !== h.id)); setSaved(false) }}
+                    className="font-sans text-xs px-2 py-1 rounded-lg"
+                    style={{ color: '#E05555', background: '#FFF0F0', border: '1px solid #FFCCCC' }}>
+                    ✕ Quitar
+                  </button>
+                </div>
+                <div>
+                  <label className="block font-sans text-xs font-medium mb-1" style={{ color: 'var(--color-dark)' }}>
+                    Nombre del hotel
+                  </label>
+                  <input
+                    type="text"
+                    value={h.name}
+                    placeholder="Ej. Hotel Boutique Las Palmas"
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setAccommodations(prev => prev.map(a => a.id === h.id ? { ...a, name: v } : a))
+                      setSaved(false)
+                    }}
+                    className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white outline-none"
+                    style={{ borderColor: 'var(--color-yellow)66' }}
+                  />
+                </div>
+                <div>
+                  <label className="block font-sans text-xs font-medium mb-1" style={{ color: 'var(--color-dark)' }}>
+                    Descripción
+                  </label>
+                  <textarea
+                    value={h.description}
+                    placeholder="Ej. Hotel de 4 estrellas a 5 min del salón. Tarifas especiales para invitados."
+                    rows={3}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setAccommodations(prev => prev.map(a => a.id === h.id ? { ...a, description: v } : a))
+                      setSaved(false)
+                    }}
+                    className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white resize-none outline-none"
+                    style={{ borderColor: 'var(--color-yellow)66' }}
+                  />
+                </div>
+                <div>
+                  <label className="block font-sans text-xs font-medium mb-1" style={{ color: 'var(--color-dark)' }}>
+                    Enlace "Ver Detalles"
+                  </label>
+                  <input
+                    type="text"
+                    value={h.details_url}
+                    placeholder="https://www.hotel.com o Google Maps"
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setAccommodations(prev => prev.map(a => a.id === h.id ? { ...a, details_url: v } : a))
+                      setSaved(false)
+                    }}
+                    className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white outline-none"
+                    style={{ borderColor: 'var(--color-yellow)66' }}
+                  />
+                </div>
+                <ImageUploader
+                  label="Foto del hotel"
+                  currentUrl={h.photo_url || null}
+                  onUploaded={(url) => {
+                    setAccommodations(prev => prev.map(a => a.id === h.id ? { ...a, photo_url: url } : a))
+                    setSaved(false)
+                  }}
+                  onRemove={() => {
+                    setAccommodations(prev => prev.map(a => a.id === h.id ? { ...a, photo_url: '' } : a))
+                    setSaved(false)
+                  }}
+                  hint="Imagen que aparecerá en la tarjeta del hospedaje"
+                />
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => { setAccommodations(prev => [...prev, newAccommodation()]); setSaved(false) }}
+            className="w-full mt-4 py-3 rounded-xl font-sans text-sm font-medium transition-all border-2 border-dashed"
+            style={{ color: 'var(--color-gold)', borderColor: 'var(--color-yellow)66', background: 'transparent' }}>
+            + Agregar hospedaje
+          </button>
         </div>
 
         {/* Save */}

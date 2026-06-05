@@ -15,6 +15,7 @@ import GuestSearchForm from '@/components/invitation/GuestSearchForm'
 import FamilyRSVPSection from '@/components/invitation/FamilyRSVPSection'
 import WeddingFooter from '@/components/invitation/WeddingFooter'
 import GiftSection from '@/components/invitation/GiftSection'
+import AccommodationSection from '@/components/invitation/AccommodationSection'
 
 export default function InvitationPage() {
   const { token } = useParams<{ token?: string }>()
@@ -94,6 +95,8 @@ export default function InvitationPage() {
     <>
       <MusicPlayer musicUrl={config.music_url ?? null} started={true} />
       <div className="invitation-revealed" style={{ background: 'var(--color-paper-dark)', minHeight: '100dvh' }}>
+
+        {/* Main content: hero, countdown, venue details */}
         <div className="invitation-column">
           <HeroSection
             config={config}
@@ -105,8 +108,18 @@ export default function InvitationPage() {
           )}
 
           <WeddingDetails config={config} />
+        </div>
 
-          <GallerySection photos={config.gallery_urls ?? []} />
+        {/* Gallery — own phone-column section */}
+        {(config.gallery_urls ?? []).length > 0 && (
+          <div className="invitation-column">
+            <GallerySection photos={config.gallery_urls ?? []} />
+          </div>
+        )}
+
+        {/* Accommodations + RSVP */}
+        <div className="invitation-column">
+          <AccommodationSection accommodations={config.accommodations ?? []} />
 
           {activeGuest && activeGuest.is_family_head && activeGuest.family_id ? (
             <FamilyRSVPSection selectedGuest={activeGuest} />
@@ -121,15 +134,18 @@ export default function InvitationPage() {
           {!activeGuest && searchedGuest && (
             <FamilyRSVPSection selectedGuest={searchedGuest} onBack={() => setSearchedGuest(null)} />
           )}
+        </div>
 
+        {/* Gift registry — own phone-column section */}
+        <div className="invitation-column">
           <GiftSection config={config} />
-
           <WeddingFooter
             brideName={config.bride_name}
             groomName={config.groom_name}
             weddingDate={config.wedding_date}
           />
         </div>
+
       </div>
     </>
   )
