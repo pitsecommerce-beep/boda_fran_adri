@@ -115,7 +115,7 @@ body {
 /* Guest info block — anchored to the lower third where the X lines are far apart */
 .letter-guest-block {
   position: absolute;
-  bottom: 24%;
+  bottom: 10%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -362,12 +362,12 @@ body {
   max-width: 430px;
   margin: 0 auto;
   position: relative;
-  overflow: clip; /* clip visually without creating a scroll container — avoids GPU compositing penalty */
-  /* Lift off the desktop background */
-  box-shadow:
-    0 0 0 1px rgba(44,32,18,0.06),
-    0 8px 48px rgba(44,32,18,0.16),
-    0 2px 8px rgba(44,32,18,0.10);
+  overflow: clip;
+  /* Promote to GPU compositor layer — box-shadow repaints are skipped during scroll */
+  will-change: transform;
+  transform: translateZ(0);
+  /* Single-layer shadow (3 layers was 3x the repaint cost) */
+  box-shadow: 0 4px 40px rgba(44,32,18,0.18);
 }
 
 /* Neutralize wide max-width overrides inside sections */
