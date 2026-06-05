@@ -128,7 +128,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
+    <section id="rsvp" className="py-16 px-6" style={{ background: 'var(--color-surface)', minHeight: '100dvh' }}>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>

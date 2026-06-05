@@ -181,7 +181,13 @@ export default function AdminSettingsPage() {
       setForm({
         bride_name:          config.bride_name,
         groom_name:          config.groom_name,
-        wedding_date:        config.wedding_date?.slice(0, 16) ?? '',
+        wedding_date: config.wedding_date
+          ? (() => {
+              const d = new Date(config.wedding_date!)
+              const pad = (n: number) => String(n).padStart(2, '0')
+              return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+            })()
+          : '',
         ceremony_time:       config.ceremony_time ?? '',
         ceremony_venue:      config.ceremony_venue ?? '',
         ceremony_address:    config.ceremony_address ?? '',
