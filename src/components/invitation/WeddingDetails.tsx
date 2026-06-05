@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { WeddingConfig } from '@/types'
 import FloralDivider from '@/components/shared/FloralDivider'
 import { format } from 'date-fns'
@@ -110,11 +111,11 @@ export default function WeddingDetails({ config }: Props) {
 
   return (
     <section id="detalles" className="py-16 px-6" style={{ background: 'var(--color-surface)' }}>
-      {lightbox && (
+      {lightbox && createPortal(
         <div
           onClick={() => setLightbox(null)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 1000,
+            position: 'fixed', inset: 0, zIndex: 9999,
             background: 'rgba(0,0,0,0.88)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '24px',
@@ -126,7 +127,8 @@ export default function WeddingDetails({ config }: Props) {
             alt="Foto ampliada"
             style={{ maxWidth: '100%', maxHeight: '90dvh', objectFit: 'contain', borderRadius: 4 }}
           />
-        </div>
+        </div>,
+        document.body
       )}
       {/* Section heading */}
       <div className="text-center mb-12">
