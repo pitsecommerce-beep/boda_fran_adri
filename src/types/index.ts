@@ -21,6 +21,9 @@ export interface WeddingConfig {
   dress_code_forbidden_text: string | null
   dress_code_forbidden_image_url: string | null
   seal_image_url: string | null
+  parents_phrase: string | null
+  bride_parents: string | null
+  groom_parents: string | null
   account_number: string | null
   gift_registry_url: string | null
   itinerary: ItineraryItem[]
