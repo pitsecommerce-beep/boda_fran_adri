@@ -92,7 +92,7 @@ export default function HeroSection({ config, guestName }: Props) {
           </p>
         )}
 
-        {/* Groom name */}
+        {/* Bride name */}
         <h1
           className="animate-fade-in-up delay-100 font-display"
           style={{
@@ -104,7 +104,7 @@ export default function HeroSection({ config, guestName }: Props) {
             textShadow: '0 2px 16px rgba(0,0,0,0.40)',
           }}
         >
-          {config.groom_name}
+          {config.bride_name}
         </h1>
 
         {/* & divider */}
@@ -119,7 +119,7 @@ export default function HeroSection({ config, guestName }: Props) {
           <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, var(--color-gold))' }} />
         </div>
 
-        {/* Bride name */}
+        {/* Groom name */}
         <h1
           className="animate-fade-in-up delay-300 font-display"
           style={{
@@ -131,7 +131,7 @@ export default function HeroSection({ config, guestName }: Props) {
             textShadow: '0 2px 16px rgba(0,0,0,0.40)',
           }}
         >
-          {config.bride_name}
+          {config.groom_name}
         </h1>
 
         {/* Wedding date */}
