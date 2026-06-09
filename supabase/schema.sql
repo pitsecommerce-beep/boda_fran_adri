@@ -81,6 +81,9 @@ create table if not exists public.rsvps (
 -- alter table public.wedding_config add column if not exists accommodations jsonb not null default '[]';
 -- alter table public.wedding_config add column if not exists dress_code_forbidden_text text;
 -- alter table public.wedding_config add column if not exists dress_code_forbidden_image_url text;
+-- alter table public.wedding_config add column if not exists parents_phrase text;
+-- alter table public.wedding_config add column if not exists bride_parents  text;
+-- alter table public.wedding_config add column if not exists groom_parents  text;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
 
