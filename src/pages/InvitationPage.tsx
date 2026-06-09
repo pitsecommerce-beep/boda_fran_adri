@@ -13,6 +13,7 @@ import GallerySection from '@/components/invitation/GallerySection'
 import RSVPSection from '@/components/invitation/RSVPSection'
 import GuestSearchForm from '@/components/invitation/GuestSearchForm'
 import FamilyRSVPSection from '@/components/invitation/FamilyRSVPSection'
+import ParentsSection from '@/components/invitation/ParentsSection'
 import WeddingFooter from '@/components/invitation/WeddingFooter'
 import GiftSection from '@/components/invitation/GiftSection'
 import AccommodationSection from '@/components/invitation/AccommodationSection'
@@ -100,6 +101,8 @@ export default function InvitationPage() {
             config={config}
             guestName={activeGuest?.name ?? searchedGuest?.name}
           />
+
+          <ParentsSection config={config} />
 
           {config.wedding_date && (
             <CountdownTimer weddingDate={config.wedding_date} />

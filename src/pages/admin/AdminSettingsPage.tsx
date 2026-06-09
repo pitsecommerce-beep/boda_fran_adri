@@ -22,6 +22,9 @@ const defaultForm: FormData = {
   reception_venue: '',
   reception_address: '',
   reception_maps_url: '',
+  parents_phrase: 'Con la bendición de nuestros padres',
+  bride_parents: '',
+  groom_parents: '',
   welcome_message: '',
   dress_code: '',
   dress_code_forbidden_text: '',
@@ -197,6 +200,9 @@ export default function AdminSettingsPage() {
         reception_venue:     config.reception_venue ?? '',
         reception_address:   config.reception_address ?? '',
         reception_maps_url:  config.reception_maps_url ?? '',
+        parents_phrase:      config.parents_phrase ?? 'Con la bendición de nuestros padres',
+        bride_parents:       config.bride_parents ?? '',
+        groom_parents:       config.groom_parents ?? '',
         welcome_message:     config.welcome_message ?? '',
         dress_code:                  config.dress_code ?? '',
         dress_code_forbidden_text:   config.dress_code_forbidden_text ?? '',
@@ -263,6 +269,42 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Nombre del novio" name="groom_name" placeholder="Francisco" form={form} onChange={handleChange} />
             <Field label="Nombre de la novia" name="bride_name" placeholder="Adriana" form={form} onChange={handleChange} />
+          </div>
+          <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--color-border)' }}>
+            <p className="font-sans text-xs font-semibold uppercase tracking-wider mb-3"
+              style={{ color: 'var(--color-wine, #6B2437)' }}>
+              Padres de los novios
+            </p>
+            <div className="flex flex-col gap-4">
+              <Field
+                label="Frase introductoria"
+                name="parents_phrase"
+                placeholder="Con la bendición de nuestros padres"
+                hint="Esta frase aparecerá antes de los nombres de los papás en la invitación"
+                form={form}
+                onChange={handleChange}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field
+                  label="Papás de ella"
+                  name="bride_parents"
+                  type="textarea"
+                  placeholder={"Ej. Juan García\n& María López de García"}
+                  hint="Nombres de los papás de la novia"
+                  form={form}
+                  onChange={handleChange}
+                />
+                <Field
+                  label="Papás de él"
+                  name="groom_parents"
+                  type="textarea"
+                  placeholder={"Ej. Roberto Martínez\n& Ana Ruiz de Martínez"}
+                  hint="Nombres de los papás del novio"
+                  form={form}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
