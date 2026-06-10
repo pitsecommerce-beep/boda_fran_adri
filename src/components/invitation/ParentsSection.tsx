@@ -112,7 +112,6 @@ export default function ParentsSection({ config }: Props) {
       {/* Bottom ornament */}
       <div style={{ marginTop: 40 }}>
         <div style={{ width: 80, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)', marginBottom: 24 }} />
-        <span className="font-serif" style={{ color: 'var(--color-gold)66', fontSize: '0.75rem', letterSpacing: '0.3em' }}>✦ ✦ ✦</span>
       </div>
     </section>
   )
