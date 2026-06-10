@@ -54,29 +54,55 @@ export default function AccommodationSection({ accommodations }: Props) {
                   {h.description}
                 </p>
               )}
-              {h.details_url && (
-                <a
-                  href={h.details_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="self-start inline-flex items-center gap-2 font-sans font-medium transition-all hover:shadow-md active:scale-95"
-                  style={{
-                    background: 'var(--color-gold)',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    borderRadius: 2,
-                    fontSize: '0.65rem',
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    padding: '10px 20px',
-                  }}
-                >
-                  Ver Detalles
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </a>
-              )}
+              <div className="flex gap-2 flex-wrap">
+                {h.details_url && (
+                  <a
+                    href={h.details_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 font-sans font-medium transition-all hover:shadow-md active:scale-95"
+                    style={{
+                      background: 'var(--color-gold)',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: 2,
+                      fontSize: '0.65rem',
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      padding: '10px 20px',
+                    }}
+                  >
+                    Ver Detalles
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                )}
+                {h.maps_url && (
+                  <a
+                    href={h.maps_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 font-sans font-medium transition-all hover:shadow-md active:scale-95"
+                    style={{
+                      background: 'transparent',
+                      color: 'var(--color-gold)',
+                      border: '1px solid var(--color-gold)',
+                      borderRadius: 2,
+                      fontSize: '0.65rem',
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      padding: '10px 20px',
+                    }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                      <circle cx="12" cy="9" r="2.5" />
+                    </svg>
+                    Cómo llegar
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         ))}

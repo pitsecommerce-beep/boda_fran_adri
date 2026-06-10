@@ -37,6 +37,7 @@ export interface Accommodation {
   description: string
   photo_url: string
   details_url: string
+  maps_url: string
 }
 
 export interface ItineraryItem {
