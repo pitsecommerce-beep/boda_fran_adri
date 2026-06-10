@@ -13,10 +13,10 @@ function ParentNames({ text }: { text: string }) {
           className="font-serif"
           style={{
             margin: '2px 0',
-            fontSize: '0.95rem',
+            fontSize: '1rem',
             fontWeight: 300,
             color: 'var(--color-dark)',
-            lineHeight: 1.6,
+            lineHeight: 1.65,
           }}
         >
           {line}
@@ -31,66 +31,89 @@ export default function ParentsSection({ config }: Props) {
 
   if (!bride_parents && !groom_parents) return null
 
+  const bothSides = Boolean(bride_parents && groom_parents)
+
   return (
     <section
       className="animate-fade-in-up"
       style={{
-        padding: '56px 32px',
-        textAlign: 'center',
+        minHeight: '50dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '72px 32px',
         background: 'var(--color-surface)',
+        textAlign: 'center',
       }}
     >
+      {/* Top ornament */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ width: 1, height: 32, background: 'linear-gradient(to bottom, transparent, var(--color-gold)88)', margin: '0 auto 10px' }} />
+        <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '1rem', letterSpacing: '0.1em' }}>✦</span>
+        <div style={{ width: 1, height: 32, background: 'linear-gradient(to top, transparent, var(--color-gold)88)', margin: '10px auto 0' }} />
+      </div>
+
       {/* Phrase */}
       {parents_phrase && (
         <p
           className="font-serif"
           style={{
-            fontSize: '1.05rem',
+            fontSize: '1.1rem',
             fontStyle: 'italic',
             fontWeight: 300,
             color: 'var(--color-dark)',
             letterSpacing: '0.03em',
-            margin: '0 0 32px',
-            lineHeight: 1.6,
+            margin: '0 0 40px',
+            lineHeight: 1.7,
+            maxWidth: 320,
           }}
         >
           {parents_phrase}
         </p>
       )}
 
-      {/* Divider */}
-      <div style={{ margin: '0 auto 32px', width: 60, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)' }} />
+      {/* Horizontal rule */}
+      <div style={{ width: 80, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)', marginBottom: 40 }} />
 
       {/* Side-by-side parents */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: bride_parents && groom_parents ? '1fr 1px 1fr' : '1fr',
-          gap: '0 24px',
-          alignItems: 'start',
-          maxWidth: 380,
-          margin: '0 auto',
+          gridTemplateColumns: bothSides ? '1fr 1px 1fr' : '1fr',
+          gap: '0 32px',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: 400,
         }}
       >
         {bride_parents && (
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'center' }}>
             <ParentNames text={bride_parents} />
           </div>
         )}
 
-        {bride_parents && groom_parents && (
-          <div style={{ background: 'linear-gradient(to bottom, transparent, var(--color-gold)66, transparent)', width: 1, alignSelf: 'stretch', minHeight: 40 }} />
+        {bothSides && (
+          <div style={{
+            background: 'linear-gradient(to bottom, transparent, var(--color-gold)55, transparent)',
+            width: 1,
+            alignSelf: 'stretch',
+            minHeight: 48,
+          }} />
         )}
 
         {groom_parents && (
-          <div style={{ textAlign: 'left' }}>
+          <div style={{ textAlign: 'center' }}>
             <ParentNames text={groom_parents} />
           </div>
         )}
       </div>
 
-      {/* Divider bottom */}
-      <div style={{ margin: '32px auto 0', width: 60, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)' }} />
+      {/* Bottom ornament */}
+      <div style={{ marginTop: 40 }}>
+        <div style={{ width: 80, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)', marginBottom: 24 }} />
+        <span className="font-serif" style={{ color: 'var(--color-gold)66', fontSize: '0.75rem', letterSpacing: '0.3em' }}>✦ ✦ ✦</span>
+      </div>
     </section>
   )
 }
