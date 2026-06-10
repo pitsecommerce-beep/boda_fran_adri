@@ -7,7 +7,7 @@ import type { Accommodation, WeddingConfig } from '@/types'
 type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url' | 'dress_code_forbidden_image_url' | 'seal_image_url' | 'accommodations'>
 
 function newAccommodation(): Accommodation {
-  return { id: crypto.randomUUID(), name: '', description: '', photo_url: '', details_url: '' }
+  return { id: crypto.randomUUID(), name: '', description: '', photo_url: '', details_url: '', maps_url: '' }
 }
 
 const defaultForm: FormData = {
@@ -500,11 +500,46 @@ export default function AdminSettingsPage() {
             {accommodations.map((h, idx) => (
               <div key={h.id} className="rounded-xl p-4 flex flex-col gap-3"
                 style={{ background: 'var(--color-khaki)', border: '1px solid var(--color-border)' }}>
-                <div className="flex items-center justify-between">
-                  <span className="font-sans text-xs font-medium uppercase tracking-wider"
-                    style={{ color: 'var(--color-gold)' }}>
-                    Hospedaje {idx + 1}
-                  </span>
+                {/* Header: order controls + label + remove */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-0.5">
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        onClick={() => {
+                          setAccommodations(prev => {
+                            const next = [...prev]
+                            ;[next[idx - 1], next[idx]] = [next[idx], next[idx - 1]]
+                            return next
+                          })
+                          setSaved(false)
+                        }}
+                        className="px-1.5 py-0.5 rounded font-sans text-xs leading-none disabled:opacity-30"
+                        style={{ background: 'var(--color-border)', color: 'var(--color-dark)' }}
+                        title="Subir"
+                      >▲</button>
+                      <button
+                        type="button"
+                        disabled={idx === accommodations.length - 1}
+                        onClick={() => {
+                          setAccommodations(prev => {
+                            const next = [...prev]
+                            ;[next[idx + 1], next[idx]] = [next[idx], next[idx + 1]]
+                            return next
+                          })
+                          setSaved(false)
+                        }}
+                        className="px-1.5 py-0.5 rounded font-sans text-xs leading-none disabled:opacity-30"
+                        style={{ background: 'var(--color-border)', color: 'var(--color-dark)' }}
+                        title="Bajar"
+                      >▼</button>
+                    </div>
+                    <span className="font-sans text-xs font-medium uppercase tracking-wider"
+                      style={{ color: 'var(--color-gold)' }}>
+                      Hospedaje {idx + 1}
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => { setAccommodations(prev => prev.filter(a => a.id !== h.id)); setSaved(false) }}
@@ -554,10 +589,27 @@ export default function AdminSettingsPage() {
                   <input
                     type="text"
                     value={h.details_url}
-                    placeholder="https://www.hotel.com o Google Maps"
+                    placeholder="https://www.hotel.com"
                     onChange={(e) => {
                       const v = e.target.value
                       setAccommodations(prev => prev.map(a => a.id === h.id ? { ...a, details_url: v } : a))
+                      setSaved(false)
+                    }}
+                    className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white outline-none"
+                    style={{ borderColor: 'var(--color-yellow)66' }}
+                  />
+                </div>
+                <div>
+                  <label className="block font-sans text-xs font-medium mb-1" style={{ color: 'var(--color-dark)' }}>
+                    Enlace "Cómo llegar" (Google Maps)
+                  </label>
+                  <input
+                    type="text"
+                    value={h.maps_url ?? ''}
+                    placeholder="https://maps.google.com/..."
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setAccommodations(prev => prev.map(a => a.id === h.id ? { ...a, maps_url: v } : a))
                       setSaved(false)
                     }}
                     className="w-full border rounded-xl px-4 py-3 font-sans text-sm bg-white outline-none"
