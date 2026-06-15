@@ -171,7 +171,7 @@ export default function WeddingDetails({ config }: Props) {
         {(config.ceremony_venue || config.ceremony_address) && (
           <DetailCard
             icon={<ChurchIcon color="var(--color-gold)" />}
-            title="Ceremonia"
+            title="Ceremonia Religiosa"
             venue={config.ceremony_venue}
             address={config.ceremony_address}
             time={config.ceremony_time}
