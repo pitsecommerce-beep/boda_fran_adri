@@ -14,7 +14,7 @@ export default function AccommodationSection({ accommodations }: Props) {
           Dónde quedarse
         </p>
         <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}>
-          Hospedajes
+          Hospedajes Sugeridos por Descuento
         </h2>
       </div>
 
