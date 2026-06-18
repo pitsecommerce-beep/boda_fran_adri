@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { to: '/admin/dashboard',     label: 'Dashboard' },
   { to: '/admin/invitados',     label: 'Invitados' },
   { to: '/admin/configuracion', label: 'Configuración' },
+  { to: '/admin/mesas',         label: 'Mesas' },
   { to: '/admin/galeria',       label: 'Galería' },
 ]
 

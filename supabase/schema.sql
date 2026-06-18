@@ -51,6 +51,8 @@ create table if not exists public.guests (
   family_id        uuid,
   -- is_family_head: este invitado puede confirmar asistencia por toda su familia.
   is_family_head   boolean     not null default false,
+  -- group_id: grupo de amigos para facilitar asignación de mesas.
+  group_id         uuid,
   created_at       timestamptz not null default now()
 );
 
@@ -84,6 +86,7 @@ create table if not exists public.rsvps (
 -- alter table public.wedding_config add column if not exists parents_phrase text;
 -- alter table public.wedding_config add column if not exists bride_parents  text;
 -- alter table public.wedding_config add column if not exists groom_parents  text;
+-- alter table public.guests add column if not exists group_id uuid;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
 
@@ -146,6 +149,67 @@ create policy "rsvps: public delete"
 --   create policy "public delete photos"
 --     on storage.objects for delete
 --     using (bucket_id = 'wedding-photos');
+
+-- ─── Tabla: guest_groups ─────────────────────────────────────────────────────
+-- Grupos de amigos / familia para facilitar la asignación de mesas
+create table if not exists public.guest_groups (
+  id         uuid        primary key default gen_random_uuid(),
+  name       text        not null,
+  color      text        not null default '#B8966E',
+  created_at timestamptz not null default now()
+);
+
+alter table public.guest_groups enable row level security;
+
+create policy "guest_groups: public read"
+  on public.guest_groups for select using (true);
+create policy "guest_groups: public all"
+  on public.guest_groups for all using (true) with check (true);
+
+-- Columna group_id en guests (grupo de amigos)
+-- alter table public.guests add column if not exists group_id uuid references public.guest_groups(id) on delete set null;
+
+-- ─── Tabla: seating_tables ───────────────────────────────────────────────────
+-- Mesas del banquete con forma, posición y capacidad
+create table if not exists public.seating_tables (
+  id         uuid        primary key default gen_random_uuid(),
+  name       text        not null,
+  shape      text        not null default 'circle' check (shape in ('circle','square','rectangle')),
+  capacity   integer     not null default 8,
+  x          double precision not null default 100,
+  y          double precision not null default 100,
+  width      double precision not null default 120,
+  height     double precision not null default 120,
+  rotation   double precision not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.seating_tables enable row level security;
+
+create policy "seating_tables: public read"
+  on public.seating_tables for select using (true);
+create policy "seating_tables: public all"
+  on public.seating_tables for all using (true) with check (true);
+
+-- ─── Tabla: seat_assignments ─────────────────────────────────────────────────
+-- Asignación de invitados a mesas
+create table if not exists public.seat_assignments (
+  id         uuid        primary key default gen_random_uuid(),
+  guest_id   uuid        not null references public.guests(id) on delete cascade,
+  table_id   uuid        not null references public.seating_tables(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique(guest_id)
+);
+
+create index if not exists seat_assignments_table_idx on public.seat_assignments(table_id);
+create index if not exists seat_assignments_guest_idx on public.seat_assignments(guest_id);
+
+alter table public.seat_assignments enable row level security;
+
+create policy "seat_assignments: public read"
+  on public.seat_assignments for select using (true);
+create policy "seat_assignments: public all"
+  on public.seat_assignments for all using (true) with check (true);
 
 -- ─── Función helper: updated_at automático ───────────────────────────────────
 create or replace function public.set_updated_at()

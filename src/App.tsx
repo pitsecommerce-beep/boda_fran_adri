@@ -24,6 +24,7 @@ const AdminDashboardPage  = lazy(() => import('@/pages/admin/AdminDashboardPage'
 const AdminGuestsPage     = lazy(() => import('@/pages/admin/AdminGuestsPage'))
 const AdminSettingsPage   = lazy(() => import('@/pages/admin/AdminSettingsPage'))
 const AdminGalleryPage    = lazy(() => import('@/pages/admin/AdminGalleryPage'))
+const AdminSeatingPage    = lazy(() => import('@/pages/admin/AdminSeatingPage'))
 const NotFoundPage        = lazy(() => import('@/pages/NotFoundPage'))
 
 export default function App() {
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/admin/invitados" element={<AdminGuestsPage />} />
         <Route path="/admin/configuracion" element={<AdminSettingsPage />} />
         <Route path="/admin/galeria" element={<AdminGalleryPage />} />
+        <Route path="/admin/mesas" element={<AdminSeatingPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
