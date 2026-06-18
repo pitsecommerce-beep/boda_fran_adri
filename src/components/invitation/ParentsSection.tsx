@@ -43,7 +43,7 @@ export default function ParentsSection({ config }: Props) {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '72px 32px',
-        background: 'var(--color-surface)',
+        background: 'var(--color-khaki)',
         textAlign: 'center',
       }}
     >
