@@ -102,11 +102,11 @@ export default function InvitationPage() {
             guestName={activeGuest?.name ?? searchedGuest?.name}
           />
 
-          <ParentsSection config={config} />
-
           {config.wedding_date && (
             <CountdownTimer weddingDate={config.wedding_date} />
           )}
+
+          <ParentsSection config={config} />
 
           <WeddingDetails config={config} />
         </div>

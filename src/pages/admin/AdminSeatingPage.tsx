@@ -29,6 +29,9 @@ const TABLE_DEFAULTS: Record<string, { width: number; height: number; capacity: 
   rectangle: { width: 180, height: 100, capacity: 10 },
 }
 
+const CANVAS_W = 2400
+const CANVAS_H = 1600
+
 export default function AdminSeatingPage() {
   const [guests, setGuests] = useState<Guest[]>([])
   const [groups, setGroups] = useState<GuestGroup[]>([])
@@ -56,10 +59,9 @@ export default function AdminSeatingPage() {
   const [tableCapacity, setTableCapacity] = useState(8)
 
   const [tab, setTab] = useState<'plan' | 'groups'>('plan')
-  const [zoom, setZoom] = useState(1)
+  const [zoom, setZoom] = useState(0.65)
 
-  const canvasRef = useRef<HTMLDivElement>(null)
-  const canvasWrapRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -113,6 +115,16 @@ export default function AdminSeatingPage() {
     return list.sort((a, b) => a.name.localeCompare(b.name))
   }, [guests, search, filterGroup, filterSeat, assignedGuestIds])
 
+  // ── Convert mouse event to canvas coordinates ─────────────────────
+  const toCanvas = (e: React.MouseEvent): { x: number; y: number } | null => {
+    const vp = viewportRef.current
+    if (!vp) return null
+    const rect = vp.getBoundingClientRect()
+    const x = (e.clientX - rect.left + vp.scrollLeft) / zoom
+    const y = (e.clientY - rect.top + vp.scrollTop) / zoom
+    return { x, y }
+  }
+
   // ── Group CRUD ────────────────────────────────────────────────────
   const handleSaveGroup = async () => {
     if (!groupName.trim()) return
@@ -147,12 +159,15 @@ export default function AdminSeatingPage() {
       })
     } else {
       const defaults = TABLE_DEFAULTS[tableShape]
+      const vp = viewportRef.current
+      const scrollX = vp ? vp.scrollLeft / zoom : 0
+      const scrollY = vp ? vp.scrollTop / zoom : 0
       await createSeatingTable({
         name: tableName.trim(),
         shape: tableShape,
         capacity: tableCapacity,
-        x: 200 + Math.random() * 200,
-        y: 150 + Math.random() * 200,
+        x: scrollX + 200 + Math.random() * 200,
+        y: scrollY + 150 + Math.random() * 200,
         width: defaults.width,
         height: defaults.height,
         rotation: 0,
@@ -172,31 +187,29 @@ export default function AdminSeatingPage() {
     void loadData()
   }
 
-  // ── Drag & Drop ───────────────────────────────────────────────────
+  // ── Table drag ────────────────────────────────────────────────────
   const handleTableMouseDown = (e: React.MouseEvent, tableId: string) => {
     e.stopPropagation()
+    e.preventDefault()
     const table = tables.find(t => t.id === tableId)
     if (!table) return
-    const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return
+    const pt = toCanvas(e)
+    if (!pt) return
     setDraggingTable(tableId)
-    setDragOffset({
-      x: (e.clientX - rect.left) / zoom - table.x,
-      y: (e.clientY - rect.top) / zoom - table.y,
-    })
+    setDragOffset({ x: pt.x - table.x, y: pt.y - table.y })
     setSelectedTable(tableId)
   }
 
-  const handleCanvasMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (!draggingTable) return
-    const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const newX = Math.max(0, (e.clientX - rect.left) / zoom - dragOffset.x)
-    const newY = Math.max(0, (e.clientY - rect.top) / zoom - dragOffset.y)
+    const pt = toCanvas(e)
+    if (!pt) return
+    const newX = Math.max(0, Math.min(CANVAS_W - 60, pt.x - dragOffset.x))
+    const newY = Math.max(0, Math.min(CANVAS_H - 60, pt.y - dragOffset.y))
     setTables(prev => prev.map(t => t.id === draggingTable ? { ...t, x: newX, y: newY } : t))
   }
 
-  const handleCanvasMouseUp = async () => {
+  const handleMouseUp = async () => {
     if (draggingTable) {
       const table = tables.find(t => t.id === draggingTable)
       if (table) await updateSeatingTable(draggingTable, { x: table.x, y: table.y })
@@ -204,16 +217,22 @@ export default function AdminSeatingPage() {
     }
   }
 
-  const handleGuestDragStart = (guestId: string) => {
+  // ── Guest drag & drop onto tables ─────────────────────────────────
+  const handleGuestDragStart = (e: React.DragEvent, guestId: string) => {
     setDraggingGuest(guestId)
+    e.dataTransfer.setData('text/plain', guestId)
+    e.dataTransfer.effectAllowed = 'move'
   }
 
-  const handleTableDrop = async (tableId: string) => {
-    if (!draggingGuest) return
+  const handleTableDrop = async (e: React.DragEvent, tableId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const guestId = e.dataTransfer.getData('text/plain') || draggingGuest
+    if (!guestId) return
     const tableGuests = assignmentsByTable[tableId] ?? []
     const table = tables.find(t => t.id === tableId)
     if (table && tableGuests.length >= table.capacity) return
-    await assignGuestToTable(draggingGuest, tableId)
+    await assignGuestToTable(guestId, tableId)
     setDraggingGuest(null)
     void loadData()
   }
@@ -223,128 +242,24 @@ export default function AdminSeatingPage() {
     void loadData()
   }
 
-  // ── Render table shape ────────────────────────────────────────────
-  const renderTableShape = (table: SeatingTable, isSelected: boolean) => {
-    const tableGuests = assignmentsByTable[table.id] ?? []
-    const isFull = tableGuests.length >= table.capacity
-    const fillColor = isSelected ? 'var(--color-yellow)' : isFull ? '#ddd5c8' : 'white'
-    const borderColor = isSelected ? 'var(--color-dark)' : 'var(--color-gold-light)'
-
-    const style: React.CSSProperties = {
-      position: 'absolute',
-      left: table.x,
-      top: table.y,
-      width: table.width,
-      height: table.height,
-      background: fillColor,
-      border: `2px solid ${borderColor}`,
-      borderRadius: table.shape === 'circle' ? '50%' : table.shape === 'square' ? '12px' : '16px',
-      cursor: 'grab',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: isSelected ? '0 4px 20px rgba(0,0,0,0.15)' : '0 2px 8px rgba(0,0,0,0.08)',
-      transition: draggingTable === table.id ? 'none' : 'box-shadow 0.2s',
-      zIndex: isSelected ? 10 : 1,
-      userSelect: 'none',
+  // ── Zoom via wheel ────────────────────────────────────────────────
+  const handleWheel = useCallback((e: WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault()
+      setZoom(z => Math.min(1.5, Math.max(0.25, z - e.deltaY * 0.001)))
     }
+  }, [])
 
-    return (
-      <div
-        key={table.id}
-        style={style}
-        onMouseDown={e => handleTableMouseDown(e, table.id)}
-        onClick={() => setSelectedTable(table.id)}
-        onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
-        onDrop={e => { e.preventDefault(); void handleTableDrop(table.id) }}
-      >
-        <span className="font-sans text-xs font-semibold" style={{ color: 'var(--color-dark)', lineHeight: 1.1, textAlign: 'center' }}>
-          {table.name}
-        </span>
-        <span className="font-sans" style={{ fontSize: '0.65rem', color: 'var(--color-muted)' }}>
-          {tableGuests.length}/{table.capacity}
-        </span>
-      </div>
-    )
-  }
+  useEffect(() => {
+    const vp = viewportRef.current
+    if (!vp) return
+    vp.addEventListener('wheel', handleWheel, { passive: false })
+    return () => vp.removeEventListener('wheel', handleWheel)
+  }, [handleWheel])
 
-  const getFirstName = (fullName: string) => fullName.split(' ')[0]
+  const getFirstName = (n: string) => n.split(' ')[0]
 
-  // ── Render seats around table (visual indicators + first name) ────
-  const renderSeats = (table: SeatingTable) => {
-    const tableGuests = assignmentsByTable[table.id] ?? []
-    const seats: React.ReactNode[] = []
-    const cx = table.x + table.width / 2
-    const cy = table.y + table.height / 2
-    const seatRadius = 14
-    const gap = 22
-    const rx = table.width / 2 + gap
-    const ry = table.height / 2 + gap
-
-    for (let i = 0; i < table.capacity; i++) {
-      const angle = (2 * Math.PI * i) / table.capacity - Math.PI / 2
-      const sx = cx + rx * Math.cos(angle)
-      const sy = cy + ry * Math.sin(angle)
-      const guest = tableGuests[i] ? guestMap[tableGuests[i]] : null
-      const group = guest?.group_id ? groupMap[guest.group_id] : null
-      const firstName = guest ? getFirstName(guest.name) : null
-
-      const labelDist = seatRadius + 10
-      const lx = cx + (rx + labelDist) * Math.cos(angle)
-      const ly = cy + (ry + labelDist) * Math.sin(angle)
-
-      seats.push(
-        <div key={`${table.id}-seat-${i}`}>
-          <div
-            title={guest?.name ?? 'Libre'}
-            style={{
-              position: 'absolute',
-              left: sx - seatRadius,
-              top: sy - seatRadius,
-              width: seatRadius * 2,
-              height: seatRadius * 2,
-              borderRadius: '50%',
-              background: guest ? (group?.color ?? 'var(--color-gold)') : 'var(--color-khaki)',
-              border: guest ? '2px solid white' : '1px dashed var(--color-gold-light)',
-              boxShadow: guest ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
-              zIndex: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {guest && (
-              <span style={{ color: 'white', fontSize: '0.5rem', fontWeight: 700, fontFamily: 'var(--font-sans)', lineHeight: 1, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
-                {firstName!.charAt(0)}
-              </span>
-            )}
-          </div>
-          {guest && (
-            <span
-              style={{
-                position: 'absolute',
-                left: lx,
-                top: ly,
-                transform: 'translate(-50%, -50%)',
-                fontSize: '0.55rem',
-                fontFamily: 'var(--font-sans)',
-                color: 'var(--color-dark)',
-                whiteSpace: 'nowrap',
-                pointerEvents: 'none',
-                fontWeight: 500,
-                zIndex: 0,
-              }}
-            >
-              {firstName}
-            </span>
-          )}
-        </div>,
-      )
-    }
-    return seats
-  }
-
+  // ── Render ────────────────────────────────────────────────────────
   if (loading) {
     return (
       <AdminLayout title="Plano de Mesas">
@@ -359,257 +274,296 @@ export default function AdminSeatingPage() {
   const selectedTableObj = tables.find(t => t.id === selectedTable)
   const selectedTableGuests = selectedTable ? (assignmentsByTable[selectedTable] ?? []) : []
 
+  const renderTable = (table: SeatingTable) => {
+    const tGuests = assignmentsByTable[table.id] ?? []
+    const isFull = tGuests.length >= table.capacity
+    const isSel = selectedTable === table.id
+    const fill = isSel ? 'var(--color-yellow)' : isFull ? '#ddd5c8' : 'white'
+    const stroke = isSel ? 'var(--color-dark)' : 'var(--color-gold-light)'
+    const radius = table.shape === 'circle' ? '50%' : table.shape === 'square' ? '12px' : '16px'
+
+    const cx = table.x + table.width / 2
+    const cy = table.y + table.height / 2
+    const seatR = 13
+    const gap = 20
+    const orx = table.width / 2 + gap
+    const ory = table.height / 2 + gap
+
+    return (
+      <div key={table.id}>
+        {/* Seats */}
+        {Array.from({ length: table.capacity }).map((_, i) => {
+          const angle = (2 * Math.PI * i) / table.capacity - Math.PI / 2
+          const sx = cx + orx * Math.cos(angle)
+          const sy = cy + ory * Math.sin(angle)
+          const guest = tGuests[i] ? guestMap[tGuests[i]] : null
+          const grp = guest?.group_id ? groupMap[guest.group_id] : null
+          const firstName = guest ? getFirstName(guest.name) : null
+
+          const labelR = seatR + 12
+          const lx = cx + (orx + labelR) * Math.cos(angle)
+          const ly = cy + (ory + labelR) * Math.sin(angle)
+
+          return (
+            <div key={`seat-${table.id}-${i}`}>
+              <div
+                title={guest?.name ?? 'Libre'}
+                style={{
+                  position: 'absolute', left: sx - seatR, top: sy - seatR,
+                  width: seatR * 2, height: seatR * 2, borderRadius: '50%',
+                  background: guest ? (grp?.color ?? 'var(--color-gold)') : 'var(--color-khaki)',
+                  border: guest ? '2px solid white' : '1px dashed var(--color-gold-light)',
+                  boxShadow: guest ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                {guest && (
+                  <span style={{ color: 'white', fontSize: 9, fontWeight: 700, fontFamily: 'var(--font-sans)', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                    {firstName!.charAt(0)}
+                  </span>
+                )}
+              </div>
+              {guest && (
+                <span style={{
+                  position: 'absolute', left: lx, top: ly,
+                  transform: 'translate(-50%,-50%)',
+                  fontSize: 10, fontFamily: 'var(--font-sans)', fontWeight: 500,
+                  color: 'var(--color-dark)', whiteSpace: 'nowrap', pointerEvents: 'none',
+                }}>
+                  {firstName}
+                </span>
+              )}
+            </div>
+          )
+        })}
+
+        {/* Table body */}
+        <div
+          style={{
+            position: 'absolute', left: table.x, top: table.y,
+            width: table.width, height: table.height,
+            background: fill, border: `2px solid ${stroke}`, borderRadius: radius,
+            cursor: draggingTable === table.id ? 'grabbing' : 'grab',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            boxShadow: isSel ? '0 4px 20px rgba(0,0,0,0.15)' : '0 2px 8px rgba(0,0,0,0.08)',
+            transition: draggingTable === table.id ? 'none' : 'box-shadow 0.2s',
+            zIndex: isSel ? 10 : 1, userSelect: 'none',
+          }}
+          onMouseDown={e => handleTableMouseDown(e, table.id)}
+          onClick={e => { e.stopPropagation(); setSelectedTable(table.id) }}
+          onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
+          onDrop={e => void handleTableDrop(e, table.id)}
+        >
+          <span className="font-sans font-semibold" style={{ fontSize: 11, color: 'var(--color-dark)', lineHeight: 1.1, textAlign: 'center' }}>
+            {table.name}
+          </span>
+          <span className="font-sans" style={{ fontSize: 10, color: 'var(--color-muted)' }}>
+            {tGuests.length}/{table.capacity}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <AdminLayout title="Plano de Mesas">
       {/* Stats bar */}
-      <div className="flex flex-wrap gap-3 mb-5">
-        <div className="px-4 py-2 rounded-xl font-sans text-sm" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
-          <span style={{ color: 'var(--color-muted)' }}>Mesas: </span>
-          <strong style={{ color: 'var(--color-dark)' }}>{tables.length}</strong>
-        </div>
-        <div className="px-4 py-2 rounded-xl font-sans text-sm" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
-          <span style={{ color: 'var(--color-muted)' }}>Sentados: </span>
-          <strong style={{ color: 'var(--color-dark)' }}>{assignments.length}/{guests.length}</strong>
-        </div>
-        <div className="px-4 py-2 rounded-xl font-sans text-sm" style={{ background: unseatedCount > 0 ? '#FEF3CD' : '#D4EDDA', border: '1px solid var(--color-border)' }}>
-          <span style={{ color: 'var(--color-muted)' }}>Sin mesa: </span>
-          <strong style={{ color: unseatedCount > 0 ? '#856404' : '#155724' }}>{unseatedCount}</strong>
-        </div>
-        <div className="px-4 py-2 rounded-xl font-sans text-sm" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
-          <span style={{ color: 'var(--color-muted)' }}>Grupos: </span>
-          <strong style={{ color: 'var(--color-dark)' }}>{groups.length}</strong>
-        </div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {[
+          { label: 'Mesas', value: tables.length, bg: 'white', color: 'var(--color-dark)' },
+          { label: 'Sentados', value: `${assignments.length}/${guests.length}`, bg: 'white', color: 'var(--color-dark)' },
+          { label: 'Sin mesa', value: unseatedCount, bg: unseatedCount > 0 ? '#FEF3CD' : '#D4EDDA', color: unseatedCount > 0 ? '#856404' : '#155724' },
+          { label: 'Grupos', value: groups.length, bg: 'white', color: 'var(--color-dark)' },
+        ].map(s => (
+          <div key={s.label} className="px-3 py-1.5 rounded-lg font-sans text-xs" style={{ background: s.bg, border: '1px solid var(--color-border)' }}>
+            <span style={{ color: 'var(--color-muted)' }}>{s.label}: </span>
+            <strong style={{ color: s.color }}>{s.value}</strong>
+          </div>
+        ))}
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'var(--color-khaki)' }}>
-        <button
-          onClick={() => setTab('plan')}
-          className="flex-1 py-2 rounded-lg font-sans text-sm transition-all"
-          style={{
-            background: tab === 'plan' ? 'white' : 'transparent',
-            color: 'var(--color-dark)',
-            fontWeight: tab === 'plan' ? 600 : 400,
-            boxShadow: tab === 'plan' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-          }}
-        >
-          Plano de Mesas
-        </button>
-        <button
-          onClick={() => setTab('groups')}
-          className="flex-1 py-2 rounded-lg font-sans text-sm transition-all"
-          style={{
-            background: tab === 'groups' ? 'white' : 'transparent',
-            color: 'var(--color-dark)',
-            fontWeight: tab === 'groups' ? 600 : 400,
-            boxShadow: tab === 'groups' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-          }}
-        >
-          Grupos de Invitados
-        </button>
+      <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: 'var(--color-khaki)' }}>
+        {(['plan', 'groups'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className="flex-1 py-2 rounded-lg font-sans text-sm transition-all"
+            style={{
+              background: tab === t ? 'white' : 'transparent',
+              color: 'var(--color-dark)', fontWeight: tab === t ? 600 : 400,
+              boxShadow: tab === t ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+            }}>
+            {t === 'plan' ? 'Plano de Mesas' : 'Grupos de Invitados'}
+          </button>
+        ))}
       </div>
 
       {tab === 'plan' && (
-        <div className="flex flex-col lg:flex-row gap-5">
-          {/* Canvas area */}
-          <div className="flex-1">
-            {/* Canvas toolbar */}
-            <div className="flex items-center gap-2 mb-3">
+        <div className="flex flex-col lg:flex-row gap-4" style={{ height: 'calc(100vh - 260px)', minHeight: 480 }}>
+          {/* Left: canvas area */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* Toolbar */}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <button
                 onClick={() => { setEditingTable(null); setTableName(''); setTableShape('circle'); setTableCapacity(8); setShowTableModal(true) }}
-                className="px-4 py-2 rounded-xl font-sans text-sm font-medium"
+                className="px-3 py-1.5 rounded-lg font-sans text-xs font-medium"
                 style={{ background: 'var(--color-dark)', color: 'white' }}
               >
-                + Agregar mesa
+                + Mesa
               </button>
               {selectedTableObj && (
                 <>
-                  <button
-                    onClick={() => {
-                      setEditingTable(selectedTableObj)
-                      setTableName(selectedTableObj.name)
-                      setTableShape(selectedTableObj.shape)
-                      setTableCapacity(selectedTableObj.capacity)
-                      setShowTableModal(true)
-                    }}
-                    className="px-3 py-2 rounded-xl font-sans text-xs"
-                    style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)', border: '1px solid var(--color-border)' }}
-                  >
-                    Editar "{selectedTableObj.name}"
+                  <button onClick={() => {
+                    setEditingTable(selectedTableObj); setTableName(selectedTableObj.name)
+                    setTableShape(selectedTableObj.shape); setTableCapacity(selectedTableObj.capacity)
+                    setShowTableModal(true)
+                  }}
+                    className="px-2 py-1.5 rounded-lg font-sans text-xs"
+                    style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)', border: '1px solid var(--color-border)' }}>
+                    Editar
                   </button>
-                  <button
-                    onClick={() => void handleDeleteTable(selectedTableObj.id)}
-                    className="px-3 py-2 rounded-xl font-sans text-xs"
-                    style={{ background: '#E0555522', color: '#E05555', border: '1px solid #E0555533' }}
-                  >
+                  <button onClick={() => void handleDeleteTable(selectedTableObj.id)}
+                    className="px-2 py-1.5 rounded-lg font-sans text-xs"
+                    style={{ background: '#E0555522', color: '#E05555', border: '1px solid #E0555533' }}>
                     Eliminar
                   </button>
                 </>
               )}
-            </div>
-
-            {/* Zoom controls */}
-            <div className="flex items-center gap-2 mb-3 ml-auto" style={{ width: 'fit-content' }}>
-              <button
-                onClick={() => setZoom(z => Math.max(0.3, z - 0.1))}
-                className="w-8 h-8 rounded-lg font-sans text-sm font-bold flex items-center justify-center"
-                style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-              >
-                -
-              </button>
-              <span className="font-sans text-xs min-w-[3rem] text-center" style={{ color: 'var(--color-muted)' }}>
-                {Math.round(zoom * 100)}%
-              </span>
-              <button
-                onClick={() => setZoom(z => Math.min(2, z + 0.1))}
-                className="w-8 h-8 rounded-lg font-sans text-sm font-bold flex items-center justify-center"
-                style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-              >
-                +
-              </button>
-              <button
-                onClick={() => setZoom(1)}
-                className="px-2 h-8 rounded-lg font-sans text-xs flex items-center justify-center"
-                style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-muted)' }}
-              >
-                Reset
-              </button>
-            </div>
-
-            {/* Floor plan canvas */}
-            <div
-              ref={canvasWrapRef}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={() => void handleCanvasMouseUp()}
-              onMouseLeave={() => void handleCanvasMouseUp()}
-              className="rounded-2xl overflow-auto"
-              style={{
-                border: '2px solid var(--color-border)',
-                height: 600,
-                background: '#f5f2ec',
-              }}
-            >
-              <div
-                ref={canvasRef}
-                onClick={() => setSelectedTable(null)}
-                className="relative"
-                style={{
-                  width: 1600,
-                  height: 1200,
-                  transform: `scale(${zoom})`,
-                  transformOrigin: 'top left',
-                  background: `white`,
-                  backgroundImage: 'radial-gradient(circle, rgba(184,150,110,0.25) 1px, transparent 1px)',
-                  backgroundSize: '24px 24px',
-                }}
-              >
-                {tables.length === 0 ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <p className="font-serif text-xl mb-2" style={{ color: 'var(--color-muted)' }}>
-                      No hay mesas todavia
-                    </p>
-                    <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
-                      Haz clic en "Agregar mesa" para empezar a disenar el plano
-                    </p>
-                  </div>
-                ) : (
-                  tables.map(table => (
-                    <div key={table.id}>
-                      {renderSeats(table)}
-                      {renderTableShape(table, selectedTable === table.id)}
-                    </div>
-                  ))
-                )}
+              <div className="flex-1" />
+              {/* Zoom */}
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => setZoom(z => Math.max(0.25, +(z - 0.1).toFixed(2)))}
+                  className="w-7 h-7 rounded font-sans text-xs font-bold flex items-center justify-center"
+                  style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}>-</button>
+                <span className="font-sans text-xs w-10 text-center" style={{ color: 'var(--color-muted)' }}>
+                  {Math.round(zoom * 100)}%
+                </span>
+                <button onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(2)))}
+                  className="w-7 h-7 rounded font-sans text-xs font-bold flex items-center justify-center"
+                  style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}>+</button>
+                <button onClick={() => setZoom(0.65)}
+                  className="px-1.5 h-7 rounded font-sans text-xs flex items-center justify-center"
+                  style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
+                  Ajustar
+                </button>
               </div>
             </div>
 
+            {/* Viewport: fixed-size scrollable container */}
+            <div
+              ref={viewportRef}
+              onMouseMove={handleMouseMove}
+              onMouseUp={() => void handleMouseUp()}
+              onMouseLeave={() => void handleMouseUp()}
+              onDragOver={e => e.preventDefault()}
+              className="flex-1 rounded-xl overflow-auto relative"
+              style={{
+                border: '2px solid var(--color-border)',
+                background: '#eee9e0',
+                cursor: draggingTable ? 'grabbing' : 'default',
+              }}
+            >
+              {/* Sizer: this div has the zoomed dimensions so scrollbars work correctly */}
+              <div style={{ width: CANVAS_W * zoom, height: CANVAS_H * zoom, position: 'relative' }}>
+                {/* Canvas: positioned at origin, scaled via transform */}
+                <div
+                  onClick={() => setSelectedTable(null)}
+                  style={{
+                    position: 'absolute', top: 0, left: 0,
+                    width: CANVAS_W, height: CANVAS_H,
+                    transform: `scale(${zoom})`, transformOrigin: '0 0',
+                    background: 'white',
+                    backgroundImage: 'radial-gradient(circle, rgba(184,150,110,0.2) 1px, transparent 1px)',
+                    backgroundSize: '28px 28px',
+                  }}
+                >
+                  {tables.length === 0 ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <p className="font-serif text-xl mb-2" style={{ color: 'var(--color-muted)' }}>
+                        No hay mesas todavia
+                      </p>
+                      <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
+                        Haz clic en "+ Mesa" para empezar
+                      </p>
+                    </div>
+                  ) : tables.map(renderTable)}
+                </div>
+              </div>
+            </div>
+
+            {/* Hint */}
+            <p className="font-sans text-xs mt-1.5" style={{ color: 'var(--color-muted)' }}>
+              Arrastra mesas para moverlas &middot; Ctrl+scroll para zoom &middot; Arrastra invitados de la lista a una mesa
+            </p>
+          </div>
+
+          {/* Right: sidebar */}
+          <div className="w-full lg:w-72 flex-shrink-0 flex flex-col gap-3" style={{ maxHeight: 'calc(100vh - 260px)' }}>
             {/* Selected table detail */}
             {selectedTableObj && (
-              <div className="mt-4 p-4 rounded-xl" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>
+              <div className="rounded-xl p-3 flex-shrink-0" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-sans text-sm font-semibold" style={{ color: 'var(--color-dark)' }}>
                     {selectedTableObj.name}
-                    <span className="font-sans text-xs ml-2" style={{ color: 'var(--color-muted)' }}>
-                      ({selectedTableObj.shape === 'circle' ? 'Circular' : selectedTableObj.shape === 'square' ? 'Cuadrada' : 'Rectangular'})
-                    </span>
                   </h3>
-                  <span className="font-sans text-sm" style={{ color: selectedTableGuests.length >= selectedTableObj.capacity ? '#E05555' : 'var(--color-muted)' }}>
-                    {selectedTableGuests.length}/{selectedTableObj.capacity} asientos
+                  <span className="font-sans text-xs" style={{
+                    color: selectedTableGuests.length >= selectedTableObj.capacity ? '#E05555' : 'var(--color-muted)',
+                  }}>
+                    {selectedTableGuests.length}/{selectedTableObj.capacity}
                   </span>
                 </div>
                 {selectedTableGuests.length === 0 ? (
-                  <p className="font-sans text-sm italic" style={{ color: 'var(--color-muted)' }}>
-                    Arrastra invitados desde la lista para sentarlos aqui.
+                  <p className="font-sans text-xs italic" style={{ color: 'var(--color-muted)' }}>
+                    Arrastra invitados aqui.
                   </p>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1">
                     {selectedTableGuests.map(gId => {
                       const guest = guestMap[gId]
                       if (!guest) return null
                       const grp = guest.group_id ? groupMap[guest.group_id] : null
                       return (
-                        <div key={gId} className="flex items-center gap-2 px-3 py-1.5 rounded-full font-sans text-xs"
+                        <span key={gId} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-sans text-xs"
                           style={{ background: grp ? `${grp.color}22` : 'var(--color-khaki)', border: `1px solid ${grp?.color ?? 'var(--color-border)'}` }}>
-                          {grp && <span style={{ width: 8, height: 8, borderRadius: '50%', background: grp.color, display: 'inline-block' }} />}
+                          {grp && <span style={{ width: 6, height: 6, borderRadius: '50%', background: grp.color }} />}
                           {guest.name}
-                          <button
-                            onClick={() => void handleRemoveFromTable(gId)}
-                            className="ml-1 opacity-50 hover:opacity-100"
-                            title="Quitar de la mesa"
-                          >
-                            x
-                          </button>
-                        </div>
+                          <button onClick={() => void handleRemoveFromTable(gId)} className="opacity-40 hover:opacity-100 ml-0.5" style={{ lineHeight: 1 }}>x</button>
+                        </span>
                       )
                     })}
                   </div>
                 )}
               </div>
             )}
-          </div>
 
-          {/* Guest sidebar */}
-          <div className="w-full lg:w-80 flex-shrink-0">
-            <div className="rounded-2xl p-4" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
-              <h3 className="font-serif text-lg mb-3" style={{ color: 'var(--color-dark)' }}>Invitados</h3>
-
+            {/* Guest list */}
+            <div className="rounded-xl p-3 flex-1 flex flex-col min-h-0" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
+              <h3 className="font-sans text-sm font-semibold mb-2" style={{ color: 'var(--color-dark)' }}>Invitados</h3>
               <input
-                type="text"
-                placeholder="Buscar invitado..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg font-sans text-sm mb-2"
+                type="text" placeholder="Buscar..."
+                value={search} onChange={e => setSearch(e.target.value)}
+                className="w-full px-2.5 py-1.5 rounded-lg font-sans text-xs mb-2"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
               />
-
-              <div className="flex gap-2 mb-2">
-                <select
-                  value={filterGroup}
-                  onChange={e => setFilterGroup(e.target.value)}
-                  className="flex-1 px-2 py-1.5 rounded-lg font-sans text-xs"
-                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-                >
+              <div className="flex gap-1.5 mb-2">
+                <select value={filterGroup} onChange={e => setFilterGroup(e.target.value)}
+                  className="flex-1 px-1.5 py-1 rounded font-sans text-xs min-w-0"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}>
                   <option value="all">Todos los grupos</option>
                   <option value="none">Sin grupo</option>
                   {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                 </select>
-                <select
-                  value={filterSeat}
-                  onChange={e => setFilterSeat(e.target.value as 'all' | 'seated' | 'unseated')}
-                  className="px-2 py-1.5 rounded-lg font-sans text-xs"
-                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-                >
+                <select value={filterSeat} onChange={e => setFilterSeat(e.target.value as 'all' | 'seated' | 'unseated')}
+                  className="px-1.5 py-1 rounded font-sans text-xs"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}>
                   <option value="all">Todos</option>
                   <option value="unseated">Sin mesa</option>
                   <option value="seated">Sentados</option>
                 </select>
               </div>
-
-              <p className="font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>
-                {filteredGuests.length} invitados
+              <p className="font-sans mb-1" style={{ fontSize: 10, color: 'var(--color-muted)' }}>
+                {filteredGuests.length} invitado{filteredGuests.length !== 1 ? 's' : ''}
               </p>
-
-              <div className="space-y-1 max-h-96 overflow-y-auto pr-1">
+              <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0">
                 {filteredGuests.map(guest => {
                   const isSeated = assignedGuestIds.has(guest.id)
                   const grp = guest.group_id ? groupMap[guest.group_id] : null
@@ -617,23 +571,21 @@ export default function AdminSeatingPage() {
                     <div
                       key={guest.id}
                       draggable
-                      onDragStart={() => handleGuestDragStart(guest.id)}
+                      onDragStart={e => handleGuestDragStart(e, guest.id)}
                       onDragEnd={() => setDraggingGuest(null)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-grab hover:shadow-sm transition-all"
+                      className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg cursor-grab active:cursor-grabbing hover:shadow-sm transition-shadow"
                       style={{
                         background: isSeated ? 'var(--color-khaki)' : 'var(--color-surface)',
                         border: `1px solid ${grp?.color ?? 'var(--color-border)'}`,
-                        opacity: isSeated ? 0.6 : 1,
+                        opacity: isSeated ? 0.55 : 1,
                       }}
                     >
-                      {grp && (
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: grp.color, flexShrink: 0 }} />
-                      )}
+                      {grp && <span style={{ width: 7, height: 7, borderRadius: '50%', background: grp.color, flexShrink: 0 }} />}
                       <span className="font-sans text-xs flex-1 truncate" style={{ color: 'var(--color-dark)' }}>
                         {guest.name}
                       </span>
                       {isSeated && (
-                        <span className="font-sans text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--color-gold-light)33', color: 'var(--color-muted)', fontSize: '0.6rem' }}>
+                        <span className="font-sans px-1 py-0.5 rounded" style={{ background: 'var(--color-gold-light)33', color: 'var(--color-muted)', fontSize: 9, flexShrink: 0 }}>
                           {tables.find(t => t.id === assignments.find(a => a.guest_id === guest.id)?.table_id)?.name ?? ''}
                         </span>
                       )}
@@ -648,18 +600,14 @@ export default function AdminSeatingPage() {
 
       {tab === 'groups' && (
         <div className="flex flex-col lg:flex-row gap-5">
-          {/* Groups list */}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-4">
-              <button
-                onClick={() => { setEditingGroup(null); setGroupName(''); setGroupColor(GROUP_COLORS[groups.length % GROUP_COLORS.length]); setShowGroupModal(true) }}
+              <button onClick={() => { setEditingGroup(null); setGroupName(''); setGroupColor(GROUP_COLORS[groups.length % GROUP_COLORS.length]); setShowGroupModal(true) }}
                 className="px-4 py-2 rounded-xl font-sans text-sm font-medium"
-                style={{ background: 'var(--color-dark)', color: 'white' }}
-              >
+                style={{ background: 'var(--color-dark)', color: 'white' }}>
                 + Crear grupo
               </button>
             </div>
-
             {groups.length === 0 ? (
               <div className="text-center py-12 rounded-2xl" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
                 <p className="font-serif text-lg mb-2" style={{ color: 'var(--color-muted)' }}>No hay grupos todavia</p>
@@ -670,31 +618,22 @@ export default function AdminSeatingPage() {
             ) : (
               <div className="space-y-3">
                 {groups.map(group => {
-                  const groupGuests = guests.filter(g => g.group_id === group.id)
+                  const gGuests = guests.filter(g => g.group_id === group.id)
                   return (
                     <div key={group.id} className="rounded-xl p-4" style={{ background: 'white', border: `2px solid ${group.color}33` }}>
                       <div className="flex items-center gap-3 mb-3">
                         <span style={{ width: 14, height: 14, borderRadius: '50%', background: group.color, flexShrink: 0 }} />
                         <h3 className="font-sans text-sm font-semibold flex-1" style={{ color: 'var(--color-dark)' }}>{group.name}</h3>
-                        <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>{groupGuests.length} invitados</span>
-                        <button
-                          onClick={() => { setEditingGroup(group); setGroupName(group.name); setGroupColor(group.color); setShowGroupModal(true) }}
+                        <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>{gGuests.length} invitados</span>
+                        <button onClick={() => { setEditingGroup(group); setGroupName(group.name); setGroupColor(group.color); setShowGroupModal(true) }}
                           className="px-2 py-1 rounded-lg font-sans text-xs"
-                          style={{ background: 'var(--color-surface)', color: 'var(--color-muted)' }}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => void handleDeleteGroup(group.id)}
-                          className="px-2 py-1 rounded-lg font-sans text-xs"
-                          style={{ color: '#E05555' }}
-                        >
-                          Eliminar
-                        </button>
+                          style={{ background: 'var(--color-surface)', color: 'var(--color-muted)' }}>Editar</button>
+                        <button onClick={() => void handleDeleteGroup(group.id)}
+                          className="px-2 py-1 rounded-lg font-sans text-xs" style={{ color: '#E05555' }}>Eliminar</button>
                       </div>
-                      {groupGuests.length > 0 && (
+                      {gGuests.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                          {groupGuests.map(g => (
+                          {gGuests.map(g => (
                             <span key={g.id} className="px-2.5 py-1 rounded-full font-sans text-xs"
                               style={{ background: `${group.color}18`, border: `1px solid ${group.color}44`, color: 'var(--color-dark)' }}>
                               {g.name}
@@ -709,19 +648,12 @@ export default function AdminSeatingPage() {
               </div>
             )}
           </div>
-
-          {/* Assign guests to groups */}
           <div className="w-full lg:w-80 flex-shrink-0">
             <div className="rounded-2xl p-4" style={{ background: 'white', border: '1px solid var(--color-border)' }}>
               <h3 className="font-serif text-lg mb-3" style={{ color: 'var(--color-dark)' }}>Asignar a grupo</h3>
-              <input
-                type="text"
-                placeholder="Buscar invitado..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
+              <input type="text" placeholder="Buscar invitado..." value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg font-sans text-sm mb-3"
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-              />
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }} />
               <div className="space-y-1 max-h-96 overflow-y-auto pr-1">
                 {(search ? filteredGuests : guests.filter(g => !g.group_id)).slice(0, 50).map(guest => {
                   const grp = guest.group_id ? groupMap[guest.group_id] : null
@@ -730,12 +662,9 @@ export default function AdminSeatingPage() {
                       style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                       {grp && <span style={{ width: 8, height: 8, borderRadius: '50%', background: grp.color, flexShrink: 0 }} />}
                       <span className="font-sans text-xs flex-1 truncate" style={{ color: 'var(--color-dark)' }}>{guest.name}</span>
-                      <select
-                        value={guest.group_id ?? ''}
-                        onChange={e => void handleAssignGroup(guest.id, e.target.value || null)}
+                      <select value={guest.group_id ?? ''} onChange={e => void handleAssignGroup(guest.id, e.target.value || null)}
                         className="px-1.5 py-1 rounded font-sans text-xs"
-                        style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)', maxWidth: 110 }}
-                      >
+                        style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)', maxWidth: 110 }}>
                         <option value="">Sin grupo</option>
                         {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                       </select>
@@ -756,39 +685,26 @@ export default function AdminSeatingPage() {
               {editingGroup ? 'Editar grupo' : 'Nuevo grupo'}
             </h3>
             <label className="block font-sans text-xs mb-1" style={{ color: 'var(--color-muted)' }}>Nombre del grupo</label>
-            <input
-              value={groupName}
-              onChange={e => setGroupName(e.target.value)}
+            <input value={groupName} onChange={e => setGroupName(e.target.value)}
               placeholder="Ej: Amigos universidad"
               className="w-full px-3 py-2 rounded-lg font-sans text-sm mb-4"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-            />
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }} />
             <label className="block font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>Color</label>
             <div className="flex flex-wrap gap-2 mb-5">
               {GROUP_COLORS.map(c => (
-                <button
-                  key={c}
-                  onClick={() => setGroupColor(c)}
-                  className="rounded-full transition-transform"
-                  style={{
-                    width: 28, height: 28, background: c,
+                <button key={c} onClick={() => setGroupColor(c)} className="rounded-full transition-transform"
+                  style={{ width: 28, height: 28, background: c,
                     border: groupColor === c ? '3px solid var(--color-dark)' : '2px solid transparent',
-                    transform: groupColor === c ? 'scale(1.15)' : 'scale(1)',
-                  }}
-                />
+                    transform: groupColor === c ? 'scale(1.15)' : 'scale(1)' }} />
               ))}
             </div>
             <div className="flex gap-3">
               <button onClick={() => setShowGroupModal(false)}
                 className="flex-1 py-2.5 rounded-xl font-sans text-sm"
-                style={{ background: 'var(--color-khaki)', color: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>
-                Cancelar
-              </button>
+                style={{ background: 'var(--color-khaki)', color: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>Cancelar</button>
               <button onClick={() => void handleSaveGroup()}
                 className="flex-1 py-2.5 rounded-xl font-sans text-sm font-medium"
-                style={{ background: 'var(--color-dark)', color: 'white' }}>
-                {editingGroup ? 'Guardar' : 'Crear'}
-              </button>
+                style={{ background: 'var(--color-dark)', color: 'white' }}>{editingGroup ? 'Guardar' : 'Crear'}</button>
             </div>
           </div>
         </div>
@@ -801,61 +717,42 @@ export default function AdminSeatingPage() {
             <h3 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
               {editingTable ? 'Editar mesa' : 'Nueva mesa'}
             </h3>
-
             <label className="block font-sans text-xs mb-1" style={{ color: 'var(--color-muted)' }}>Nombre</label>
-            <input
-              value={tableName}
-              onChange={e => setTableName(e.target.value)}
+            <input value={tableName} onChange={e => setTableName(e.target.value)}
               placeholder="Ej: Mesa 1, Mesa novios"
               className="w-full px-3 py-2 rounded-lg font-sans text-sm mb-4"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-            />
-
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }} />
             <label className="block font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>Forma</label>
             <div className="flex gap-3 mb-4">
-              {[
+              {([
                 { value: 'circle' as const, label: 'Circular', icon: '⬤' },
                 { value: 'square' as const, label: 'Cuadrada', icon: '⬜' },
                 { value: 'rectangle' as const, label: 'Rectangular', icon: '▬' },
-              ].map(s => (
-                <button
-                  key={s.value}
+              ]).map(s => (
+                <button key={s.value}
                   onClick={() => { setTableShape(s.value); setTableCapacity(TABLE_DEFAULTS[s.value].capacity) }}
                   className="flex-1 py-3 rounded-xl font-sans text-xs text-center transition-all"
                   style={{
                     background: tableShape === s.value ? 'var(--color-dark)' : 'var(--color-surface)',
                     color: tableShape === s.value ? 'white' : 'var(--color-dark)',
                     border: `1px solid ${tableShape === s.value ? 'var(--color-dark)' : 'var(--color-border)'}`,
-                  }}
-                >
-                  <div className="text-xl mb-1">{s.icon}</div>
-                  {s.label}
+                  }}>
+                  <div className="text-xl mb-1">{s.icon}</div>{s.label}
                 </button>
               ))}
             </div>
-
             <label className="block font-sans text-xs mb-1" style={{ color: 'var(--color-muted)' }}>Capacidad (asientos)</label>
-            <input
-              type="number"
-              min={1}
-              max={20}
-              value={tableCapacity}
+            <input type="number" min={1} max={20} value={tableCapacity}
               onChange={e => setTableCapacity(parseInt(e.target.value) || 1)}
               className="w-full px-3 py-2 rounded-lg font-sans text-sm mb-5"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
-            />
-
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }} />
             <div className="flex gap-3">
               <button onClick={() => setShowTableModal(false)}
                 className="flex-1 py-2.5 rounded-xl font-sans text-sm"
-                style={{ background: 'var(--color-khaki)', color: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>
-                Cancelar
-              </button>
+                style={{ background: 'var(--color-khaki)', color: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>Cancelar</button>
               <button onClick={() => void handleSaveTable()}
                 className="flex-1 py-2.5 rounded-xl font-sans text-sm font-medium"
-                style={{ background: 'var(--color-dark)', color: 'white' }}>
-                {editingTable ? 'Guardar' : 'Crear'}
-              </button>
+                style={{ background: 'var(--color-dark)', color: 'white' }}>{editingTable ? 'Guardar' : 'Crear'}</button>
             </div>
           </div>
         </div>
