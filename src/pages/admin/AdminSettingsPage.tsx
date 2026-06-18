@@ -279,8 +279,9 @@ export default function AdminSettingsPage() {
               <Field
                 label="Frase introductoria"
                 name="parents_phrase"
+                type="textarea"
                 placeholder="Con la bendición de nuestros padres"
-                hint="Esta frase aparecerá antes de los nombres de los papás en la invitación"
+                hint="Esta frase aparecerá antes de los nombres de los papás en la invitación. Puedes usar varias líneas."
                 form={form}
                 onChange={handleChange}
               />

@@ -56,8 +56,10 @@ export default function AdminSeatingPage() {
   const [tableCapacity, setTableCapacity] = useState(8)
 
   const [tab, setTab] = useState<'plan' | 'groups'>('plan')
+  const [zoom, setZoom] = useState(1)
 
   const canvasRef = useRef<HTMLDivElement>(null)
+  const canvasWrapRef = useRef<HTMLDivElement>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -178,7 +180,10 @@ export default function AdminSeatingPage() {
     const rect = canvasRef.current?.getBoundingClientRect()
     if (!rect) return
     setDraggingTable(tableId)
-    setDragOffset({ x: e.clientX - rect.left - table.x, y: e.clientY - rect.top - table.y })
+    setDragOffset({
+      x: (e.clientX - rect.left) / zoom - table.x,
+      y: (e.clientY - rect.top) / zoom - table.y,
+    })
     setSelectedTable(tableId)
   }
 
@@ -186,8 +191,8 @@ export default function AdminSeatingPage() {
     if (!draggingTable) return
     const rect = canvasRef.current?.getBoundingClientRect()
     if (!rect) return
-    const newX = Math.max(0, e.clientX - rect.left - dragOffset.x)
-    const newY = Math.max(0, e.clientY - rect.top - dragOffset.y)
+    const newX = Math.max(0, (e.clientX - rect.left) / zoom - dragOffset.x)
+    const newY = Math.max(0, (e.clientY - rect.top) / zoom - dragOffset.y)
     setTables(prev => prev.map(t => t.id === draggingTable ? { ...t, x: newX, y: newY } : t))
   }
 
@@ -264,39 +269,77 @@ export default function AdminSeatingPage() {
     )
   }
 
-  // ── Render seats around table (visual indicators) ─────────────────
+  const getFirstName = (fullName: string) => fullName.split(' ')[0]
+
+  // ── Render seats around table (visual indicators + first name) ────
   const renderSeats = (table: SeatingTable) => {
     const tableGuests = assignmentsByTable[table.id] ?? []
     const seats: React.ReactNode[] = []
     const cx = table.x + table.width / 2
     const cy = table.y + table.height / 2
-    const rx = table.width / 2 + 18
-    const ry = table.height / 2 + 18
+    const seatRadius = 14
+    const gap = 22
+    const rx = table.width / 2 + gap
+    const ry = table.height / 2 + gap
 
     for (let i = 0; i < table.capacity; i++) {
       const angle = (2 * Math.PI * i) / table.capacity - Math.PI / 2
-      const sx = cx + rx * Math.cos(angle) - 8
-      const sy = cy + ry * Math.sin(angle) - 8
+      const sx = cx + rx * Math.cos(angle)
+      const sy = cy + ry * Math.sin(angle)
       const guest = tableGuests[i] ? guestMap[tableGuests[i]] : null
       const group = guest?.group_id ? groupMap[guest.group_id] : null
+      const firstName = guest ? getFirstName(guest.name) : null
+
+      const labelDist = seatRadius + 10
+      const lx = cx + (rx + labelDist) * Math.cos(angle)
+      const ly = cy + (ry + labelDist) * Math.sin(angle)
 
       seats.push(
-        <div
-          key={`${table.id}-seat-${i}`}
-          title={guest?.name ?? 'Libre'}
-          style={{
-            position: 'absolute',
-            left: sx,
-            top: sy,
-            width: 16,
-            height: 16,
-            borderRadius: '50%',
-            background: guest ? (group?.color ?? 'var(--color-gold)') : 'var(--color-khaki)',
-            border: guest ? '2px solid white' : '1px dashed var(--color-gold-light)',
-            boxShadow: guest ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
-            zIndex: 0,
-          }}
-        />,
+        <div key={`${table.id}-seat-${i}`}>
+          <div
+            title={guest?.name ?? 'Libre'}
+            style={{
+              position: 'absolute',
+              left: sx - seatRadius,
+              top: sy - seatRadius,
+              width: seatRadius * 2,
+              height: seatRadius * 2,
+              borderRadius: '50%',
+              background: guest ? (group?.color ?? 'var(--color-gold)') : 'var(--color-khaki)',
+              border: guest ? '2px solid white' : '1px dashed var(--color-gold-light)',
+              boxShadow: guest ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+              zIndex: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {guest && (
+              <span style={{ color: 'white', fontSize: '0.5rem', fontWeight: 700, fontFamily: 'var(--font-sans)', lineHeight: 1, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                {firstName!.charAt(0)}
+              </span>
+            )}
+          </div>
+          {guest && (
+            <span
+              style={{
+                position: 'absolute',
+                left: lx,
+                top: ly,
+                transform: 'translate(-50%, -50%)',
+                fontSize: '0.55rem',
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--color-dark)',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                fontWeight: 500,
+                zIndex: 0,
+              }}
+            >
+              {firstName}
+            </span>
+          )}
+        </div>,
       )
     }
     return seats
@@ -405,40 +448,79 @@ export default function AdminSeatingPage() {
               )}
             </div>
 
+            {/* Zoom controls */}
+            <div className="flex items-center gap-2 mb-3 ml-auto" style={{ width: 'fit-content' }}>
+              <button
+                onClick={() => setZoom(z => Math.max(0.3, z - 0.1))}
+                className="w-8 h-8 rounded-lg font-sans text-sm font-bold flex items-center justify-center"
+                style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
+              >
+                -
+              </button>
+              <span className="font-sans text-xs min-w-[3rem] text-center" style={{ color: 'var(--color-muted)' }}>
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                onClick={() => setZoom(z => Math.min(2, z + 0.1))}
+                className="w-8 h-8 rounded-lg font-sans text-sm font-bold flex items-center justify-center"
+                style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-dark)' }}
+              >
+                +
+              </button>
+              <button
+                onClick={() => setZoom(1)}
+                className="px-2 h-8 rounded-lg font-sans text-xs flex items-center justify-center"
+                style={{ background: 'white', border: '1px solid var(--color-border)', color: 'var(--color-muted)' }}
+              >
+                Reset
+              </button>
+            </div>
+
             {/* Floor plan canvas */}
             <div
-              ref={canvasRef}
+              ref={canvasWrapRef}
               onMouseMove={handleCanvasMouseMove}
               onMouseUp={() => void handleCanvasMouseUp()}
               onMouseLeave={() => void handleCanvasMouseUp()}
-              onClick={() => setSelectedTable(null)}
-              className="relative rounded-2xl overflow-hidden"
+              className="rounded-2xl overflow-auto"
               style={{
-                background: 'white',
                 border: '2px solid var(--color-border)',
-                minHeight: 500,
                 height: 600,
-                backgroundImage: 'radial-gradient(circle, var(--color-khaki) 1px, transparent 1px)',
-                backgroundSize: '24px 24px',
+                background: '#f5f2ec',
               }}
             >
-              {tables.length === 0 ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <p className="font-serif text-xl mb-2" style={{ color: 'var(--color-muted)' }}>
-                    No hay mesas todavia
-                  </p>
-                  <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
-                    Haz clic en "Agregar mesa" para empezar a disenar el plano
-                  </p>
-                </div>
-              ) : (
-                tables.map(table => (
-                  <div key={table.id}>
-                    {renderSeats(table)}
-                    {renderTableShape(table, selectedTable === table.id)}
+              <div
+                ref={canvasRef}
+                onClick={() => setSelectedTable(null)}
+                className="relative"
+                style={{
+                  width: 1600,
+                  height: 1200,
+                  transform: `scale(${zoom})`,
+                  transformOrigin: 'top left',
+                  background: `white`,
+                  backgroundImage: 'radial-gradient(circle, rgba(184,150,110,0.25) 1px, transparent 1px)',
+                  backgroundSize: '24px 24px',
+                }}
+              >
+                {tables.length === 0 ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <p className="font-serif text-xl mb-2" style={{ color: 'var(--color-muted)' }}>
+                      No hay mesas todavia
+                    </p>
+                    <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
+                      Haz clic en "Agregar mesa" para empezar a disenar el plano
+                    </p>
                   </div>
-                ))
-              )}
+                ) : (
+                  tables.map(table => (
+                    <div key={table.id}>
+                      {renderSeats(table)}
+                      {renderTableShape(table, selectedTable === table.id)}
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
 
             {/* Selected table detail */}
