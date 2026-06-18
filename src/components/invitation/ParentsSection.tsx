@@ -67,6 +67,7 @@ export default function ParentsSection({ config }: Props) {
             margin: '0 0 40px',
             lineHeight: 1.7,
             maxWidth: 320,
+            whiteSpace: 'pre-line',
           }}
         >
           {parents_phrase}
