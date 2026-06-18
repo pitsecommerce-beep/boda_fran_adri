@@ -54,6 +54,34 @@ export interface Guest {
   max_companions: number
   family_id: string | null
   is_family_head: boolean
+  group_id: string | null
+  created_at: string
+}
+
+export interface GuestGroup {
+  id: string
+  name: string
+  color: string
+  created_at: string
+}
+
+export interface SeatingTable {
+  id: string
+  name: string
+  shape: 'circle' | 'square' | 'rectangle'
+  capacity: number
+  x: number
+  y: number
+  width: number
+  height: number
+  rotation: number
+  created_at: string
+}
+
+export interface SeatAssignment {
+  id: string
+  guest_id: string
+  table_id: string
   created_at: string
 }
 

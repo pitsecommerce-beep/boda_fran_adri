@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import type { WeddingConfig, Guest, RSVP } from '@/types'
+import type { WeddingConfig, Guest, RSVP, GuestGroup, SeatingTable, SeatAssignment } from '@/types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -146,7 +146,7 @@ export async function deleteGuest(id: string): Promise<{ error: Error | null }> 
 
 export async function updateGuest(
   id: string,
-  updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions' | 'family_id' | 'is_family_head'>>,
+  updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions' | 'family_id' | 'is_family_head' | 'group_id'>>,
 ): Promise<{ error: Error | null }> {
   const db = getClient()
   if (!db) return { error: new Error('Supabase no configurado') }
@@ -239,6 +239,96 @@ export async function listRSVPs(): Promise<RSVP[]> {
 
   if (error) return []
   return (data ?? []) as RSVP[]
+}
+
+// ─── Guest Groups ─────────────────────────────────────────────────────────────
+
+export async function listGuestGroups(): Promise<GuestGroup[]> {
+  const db = getClient()
+  if (!db) return []
+  const { data, error } = await db.from('guest_groups').select('*').order('name')
+  if (error) { console.error('Error listing guest groups:', error); return [] }
+  return (data ?? []) as GuestGroup[]
+}
+
+export async function createGuestGroup(group: { name: string; color: string }): Promise<GuestGroup | null> {
+  const db = getClient()
+  if (!db) return null
+  const { data, error } = await db.from('guest_groups').insert(group).select().single()
+  if (error) { console.error('Error creating guest group:', error); return null }
+  return data as GuestGroup
+}
+
+export async function updateGuestGroup(id: string, updates: Partial<Pick<GuestGroup, 'name' | 'color'>>): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  const { error } = await db.from('guest_groups').update(updates).eq('id', id)
+  return { error: error as Error | null }
+}
+
+export async function deleteGuestGroup(id: string): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  await db.from('guests').update({ group_id: null }).eq('group_id', id)
+  const { error } = await db.from('guest_groups').delete().eq('id', id)
+  return { error: error as Error | null }
+}
+
+// ─── Seating Tables ───────────────────────────────────────────────────────────
+
+export async function listSeatingTables(): Promise<SeatingTable[]> {
+  const db = getClient()
+  if (!db) return []
+  const { data, error } = await db.from('seating_tables').select('*').order('created_at')
+  if (error) { console.error('Error listing seating tables:', error); return [] }
+  return (data ?? []) as SeatingTable[]
+}
+
+export async function createSeatingTable(table: Omit<SeatingTable, 'id' | 'created_at'>): Promise<SeatingTable | null> {
+  const db = getClient()
+  if (!db) return null
+  const { data, error } = await db.from('seating_tables').insert(table).select().single()
+  if (error) { console.error('Error creating seating table:', error); return null }
+  return data as SeatingTable
+}
+
+export async function updateSeatingTable(id: string, updates: Partial<Omit<SeatingTable, 'id' | 'created_at'>>): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  const { error } = await db.from('seating_tables').update(updates).eq('id', id)
+  return { error: error as Error | null }
+}
+
+export async function deleteSeatingTable(id: string): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  const { error } = await db.from('seating_tables').delete().eq('id', id)
+  return { error: error as Error | null }
+}
+
+// ─── Seat Assignments ─────────────────────────────────────────────────────────
+
+export async function listSeatAssignments(): Promise<SeatAssignment[]> {
+  const db = getClient()
+  if (!db) return []
+  const { data, error } = await db.from('seat_assignments').select('*')
+  if (error) { console.error('Error listing seat assignments:', error); return [] }
+  return (data ?? []) as SeatAssignment[]
+}
+
+export async function assignGuestToTable(guestId: string, tableId: string): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  await db.from('seat_assignments').delete().eq('guest_id', guestId)
+  const { error } = await db.from('seat_assignments').insert({ guest_id: guestId, table_id: tableId })
+  return { error: error as Error | null }
+}
+
+export async function removeGuestFromTable(guestId: string): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  const { error } = await db.from('seat_assignments').delete().eq('guest_id', guestId)
+  return { error: error as Error | null }
 }
 
 // ─── Storage helpers ───────────────────────────────────────────────────────────
