@@ -113,4 +113,6 @@ export interface ExcelRow {
   id_familia?: string
   /** Marks this guest as the family representative who confirms for everyone */
   cabeza_familia?: boolean
+  /** Friend/social group name for seating chart — accepts "grupo_amigos" or "grupo" */
+  grupo_amigos?: string
 }

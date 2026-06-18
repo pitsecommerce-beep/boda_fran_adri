@@ -118,7 +118,7 @@ export async function getFamilyMembers(familyId: string): Promise<Guest[]> {
 }
 
 export async function insertGuests(
-  guests: Array<{ name: string; phone?: string; max_companions: number; family_id?: string | null; is_family_head?: boolean }>,
+  guests: Array<{ name: string; phone?: string; max_companions: number; family_id?: string | null; is_family_head?: boolean; group_id?: string | null }>,
 ): Promise<{ error: Error | null }> {
   const db = getClient()
   if (!db) return { error: new Error('Supabase no configurado') }
@@ -129,6 +129,7 @@ export async function insertGuests(
     max_companions: g.max_companions,
     family_id: g.family_id ?? null,
     is_family_head: g.is_family_head ?? false,
+    group_id: g.group_id ?? null,
     token: crypto.randomUUID(),
   }))
 

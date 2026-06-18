@@ -3,28 +3,24 @@ import type { Guest, RSVP } from '@/types'
 
 /**
  * Generates and triggers download of a guest list template (.xlsx).
- * Columns: nombre, celular, id_familia
- *
- * id_familia: any text identifier (e.g. "garcia", "001") that groups family
- * members. Guests sharing the same id_familia will be shown together when
- * confirming attendance on the invitation page.
+ * Columns: nombre, celular, id_familia, cabeza_familia, grupo_amigos
  */
 export function downloadGuestTemplate() {
   const sampleData = [
-    { nombre: 'Ana García',       celular: '5512345678', id_familia: 'garcia', cabeza_familia: 'sí' },
-    { nombre: 'Carlos García',    celular: '5512345679', id_familia: 'garcia', cabeza_familia: '' },
-    { nombre: 'María García',     celular: '',           id_familia: 'garcia', cabeza_familia: '' },
-    { nombre: 'Pedro López',      celular: '5598765432', id_familia: 'lopez',  cabeza_familia: 'sí' },
-    { nombre: 'Laura López',      celular: '',           id_familia: 'lopez',  cabeza_familia: '' },
-    { nombre: 'Roberto Martínez', celular: '5511223344', id_familia: '',       cabeza_familia: '' },
+    { nombre: 'Ana García',       celular: '5512345678', id_familia: 'garcia', cabeza_familia: 'sí', grupo_amigos: 'Amigos universidad' },
+    { nombre: 'Carlos García',    celular: '5512345679', id_familia: 'garcia', cabeza_familia: '',   grupo_amigos: 'Amigos universidad' },
+    { nombre: 'María García',     celular: '',           id_familia: 'garcia', cabeza_familia: '',   grupo_amigos: 'Familia novia' },
+    { nombre: 'Pedro López',      celular: '5598765432', id_familia: 'lopez',  cabeza_familia: 'sí', grupo_amigos: 'Compañeros trabajo' },
+    { nombre: 'Laura López',      celular: '',           id_familia: 'lopez',  cabeza_familia: '',   grupo_amigos: 'Compañeros trabajo' },
+    { nombre: 'Roberto Martínez', celular: '5511223344', id_familia: '',       cabeza_familia: '',   grupo_amigos: '' },
   ]
 
   const ws = XLSX.utils.json_to_sheet(sampleData, {
-    header: ['nombre', 'celular', 'id_familia', 'cabeza_familia'],
+    header: ['nombre', 'celular', 'id_familia', 'cabeza_familia', 'grupo_amigos'],
   })
 
   // Column widths
-  ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 18 }, { wch: 16 }]
+  ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 24 }]
 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Invitados')

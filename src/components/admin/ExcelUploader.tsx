@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import * as XLSX from 'xlsx'
 import type { ExcelRow } from '@/types'
-import { insertGuests } from '@/lib/supabase'
+import { insertGuests, listGuestGroups, createGuestGroup } from '@/lib/supabase'
 import { downloadGuestTemplate } from '@/lib/excelTemplate'
 
 interface Props {
@@ -55,11 +55,13 @@ export default function ExcelUploader({ onSuccess }: Props) {
           const is_head = cabezeRaw
             ? ['si', 'sí', 'yes', '1', 'true'].includes(String(cabezeRaw).toLowerCase().trim())
             : false
+          const grupoRaw = n['grupo_amigos'] ?? n['grupo']
           return {
             nombre:         String(n['nombre'] ?? '').trim(),
             celular:        n['celular'] ? String(n['celular']).trim() : undefined,
             id_familia:     familyRaw ? String(familyRaw).trim() : undefined,
             cabeza_familia: is_head,
+            grupo_amigos:   grupoRaw ? String(grupoRaw).trim() : undefined,
           }
         }).filter((r) => r.nombre)
 
@@ -81,6 +83,31 @@ export default function ExcelUploader({ onSuccess }: Props) {
     if (!preview.length) return
     setUploading(true)
 
+    // Resolve grupo_amigos → group_id (create groups that don't exist yet)
+    const groupNames = [...new Set(preview.map(r => r.grupo_amigos).filter(Boolean))] as string[]
+    const groupIdMap = new Map<string, string>()
+
+    if (groupNames.length > 0) {
+      const existingGroups = await listGuestGroups()
+      const existingByName = new Map(existingGroups.map(g => [g.name.toLowerCase(), g.id]))
+      const colors = ['#B8966E', '#7A9E82', '#6B2437', '#4A90D9', '#D4A96A', '#9B59B6', '#E67E22', '#1ABC9C', '#E74C3C', '#3498DB']
+      let colorIdx = existingGroups.length
+
+      for (const name of groupNames) {
+        const existing = existingByName.get(name.toLowerCase())
+        if (existing) {
+          groupIdMap.set(name, existing)
+        } else {
+          const created = await createGuestGroup({ name, color: colors[colorIdx % colors.length] })
+          if (created) {
+            groupIdMap.set(name, created.id)
+            existingByName.set(name.toLowerCase(), created.id)
+          }
+          colorIdx++
+        }
+      }
+    }
+
     // Map id_familia text → stable UUID (same text = same family group)
     const familyMap = new Map<string, string>()
     const guests = preview.map((r) => {
@@ -97,6 +124,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
         max_companions: 0,
         family_id,
         is_family_head: r.cabeza_familia ?? false,
+        group_id:       r.grupo_amigos ? (groupIdMap.get(r.grupo_amigos) ?? null) : null,
       }
     })
 
@@ -114,13 +142,14 @@ export default function ExcelUploader({ onSuccess }: Props) {
 
   // Unique family groups count for the preview summary
   const familyCount = new Set(preview.map((r) => r.id_familia).filter(Boolean)).size
+  const friendGroupCount = new Set(preview.map((r) => r.grupo_amigos).filter(Boolean)).size
 
   return (
     <div>
       {/* Template download hint */}
       <div className="mb-4 flex items-center justify-between flex-wrap gap-2">
         <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
-          Columnas esperadas: <strong>nombre</strong>, celular <em>(opcional)</em>, id_familia <em>(opcional)</em>
+          Columnas esperadas: <strong>nombre</strong>, celular <em>(opcional)</em>, id_familia <em>(opcional)</em>, grupo_amigos <em>(opcional)</em>
         </p>
         <button
           type="button"
@@ -177,6 +206,11 @@ export default function ExcelUploader({ onSuccess }: Props) {
                     · {familyCount} grupo{familyCount !== 1 ? 's' : ''} familiar{familyCount !== 1 ? 'es' : ''}
                   </span>
                 )}
+                {friendGroupCount > 0 && (
+                  <span className="ml-2 text-xs font-normal" style={{ color: 'var(--color-muted)' }}>
+                    · {friendGroupCount} grupo{friendGroupCount !== 1 ? 's' : ''} de amigos
+                  </span>
+                )}
               </p>
             </div>
             <div className="flex gap-2">
@@ -206,6 +240,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Celular</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>ID Familia</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Cabeza</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Grupo Amigos</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,6 +255,11 @@ export default function ExcelUploader({ onSuccess }: Props) {
                     </td>
                     <td className="px-4 py-2 text-center">
                       {row.cabeza_familia ? '👑' : <span style={{ color: 'var(--color-muted)' }}>—</span>}
+                    </td>
+                    <td className="px-4 py-2">
+                      {row.grupo_amigos
+                        ? <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--color-sage)22', color: 'var(--color-dark)' }}>{row.grupo_amigos}</span>
+                        : <span style={{ color: 'var(--color-muted)' }}>—</span>}
                     </td>
                   </tr>
                 ))}
