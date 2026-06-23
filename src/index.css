@@ -406,6 +406,22 @@ body {
   color: var(--color-muted);
 }
 
+/* ── Scroll reveal (text rises from below as you scroll) ── */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.85s cubic-bezier(0.2, 0, 0, 1),
+      transform 0.85s cubic-bezier(0.2, 0, 0, 1);
+    will-change: opacity, transform;
+  }
+  .reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ── Animations (general) ──────────────────────────────── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(24px); }
