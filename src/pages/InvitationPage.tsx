@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import type { Guest } from '@/types'
 import { useWeddingConfig } from '@/hooks/useWeddingConfig'
 import { useGuest } from '@/hooks/useGuest'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 import LoadingScreen from '@/components/shared/LoadingScreen'
 import SealedEnvelope from '@/components/invitation/SealedEnvelope'
 import MusicPlayer from '@/components/invitation/MusicPlayer'
@@ -25,6 +26,9 @@ export default function InvitationPage() {
   const [letterOpened, setLetterOpened] = useState(false)
   const [searchedGuest, setSearchedGuest] = useState<Guest | null>(null)
   const [assetsReady, setAssetsReady] = useState(false)
+
+  // Reveal section text (rising bottom-to-top) once the letter is opened
+  useScrollReveal(letterOpened)
 
   // Preload cover photo (and seal) before showing the sealed envelope
   useEffect(() => {
