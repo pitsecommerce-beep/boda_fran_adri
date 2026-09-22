@@ -406,7 +406,6 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
     return matchesSearch && matchesFilter
   })
 
-  const filteredIds = new Set(filtered.map((g) => g.id))
   const allFilteredSelected = filtered.length > 0 && filtered.every((g) => selectedIds.has(g.id))
   const someSelected = selectedIds.size > 0
 
