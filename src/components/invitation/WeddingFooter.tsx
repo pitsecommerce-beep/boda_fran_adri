@@ -46,7 +46,7 @@ export default function WeddingFooter({ brideName, groomName, weddingDate }: Pro
           lineHeight: 1.1,
         }}
       >
-        {groomName} &amp; {brideName}
+        {brideName} &amp; {groomName}
       </h2>
 
       {/* Tagline */}
