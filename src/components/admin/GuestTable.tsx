@@ -435,7 +435,6 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
     })
   }
 
-  const visibleSelectedCount = [...selectedIds].filter((id) => filteredIds.has(id)).length
   const totalSelectedCount = selectedIds.size
 
   const handleBulkDelete = async () => {
