@@ -12,13 +12,10 @@ interface Props {
 
 function ChurchIcon({ color }: { color: string }) {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      {/* Cross — clearly above the roofline */}
-      <line x1="12" y1="1" x2="12" y2="6" />
-      <line x1="9.5" y1="3.2" x2="14.5" y2="3.2" />
-      {/* Church building */}
+    <svg width="28" height="34" viewBox="0 -6 24 30" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="-5" x2="12" y2="4" />
+      <line x1="9" y1="-1.5" x2="15" y2="-1.5" />
       <path d="M4 22V11l8-7 8 7v11" />
-      {/* Door */}
       <path d="M10 22v-5h4v5" />
     </svg>
   )
