@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
             Admin
           </h1>
           <p className="font-serif italic mt-1" style={{ color: 'var(--color-muted)' }}>
-            Panel de Fran &amp; Adri
+            Panel de Adri &amp; Fran
           </p>
         </div>
 
