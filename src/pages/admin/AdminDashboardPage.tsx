@@ -152,7 +152,7 @@ export default function AdminDashboardPage() {
           }}
         >
           <p className="font-sans text-xs tracking-[0.3em] uppercase mb-1" style={{ color: 'var(--color-yellow)' }}>
-            La boda de {config?.groom_name} &amp; {config?.bride_name}
+            La boda de {config?.bride_name} &amp; {config?.groom_name}
           </p>
           <p className="font-serif text-2xl capitalize mb-2" style={{ color: 'var(--color-dark)' }}>
             {format(weddingDate, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })}
@@ -384,7 +384,7 @@ export default function AdminDashboardPage() {
           </h2>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
             {[
-              { label: 'Novios', value: `${config.groom_name} & ${config.bride_name}` },
+              { label: 'Novios', value: `${config.bride_name} & ${config.groom_name}` },
               { label: 'Fecha', value: weddingDate ? format(weddingDate, "d 'de' MMMM yyyy", { locale: es }) : '—' },
               { label: 'Ceremonia', value: config.ceremony_venue ?? '—' },
               { label: 'Recepción', value: config.reception_venue ?? '—' },

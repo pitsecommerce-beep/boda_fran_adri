@@ -15,6 +15,9 @@ function FaviconUpdater() {
       document.head.appendChild(link)
     }
     link.href = config.favicon_url
+
+    const ogImage = document.querySelector("meta[property='og:image']") as HTMLMetaElement | null
+    if (ogImage) ogImage.content = config.favicon_url
   }, [config?.favicon_url])
   return null
 }

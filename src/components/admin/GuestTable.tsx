@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Guest, RSVP } from '@/types'
-import { deleteGuest, updateGuest, submitRSVP, deleteRSVPByGuestId } from '@/lib/supabase'
+import { deleteGuest, deleteGuests, updateGuest, submitRSVP, deleteRSVPByGuestId } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 
 async function toggleFamilyHead(guest: Guest, onRefresh: () => void) {
@@ -55,14 +55,68 @@ function DietaryInfo({ rsvp }: { rsvp: RSVP | null }) {
   )
 }
 
+function ConfirmDeleteModal({
+  count,
+  onConfirm,
+  onCancel,
+  deleting,
+}: {
+  count: number
+  onConfirm: () => void
+  onCancel: () => void
+  deleting: boolean
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.4)' }}>
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+        style={{ border: '1px solid var(--color-yellow)33' }}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+            style={{ background: '#FFE0E0' }}>
+            🗑️
+          </div>
+          <h3 className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>
+            Confirmar eliminación
+          </h3>
+        </div>
+        <p className="font-sans text-sm mb-6" style={{ color: 'var(--color-muted)' }}>
+          Estás a punto de eliminar <strong style={{ color: 'var(--color-dark)' }}>{count} invitado{count > 1 ? 's' : ''}</strong>.
+          También se borrarán sus RSVPs y asignaciones de mesa. Esta acción no se puede deshacer.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onCancel}
+            disabled={deleting}
+            className="px-5 py-2 rounded-xl font-sans text-sm transition-all"
+            style={{ background: '#f5f5f5', color: 'var(--color-muted)' }}>
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={deleting}
+            className="px-5 py-2 rounded-xl font-sans text-sm font-medium transition-all"
+            style={{ background: '#E04040', color: 'white', opacity: deleting ? 0.6 : 1 }}>
+            {deleting ? 'Eliminando…' : `Eliminar ${count} invitado${count > 1 ? 's' : ''}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function GuestRow({
   guest,
   rsvp,
   onRefresh,
+  selected,
+  onToggleSelect,
 }: {
   guest: Guest
   rsvp: RSVP | null
   onRefresh: () => void
+  selected: boolean
+  onToggleSelect: () => void
 }) {
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(guest.name)
@@ -119,7 +173,17 @@ function GuestRow({
 
   return (
     <>
-      <tr style={{ borderTop: '1px solid var(--color-yellow)1A' }}>
+      <tr style={{ borderTop: '1px solid var(--color-yellow)1A', background: selected ? 'var(--color-yellow)0D' : undefined }}>
+        {/* Checkbox */}
+        <td className="px-3 py-3 w-10">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={onToggleSelect}
+            className="w-4 h-4 rounded accent-[var(--color-yellow)] cursor-pointer"
+          />
+        </td>
+
         {/* Nombre */}
         <td className="px-4 py-3">
           {editing ? (
@@ -280,7 +344,7 @@ function GuestRow({
       </tr>
       {showQR && (
         <tr style={{ background: 'var(--color-cream)' }}>
-          <td colSpan={6} className="px-4 py-4">
+          <td colSpan={7} className="px-4 py-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div className="p-2 bg-white rounded-xl shadow-sm">
                 <QRCodeSVG value={inviteUrl} size={120} />
@@ -324,6 +388,9 @@ const FILTER_COLORS: Record<FilterType, string> = {
 export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const [search, setSearch] = useState('')
   const [filterRSVP, setFilterRSVP] = useState<FilterType>('all')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const filtered = guests.filter((g) => {
     const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -338,6 +405,47 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
       /* dietary */                     (rsvp?.attending === true && !!rsvp?.dietary_notes)
     return matchesSearch && matchesFilter
   })
+
+  const filteredIds = new Set(filtered.map((g) => g.id))
+  const allFilteredSelected = filtered.length > 0 && filtered.every((g) => selectedIds.has(g.id))
+  const someSelected = selectedIds.size > 0
+
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev)
+        for (const g of filtered) next.delete(g.id)
+        return next
+      })
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev)
+        for (const g of filtered) next.add(g.id)
+        return next
+      })
+    }
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const visibleSelectedCount = [...selectedIds].filter((id) => filteredIds.has(id)).length
+  const totalSelectedCount = selectedIds.size
+
+  const handleBulkDelete = async () => {
+    setDeleting(true)
+    await deleteGuests([...selectedIds])
+    setDeleting(false)
+    setShowDeleteModal(false)
+    setSelectedIds(new Set())
+    onRefresh()
+  }
 
   const totalConfirmed     = rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
   const totalDeclined      = rsvps.filter((r) => !r.attending).length
@@ -394,6 +502,28 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
         </div>
       </div>
 
+      {/* Bulk actions bar */}
+      {someSelected && (
+        <div className="flex items-center gap-4 mb-4 px-4 py-3 rounded-xl"
+          style={{ background: 'var(--color-yellow)15', border: '1px solid var(--color-yellow)44' }}>
+          <span className="font-sans text-sm" style={{ color: 'var(--color-dark)' }}>
+            {totalSelectedCount} invitado{totalSelectedCount > 1 ? 's' : ''} seleccionado{totalSelectedCount > 1 ? 's' : ''}
+          </span>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="px-4 py-1.5 rounded-lg font-sans text-xs font-medium transition-all"
+            style={{ background: '#E04040', color: 'white' }}>
+            Eliminar seleccionados
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="px-4 py-1.5 rounded-lg font-sans text-xs transition-all"
+            style={{ background: '#f5f5f5', color: 'var(--color-muted)' }}>
+            Deseleccionar todo
+          </button>
+        </div>
+      )}
+
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden"
         style={{ border: '1px solid var(--color-yellow)22' }}>
@@ -401,6 +531,14 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: 'var(--color-yellow)1A' }}>
+                <th className="px-3 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={allFilteredSelected && filtered.length > 0}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded accent-[var(--color-yellow)] cursor-pointer"
+                  />
+                </th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Nombre</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
@@ -418,7 +556,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center font-serif italic"
+                  <td colSpan={7} className="px-4 py-10 text-center font-serif italic"
                     style={{ color: 'var(--color-muted)' }}>
                     No hay invitados que coincidan.
                   </td>
@@ -430,6 +568,8 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
                     guest={g}
                     rsvp={getRSVP(g.id, rsvps)}
                     onRefresh={onRefresh}
+                    selected={selectedIds.has(g.id)}
+                    onToggleSelect={() => toggleSelect(g.id)}
                   />
                 ))
               )}
@@ -437,6 +577,16 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
           </table>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showDeleteModal && (
+        <ConfirmDeleteModal
+          count={totalSelectedCount}
+          onConfirm={handleBulkDelete}
+          onCancel={() => setShowDeleteModal(false)}
+          deleting={deleting}
+        />
+      )}
     </div>
   )
 }

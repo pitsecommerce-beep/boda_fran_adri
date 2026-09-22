@@ -25,7 +25,7 @@ export default function AdminLayout({ children, title }: Props) {
           <div className="flex items-center gap-2 mr-4 flex-shrink-0">
             <span className="text-xl">💍</span>
             <span className="font-display text-2xl hidden sm:block" style={{ color: 'var(--color-dark)' }}>
-              Fran &amp; Adri
+              Adri &amp; Fran
             </span>
             <span className="font-sans text-xs px-2 py-0.5 rounded-full"
               style={{ background: 'var(--color-yellow)22', color: 'var(--color-muted)' }}>

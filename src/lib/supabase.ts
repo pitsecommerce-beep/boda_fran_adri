@@ -145,6 +145,15 @@ export async function deleteGuest(id: string): Promise<{ error: Error | null }> 
   return { error: error as Error | null }
 }
 
+export async function deleteGuests(ids: string[]): Promise<{ error: Error | null }> {
+  const db = getClient()
+  if (!db) return { error: new Error('Supabase no configurado') }
+  if (ids.length === 0) return { error: null }
+
+  const { error } = await db.from('guests').delete().in('id', ids)
+  return { error: error as Error | null }
+}
+
 export async function updateGuest(
   id: string,
   updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions' | 'family_id' | 'is_family_head' | 'group_id'>>,
