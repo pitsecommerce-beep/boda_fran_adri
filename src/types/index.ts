@@ -55,6 +55,8 @@ export interface Guest {
   family_id: string | null
   is_family_head: boolean
   group_id: string | null
+  side: 'bride' | 'groom' | null
+  invitation_delivered: boolean
   created_at: string
 }
 
