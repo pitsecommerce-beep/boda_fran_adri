@@ -56,12 +56,18 @@ export default function ExcelUploader({ onSuccess }: Props) {
             ? ['si', 'sí', 'yes', '1', 'true'].includes(String(cabezeRaw).toLowerCase().trim())
             : false
           const grupoRaw = n['grupo_amigos'] ?? n['grupo']
+          const sideRaw = String(n['invitado_de'] ?? n['lado'] ?? '').toLowerCase().trim()
+          const side: 'bride' | 'groom' | undefined =
+            ['novia', 'bride'].includes(sideRaw) ? 'bride' :
+            ['novio', 'groom'].includes(sideRaw) ? 'groom' :
+            undefined
           return {
             nombre:         String(n['nombre'] ?? '').trim(),
             celular:        n['celular'] ? String(n['celular']).trim() : undefined,
             id_familia:     familyRaw ? String(familyRaw).trim() : undefined,
             cabeza_familia: is_head,
             grupo_amigos:   grupoRaw ? String(grupoRaw).trim() : undefined,
+            invitado_de:    side,
           }
         }).filter((r) => r.nombre)
 
@@ -125,6 +131,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
         family_id,
         is_family_head: r.cabeza_familia ?? false,
         group_id:       r.grupo_amigos ? (groupIdMap.get(r.grupo_amigos) ?? null) : null,
+        side:           r.invitado_de ?? null,
       }
     })
 
@@ -149,7 +156,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
       {/* Template download hint */}
       <div className="mb-4 flex items-center justify-between flex-wrap gap-2">
         <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
-          Columnas esperadas: <strong>nombre</strong>, celular <em>(opcional)</em>, id_familia <em>(opcional)</em>, grupo_amigos <em>(opcional)</em>
+          Columnas esperadas: <strong>nombre</strong>, celular <em>(opcional)</em>, invitado_de <em>(opcional: novia/novio)</em>, id_familia <em>(opcional)</em>, grupo_amigos <em>(opcional)</em>
         </p>
         <button
           type="button"
@@ -238,6 +245,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
                 <tr style={{ background: 'var(--color-yellow)1A' }}>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Nombre</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Celular</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Invitado de</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>ID Familia</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Cabeza</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Grupo Amigos</th>
@@ -248,6 +256,13 @@ export default function ExcelUploader({ onSuccess }: Props) {
                   <tr key={i} style={{ borderTop: '1px solid var(--color-yellow)1A' }}>
                     <td className="px-4 py-2" style={{ color: 'var(--color-dark)' }}>{row.nombre}</td>
                     <td className="px-4 py-2" style={{ color: 'var(--color-muted)' }}>{row.celular || '—'}</td>
+                    <td className="px-4 py-2">
+                      {row.invitado_de === 'bride'
+                        ? <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: '#FCE4EC', color: '#AD1457' }}>Novia</span>
+                        : row.invitado_de === 'groom'
+                        ? <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: '#E3F2FD', color: '#1565C0' }}>Novio</span>
+                        : <span style={{ color: 'var(--color-muted)' }}>—</span>}
+                    </td>
                     <td className="px-4 py-2">
                       {row.id_familia
                         ? <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--color-yellow)22', color: 'var(--color-dark)' }}>{row.id_familia}</span>
