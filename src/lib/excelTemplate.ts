@@ -34,6 +34,8 @@ export function downloadGuestReport(guests: Guest[], rsvps: RSVP[]) {
     return {
       nombre: g.name,
       celular: g.phone ?? '',
+      invitado_de: g.side === 'bride' ? 'Novia' : g.side === 'groom' ? 'Novio' : '',
+      invitacion_entregada: g.invitation_delivered ? 'Sí' : 'No',
       acompanantes_max: g.max_companions,
       asistencia: rsvp ? (rsvp.attending ? 'Confirmado' : 'No asistirá') : 'Sin respuesta',
       acompanantes_confirmados: rsvp?.attending ? rsvp.companion_count : '',
@@ -44,10 +46,10 @@ export function downloadGuestReport(guests: Guest[], rsvps: RSVP[]) {
   })
 
   const ws = XLSX.utils.json_to_sheet(rows, {
-    header: ['nombre', 'celular', 'acompanantes_max', 'asistencia', 'acompanantes_confirmados', 'restricciones_alimenticias', 'necesita_hospedaje', 'mensaje'],
+    header: ['nombre', 'celular', 'invitado_de', 'invitacion_entregada', 'acompanantes_max', 'asistencia', 'acompanantes_confirmados', 'restricciones_alimenticias', 'necesita_hospedaje', 'mensaje'],
   })
 
-  ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 22 }, { wch: 30 }, { wch: 18 }, { wch: 40 }]
+  ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 20 }, { wch: 16 }, { wch: 18 }, { wch: 22 }, { wch: 30 }, { wch: 18 }, { wch: 40 }]
 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Invitados')

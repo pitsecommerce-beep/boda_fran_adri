@@ -118,7 +118,7 @@ export async function getFamilyMembers(familyId: string): Promise<Guest[]> {
 }
 
 export async function insertGuests(
-  guests: Array<{ name: string; phone?: string; max_companions: number; family_id?: string | null; is_family_head?: boolean; group_id?: string | null }>,
+  guests: Array<{ name: string; phone?: string; max_companions: number; family_id?: string | null; is_family_head?: boolean; group_id?: string | null; side?: 'bride' | 'groom' | null }>,
 ): Promise<{ error: Error | null }> {
   const db = getClient()
   if (!db) return { error: new Error('Supabase no configurado') }
@@ -130,6 +130,8 @@ export async function insertGuests(
     family_id: g.family_id ?? null,
     is_family_head: g.is_family_head ?? false,
     group_id: g.group_id ?? null,
+    side: g.side ?? null,
+    invitation_delivered: false,
     token: crypto.randomUUID(),
   }))
 
@@ -156,7 +158,7 @@ export async function deleteGuests(ids: string[]): Promise<{ error: Error | null
 
 export async function updateGuest(
   id: string,
-  updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions' | 'family_id' | 'is_family_head' | 'group_id'>>,
+  updates: Partial<Pick<Guest, 'name' | 'phone' | 'max_companions' | 'family_id' | 'is_family_head' | 'group_id' | 'side' | 'invitation_delivered'>>,
 ): Promise<{ error: Error | null }> {
   const db = getClient()
   if (!db) return { error: new Error('Supabase no configurado') }

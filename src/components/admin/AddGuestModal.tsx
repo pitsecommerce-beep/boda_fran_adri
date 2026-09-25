@@ -27,6 +27,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [maxComp, setMaxComp] = useState(0)
+  const [side, setSide] = useState<'none' | 'bride' | 'groom'>('none')
   const [familyOption, setFamilyOption] = useState<FamilyOption>('none')
   const [newFamilyName, setNewFamilyName] = useState('')
   const [isFamilyHead, setIsFamilyHead] = useState(false)
@@ -54,6 +55,7 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
       max_companions: maxComp,
       family_id,
       is_family_head: family_id ? isFamilyHead : false,
+      side: side === 'none' ? null : side,
     }])
 
     setSaving(false)
@@ -135,6 +137,23 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
               className="border rounded-xl px-4 py-2.5 font-sans text-sm bg-white outline-none focus:ring-2 w-28"
               style={{ borderColor: 'var(--color-yellow)66', '--tw-ring-color': 'var(--color-yellow)33' } as React.CSSProperties}
             />
+          </div>
+
+          {/* Lado (novio/novia) */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-sans text-sm font-medium" style={{ color: 'var(--color-dark)' }}>
+              Invitado de
+            </label>
+            <select
+              value={side}
+              onChange={(e) => setSide(e.target.value as 'none' | 'bride' | 'groom')}
+              className="border rounded-xl px-4 py-2.5 font-sans text-sm bg-white outline-none focus:ring-2"
+              style={{ borderColor: 'var(--color-yellow)66', '--tw-ring-color': 'var(--color-yellow)33' } as React.CSSProperties}
+            >
+              <option value="none">Sin asignar</option>
+              <option value="bride">Novia</option>
+              <option value="groom">Novio</option>
+            </select>
           </div>
 
           {/* Familia */}

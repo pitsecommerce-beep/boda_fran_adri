@@ -53,6 +53,10 @@ create table if not exists public.guests (
   is_family_head   boolean     not null default false,
   -- group_id: grupo de amigos para facilitar asignación de mesas.
   group_id         uuid,
+  -- side: indica si el invitado es del novio ('groom') o de la novia ('bride').
+  side             text        check (side in ('bride', 'groom')),
+  -- invitation_delivered: se marcó como entregada la invitación.
+  invitation_delivered boolean not null default false,
   created_at       timestamptz not null default now()
 );
 
@@ -87,6 +91,8 @@ create table if not exists public.rsvps (
 -- alter table public.wedding_config add column if not exists bride_parents  text;
 -- alter table public.wedding_config add column if not exists groom_parents  text;
 -- alter table public.guests add column if not exists group_id uuid;
+-- alter table public.guests add column if not exists side text check (side in ('bride', 'groom'));
+-- alter table public.guests add column if not exists invitation_delivered boolean not null default false;
 
 create index if not exists rsvps_guest_id_idx on public.rsvps (guest_id);
 

@@ -124,6 +124,7 @@ function GuestRow({
   const [maxComp, setMaxComp] = useState(guest.max_companions)
   const [attendingEdit, setAttendingEdit] = useState<'none' | 'yes' | 'no'>('none')
   const [dietaryEdit, setDietaryEdit] = useState('')
+  const [sideEdit, setSideEdit] = useState<'none' | 'bride' | 'groom'>('none')
   const [saving, setSaving] = useState(false)
   const [showQR, setShowQR] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -142,12 +143,13 @@ function GuestRow({
     setMaxComp(guest.max_companions)
     setAttendingEdit(rsvp === null ? 'none' : rsvp.attending ? 'yes' : 'no')
     setDietaryEdit(rsvp?.dietary_notes ?? '')
+    setSideEdit(guest.side ?? 'none')
     setEditing(true)
   }
 
   const handleSave = async () => {
     setSaving(true)
-    await updateGuest(guest.id, { name, phone: phone || undefined, max_companions: maxComp })
+    await updateGuest(guest.id, { name, phone: phone || undefined, max_companions: maxComp, side: sideEdit === 'none' ? null : sideEdit })
     if (attendingEdit === 'none') {
       await deleteRSVPByGuestId(guest.id)
     } else {
@@ -244,6 +246,41 @@ function GuestRow({
               {guest.max_companions}
             </span>
           )}
+        </td>
+
+        {/* Lado */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <select
+              value={sideEdit}
+              onChange={(e) => setSideEdit(e.target.value as 'none' | 'bride' | 'groom')}
+              className="border rounded-lg px-2 py-1 text-sm"
+              style={{ borderColor: 'var(--color-yellow)66' }}>
+              <option value="none">Sin asignar</option>
+              <option value="bride">Novia</option>
+              <option value="groom">Novio</option>
+            </select>
+          ) : (
+            <SideBadge side={guest.side} />
+          )}
+        </td>
+
+        {/* Invitación entregada */}
+        <td className="px-4 py-3">
+          <button
+            onClick={async () => {
+              await updateGuest(guest.id, { invitation_delivered: !guest.invitation_delivered })
+              onRefresh()
+            }}
+            title={guest.invitation_delivered ? 'Marcar como no entregada' : 'Marcar como entregada'}
+            className="px-2 py-1 rounded-full text-xs font-sans transition-all"
+            style={{
+              background: guest.invitation_delivered ? '#E8F5E9' : '#f5f5f5',
+              color: guest.invitation_delivered ? '#2E7D32' : 'var(--color-muted)',
+              border: `1px solid ${guest.invitation_delivered ? '#A5D6A7' : '#ddd'}`,
+            }}>
+            {guest.invitation_delivered ? '✓ Entregada' : '✗ Pendiente'}
+          </button>
         </td>
 
         {/* Asistencia */}
@@ -344,7 +381,7 @@ function GuestRow({
       </tr>
       {showQR && (
         <tr style={{ background: 'var(--color-cream)' }}>
-          <td colSpan={7} className="px-4 py-4">
+          <td colSpan={9} className="px-4 py-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div className="p-2 bg-white rounded-xl shadow-sm">
                 <QRCodeSVG value={inviteUrl} size={120} />
@@ -365,7 +402,19 @@ function GuestRow({
   )
 }
 
-type FilterType = 'all' | 'confirmed' | 'declined' | 'pending' | 'accommodation' | 'dietary'
+function SideBadge({ side }: { side: 'bride' | 'groom' | null }) {
+  if (!side) return <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>—</span>
+  const label = side === 'bride' ? 'Novia' : 'Novio'
+  const bg = side === 'bride' ? '#FCE4EC' : '#E3F2FD'
+  const color = side === 'bride' ? '#AD1457' : '#1565C0'
+  return (
+    <span className="px-2 py-0.5 rounded-full text-xs font-sans" style={{ background: bg, color }}>
+      {label}
+    </span>
+  )
+}
+
+type FilterType = 'all' | 'confirmed' | 'declined' | 'pending' | 'accommodation' | 'dietary' | 'delivered' | 'not_delivered'
 
 const FILTER_LABELS: Record<FilterType, string> = {
   all: 'Todos',
@@ -374,6 +423,8 @@ const FILTER_LABELS: Record<FilterType, string> = {
   pending: 'Sin respuesta',
   accommodation: 'Hospedaje',
   dietary: 'Restricción alimentaria',
+  delivered: 'Invitación entregada',
+  not_delivered: 'Sin entregar',
 }
 
 const FILTER_COLORS: Record<FilterType, string> = {
@@ -383,6 +434,8 @@ const FILTER_COLORS: Record<FilterType, string> = {
   pending: 'var(--color-yellow)',
   accommodation: 'var(--color-yellow)',
   dietary: 'var(--color-yellow)',
+  delivered: 'var(--color-yellow)',
+  not_delivered: 'var(--color-yellow)',
 }
 
 export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
@@ -402,6 +455,8 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
       filterRSVP === 'confirmed'      ? (rsvp?.attending === true) :
       filterRSVP === 'declined'       ? (rsvp?.attending === false) :
       filterRSVP === 'accommodation'  ? (rsvp?.attending === true && rsvp?.needs_accommodation === true) :
+      filterRSVP === 'delivered'      ? g.invitation_delivered :
+      filterRSVP === 'not_delivered'  ? !g.invitation_delivered :
       /* dietary */                     (rsvp?.attending === true && !!rsvp?.dietary_notes)
     return matchesSearch && matchesFilter
   })
@@ -450,12 +505,18 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const totalPending       = guests.length - rsvps.length
   const needsAccommodation = rsvps.filter((r) => r.attending && r.needs_accommodation).length
   const withDietary        = rsvps.filter((r) => r.attending && !!r.dietary_notes).length
+  const totalDelivered     = guests.filter((g) => g.invitation_delivered).length
+  const totalBride         = guests.filter((g) => g.side === 'bride').length
+  const totalGroom         = guests.filter((g) => g.side === 'groom').length
 
   const stats = [
     { label: 'Total invitados',             value: guests.length,       color: 'var(--color-yellow)' },
     { label: 'Confirmados',                 value: totalConfirmed,      color: 'var(--color-yellow)' },
     { label: 'No asistirán',                value: totalDeclined,       color: 'var(--color-yellow)' },
     { label: 'Sin respuesta',               value: totalPending,        color: 'var(--color-yellow)' },
+    { label: 'Invitación entregada',        value: totalDelivered,      color: 'var(--color-yellow)' },
+    { label: 'De la novia',                 value: totalBride,          color: 'var(--color-yellow)' },
+    { label: 'Del novio',                   value: totalGroom,          color: 'var(--color-yellow)' },
     { label: 'Necesitan hospedaje',         value: needsAccommodation,  color: 'var(--color-yellow)' },
     { label: 'Restricción alimentaria',     value: withDietary,         color: 'var(--color-yellow)' },
   ]
@@ -463,7 +524,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-4 mb-6">
         {stats.map(({ label, value, color }) => (
           <div key={label}
             className="bg-white rounded-2xl p-4 text-center shadow-sm"
@@ -544,6 +605,10 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Acomp. máx.</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>Lado</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>Invitación</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Asistencia</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Restricciones alimenticias</th>
@@ -554,7 +619,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center font-serif italic"
+                  <td colSpan={9} className="px-4 py-10 text-center font-serif italic"
                     style={{ color: 'var(--color-muted)' }}>
                     No hay invitados que coincidan.
                   </td>
