@@ -198,9 +198,9 @@ export default function AddGuestModal({ guests, onSuccess, onClose }: Props) {
                   className="rounded"
                 />
                 <span className="font-sans text-sm" style={{ color: 'var(--color-dark)' }}>
-                  Cabeza de familia{' '}
+                  Responsable del grupo{' '}
                   <span className="font-normal" style={{ color: 'var(--color-muted)' }}>
-                    (puede confirmar por todo el grupo)
+                    (puede confirmar por todos)
                   </span>
                 </span>
               </label>

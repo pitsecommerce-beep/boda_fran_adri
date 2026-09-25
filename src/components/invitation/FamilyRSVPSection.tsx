@@ -133,7 +133,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
             className="font-serif"
             style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}
           >
-            {members.length > 1 ? 'Confirma por tu familia' : 'Tu respuesta'}
+            {members.length > 1 ? 'Confirma por tu gente' : 'Tu respuesta'}
           </h2>
           {members.length > 1 && (
             <p className="mt-3 font-serif italic" style={{ color: 'var(--color-muted)', fontWeight: 300 }}>
@@ -141,16 +141,6 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               Indica quiénes podrán asistir.
             </p>
           )}
-        </div>
-
-        {/* Children notice */}
-        <div
-          className="mb-6 p-4 rounded-lg"
-          style={{ background: 'rgba(184,150,110,0.08)', border: '1px solid rgba(184,150,110,0.20)' }}
-        >
-          <p className="font-sans text-sm leading-relaxed text-center" style={{ color: 'var(--color-dark)' }}>
-            <span className="font-medium">Celebración para adultos</span> — no se admiten menores de 15 años.
-          </p>
         </div>
 
         <form
@@ -173,53 +163,42 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
                   border: `1px solid ${m.attending ? 'rgba(184,150,110,0.35)' : 'rgba(44,32,18,0.08)'}`,
                 }}
               >
-                <div className="flex items-center justify-between gap-4 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center text-sm flex-shrink-0"
-                      style={{ background: 'rgba(184,150,110,0.15)', color: 'var(--color-muted)' }}
-                    >
-                      {m.guest.name.charAt(0).toUpperCase()}
-                    </div>
-                    <p className="font-serif text-lg" style={{ color: 'var(--color-dark)' }}>
-                      {m.guest.name}
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2 flex-shrink-0">
+                <div className="mb-3">
+                  <p className="font-serif text-lg mb-3" style={{ color: 'var(--color-dark)' }}>
+                    {m.guest.name}
+                  </p>
+                  <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => updateMember(m.guest.id, { attending: true })}
                       className="font-sans font-medium transition-all"
                       style={{
-                        background: m.attending ? 'var(--color-gold)' : '#f0f0f0',
+                        background: m.attending ? 'var(--color-gold)' : 'transparent',
                         color: m.attending ? '#FFFFFF' : 'var(--color-muted)',
-                        borderRadius: 2,
-                        fontSize: '0.6rem',
-                        letterSpacing: '0.15em',
-                        textTransform: 'uppercase',
-                        padding: '6px 10px',
-                        border: 'none',
+                        borderRadius: 999,
+                        fontSize: '0.7rem',
+                        letterSpacing: '0.08em',
+                        padding: '7px 18px',
+                        border: m.attending ? '1px solid var(--color-gold)' : '1px solid rgba(44,32,18,0.15)',
                       }}
                     >
-                      ✓ Asistirá
+                      Asistirá
                     </button>
                     <button
                       type="button"
                       onClick={() => updateMember(m.guest.id, { attending: false })}
                       className="font-sans font-medium transition-all"
                       style={{
-                        background: !m.attending ? 'var(--color-dark)' : '#f0f0f0',
+                        background: !m.attending ? 'var(--color-dark)' : 'transparent',
                         color: !m.attending ? 'white' : 'var(--color-muted)',
-                        borderRadius: 2,
-                        fontSize: '0.6rem',
-                        letterSpacing: '0.15em',
-                        textTransform: 'uppercase',
-                        padding: '6px 10px',
-                        border: 'none',
+                        borderRadius: 999,
+                        fontSize: '0.7rem',
+                        letterSpacing: '0.08em',
+                        padding: '7px 18px',
+                        border: !m.attending ? '1px solid var(--color-dark)' : '1px solid rgba(44,32,18,0.15)',
                       }}
                     >
-                      ✗ No asistirá
+                      No asistirá
                     </button>
                   </div>
                 </div>
