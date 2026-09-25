@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Guest, RSVP } from '@/types'
 import { submitRSVP } from '@/lib/supabase'
 
