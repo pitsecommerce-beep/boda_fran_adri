@@ -117,4 +117,6 @@ export interface ExcelRow {
   cabeza_familia?: boolean
   /** Friend/social group name for seating chart — accepts "grupo_amigos" or "grupo" */
   grupo_amigos?: string
+  /** Accepts "invitado_de" or "lado": novia/novio */
+  invitado_de?: 'bride' | 'groom'
 }
