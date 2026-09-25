@@ -119,4 +119,6 @@ export interface ExcelRow {
   grupo_amigos?: string
   /** Accepts "invitado_de" or "lado": novia/novio */
   invitado_de?: 'bride' | 'groom'
+  /** Max companions this guest can bring — accepts "max_acompanantes" or "acompanantes" */
+  max_acompanantes?: number
 }
