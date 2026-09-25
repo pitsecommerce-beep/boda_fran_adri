@@ -135,12 +135,6 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
           >
             {members.length > 1 ? 'Confirma por tu gente' : 'Tu respuesta'}
           </h2>
-          {members.length > 1 && (
-            <p className="mt-3 font-serif italic" style={{ color: 'var(--color-muted)', fontWeight: 300 }}>
-              Confirmamos {members.length} personas en tu invitación.
-              Indica quiénes podrán asistir.
-            </p>
-          )}
         </div>
 
         <form
