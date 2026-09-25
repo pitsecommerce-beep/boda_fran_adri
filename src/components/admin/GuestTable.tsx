@@ -206,7 +206,7 @@ function GuestRow({
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
                   </svg>
-                  Cabeza de familia
+                  Responsable del grupo
                 </span>
               )}
             </div>
@@ -354,7 +354,7 @@ function GuestRow({
                 {guest.family_id && (
                   <button
                     onClick={() => void toggleFamilyHead(guest, onRefresh)}
-                    title={guest.is_family_head ? 'Quitar cabeza de familia' : 'Marcar como cabeza de familia'}
+                    title={guest.is_family_head ? 'Quitar responsable del grupo' : 'Marcar como responsable del grupo'}
                     className="p-1.5 rounded-lg text-sm transition-all"
                     style={{ background: guest.is_family_head ? 'var(--color-yellow)88' : 'var(--color-yellow)22' }}>
                     👑

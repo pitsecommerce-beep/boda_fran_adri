@@ -250,7 +250,7 @@ export default function ExcelUploader({ onSuccess }: Props) {
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Celular</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Invitado de</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>ID Familia</th>
-                  <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Cabeza</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Responsable</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Grupo Amigos</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: 'var(--color-dark)' }}>Acomp. máx</th>
                 </tr>
