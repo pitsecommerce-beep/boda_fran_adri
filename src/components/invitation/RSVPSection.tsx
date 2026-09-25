@@ -13,6 +13,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
     existingRSVP ? existingRSVP.attending : null,
   )
   const [companionCount, setCompanionCount] = useState(existingRSVP?.companion_count ?? 0)
+  const [hasDietary, setHasDietary] = useState(!!existingRSVP?.dietary_notes)
   const [dietaryNotes, setDietaryNotes] = useState(existingRSVP?.dietary_notes ?? '')
   const [message, setMessage] = useState(existingRSVP?.message ?? '')
   const [submitting, setSubmitting] = useState(false)
@@ -36,7 +37,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
       guest_id: guest.id,
       attending,
       companion_count: attending ? companionCount : 0,
-      dietary_notes: dietaryNotes || undefined,
+      dietary_notes: hasDietary ? (dietaryNotes || undefined) : undefined,
       needs_accommodation: false,
       message: message || undefined,
     })
@@ -178,23 +179,49 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
           {/* Dietary notes */}
           {attending && (
             <div className="mb-6">
-              <label className="block font-sans text-sm mb-2" style={{ color: 'var(--color-muted)' }}>
-                ¿Alguna restricción alimenticia o alergia? (opcional)
-              </label>
-              <input
-                type="text"
-                value={dietaryNotes}
-                onChange={(e) => setDietaryNotes(e.target.value)}
-                placeholder="Ej. vegetariano, alergia al marisco…"
-                className="w-full font-sans text-sm outline-none"
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid rgba(184,150,110,0.30)',
-                  borderRadius: 4,
-                  padding: '12px 16px',
-                  color: 'var(--color-dark)',
-                }}
-              />
+              <p className="font-sans text-sm mb-3" style={{ color: 'var(--color-muted)' }}>
+                ¿Tienes alguna restricción alimenticia o alergia?
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                {[
+                  { value: true,  label: 'Sí' },
+                  { value: false, label: 'No' },
+                ].map(({ value, label }) => (
+                  <button
+                    key={String(value)}
+                    type="button"
+                    onClick={() => { setHasDietary(value); if (!value) setDietaryNotes('') }}
+                    className="py-3 font-sans transition-all"
+                    style={{
+                      background: hasDietary === value ? 'var(--color-gold)' : '#FFFFFF',
+                      color: hasDietary === value ? '#FFFFFF' : 'var(--color-muted)',
+                      border: `1px solid ${hasDietary === value ? 'var(--color-gold)' : 'rgba(184,150,110,0.28)'}`,
+                      borderRadius: 4,
+                      fontSize: '0.75rem',
+                      fontWeight: hasDietary === value ? 500 : 400,
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {hasDietary && (
+                <input
+                  type="text"
+                  value={dietaryNotes}
+                  onChange={(e) => setDietaryNotes(e.target.value)}
+                  placeholder="Ej. vegetariano, alergia al marisco…"
+                  className="w-full font-sans text-sm outline-none"
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid rgba(184,150,110,0.30)',
+                    borderRadius: 4,
+                    padding: '12px 16px',
+                    color: 'var(--color-dark)',
+                  }}
+                />
+              )}
             </div>
           )}
 

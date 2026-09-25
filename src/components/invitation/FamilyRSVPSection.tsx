@@ -10,6 +10,7 @@ interface Props {
 interface MemberState {
   guest: Guest
   attending: boolean
+  has_dietary: boolean
   dietary_notes: string
   existingRSVP: RSVP | null
 }
@@ -41,7 +42,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
       const states: MemberState[] = await Promise.all(
         family.map(async (g) => {
           const rsvp = await getRSVPByGuestId(g.id)
-          return { guest: g, attending: rsvp?.attending ?? true, dietary_notes: rsvp?.dietary_notes ?? '', existingRSVP: rsvp }
+          return { guest: g, attending: rsvp?.attending ?? true, has_dietary: !!rsvp?.dietary_notes, dietary_notes: rsvp?.dietary_notes ?? '', existingRSVP: rsvp }
         }),
       )
 
@@ -65,7 +66,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
     const entries: FamilyRSVPEntry[] = members.map((m) => ({
       guest: m.guest,
       attending: m.attending,
-      dietary_notes: m.dietary_notes,
+      dietary_notes: m.has_dietary ? m.dietary_notes : '',
     }))
 
     const payload = entries.map((e) => ({
@@ -230,23 +231,50 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
 
                 {m.attending && (
                   <div>
-                    <label className="block font-sans text-xs mb-1" style={{ color: 'var(--color-muted)' }}>
-                      ¿Tiene alguna restricción alimenticia o alergia? (opcional)
-                    </label>
-                    <input
-                      type="text"
-                      value={m.dietary_notes}
-                      onChange={(e) => updateMember(m.guest.id, { dietary_notes: e.target.value })}
-                      placeholder="Ej. vegetariano, alérgico al gluten…"
-                      className="w-full font-sans text-sm outline-none"
-                      style={{
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(184,150,110,0.30)',
-                        borderRadius: 4,
-                        padding: '8px 14px',
-                        color: 'var(--color-dark)',
-                      }}
-                    />
+                    <p className="font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>
+                      ¿Tiene alguna restricción alimenticia o alergia?
+                    </p>
+                    <div className="flex gap-2 mb-2">
+                      {[
+                        { value: true, label: 'Sí' },
+                        { value: false, label: 'No' },
+                      ].map(({ value, label }) => (
+                        <button
+                          key={String(value)}
+                          type="button"
+                          onClick={() => updateMember(m.guest.id, { has_dietary: value, ...(!value ? { dietary_notes: '' } : {}) })}
+                          className="font-sans font-medium transition-all"
+                          style={{
+                            background: m.has_dietary === value ? 'var(--color-gold)' : '#f0f0f0',
+                            color: m.has_dietary === value ? '#FFFFFF' : 'var(--color-muted)',
+                            borderRadius: 2,
+                            fontSize: '0.6rem',
+                            letterSpacing: '0.15em',
+                            textTransform: 'uppercase',
+                            padding: '6px 14px',
+                            border: 'none',
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    {m.has_dietary && (
+                      <input
+                        type="text"
+                        value={m.dietary_notes}
+                        onChange={(e) => updateMember(m.guest.id, { dietary_notes: e.target.value })}
+                        placeholder="Ej. vegetariano, alérgico al gluten…"
+                        className="w-full font-sans text-sm outline-none"
+                        style={{
+                          background: '#FFFFFF',
+                          border: '1px solid rgba(184,150,110,0.30)',
+                          borderRadius: 4,
+                          padding: '8px 14px',
+                          color: 'var(--color-dark)',
+                        }}
+                      />
+                    )}
                   </div>
                 )}
               </div>
