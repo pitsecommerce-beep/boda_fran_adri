@@ -19,13 +19,8 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(!!existingRSVP)
   const [error, setError] = useState<string | null>(null)
-  const confirmRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (submitted && confirmRef.current) {
-      confirmRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }, [submitted])
+  const sectionRef = useRef<HTMLElement>(null)
+  const [sectionHeight, setSectionHeight] = useState<number | undefined>(undefined)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +41,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
     if (error) {
       setError('Hubo un problema al enviar tu respuesta. Intenta de nuevo.')
     } else {
+      if (sectionRef.current) setSectionHeight(sectionRef.current.offsetHeight)
       setSubmitted(true)
       onSubmitted()
     }
@@ -53,13 +49,14 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
 
   if (submitted && attending !== null) {
     return (
-      <section className="py-20 px-6 text-center" style={{ background: 'var(--color-surface)' }}>
-        <div
-          ref={confirmRef}
-          className="max-w-lg mx-auto rounded-2xl p-10"
+      <section
+        id="rsvp"
+        className="px-6 flex items-center justify-center"
+        style={{ background: 'var(--color-surface)', minHeight: sectionHeight ? `${sectionHeight}px` : undefined }}
+      >
+        <div className="max-w-lg w-full rounded-2xl p-10 text-center"
           style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)' }}
         >
-          
           <h3 className="font-serif mb-3" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '1.8rem' }}>
             {attending ? '¡Nos vemos pronto!' : '¡Te echaremos de menos!'}
           </h3>
@@ -69,7 +66,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
               : 'Recibimos tu respuesta. Gracias por hacernos saber.'}
           </p>
           {attending && (
-            <button onClick={() => setSubmitted(false)} className="mt-6 text-sm underline"
+            <button onClick={() => { setSubmitted(false); setSectionHeight(undefined) }} className="mt-6 text-sm underline"
               style={{ color: 'var(--color-muted)' }}>
               Modificar respuesta
             </button>
@@ -80,7 +77,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
+    <section ref={sectionRef} id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-10">
           <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>

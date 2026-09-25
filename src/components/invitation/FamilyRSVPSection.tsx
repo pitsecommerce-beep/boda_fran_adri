@@ -22,13 +22,8 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const confirmRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (submitted && confirmRef.current) {
-      confirmRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }, [submitted])
+  const sectionRef = useRef<HTMLElement>(null)
+  const [sectionHeight, setSectionHeight] = useState<number | undefined>(undefined)
 
   useEffect(() => {
     const load = async () => {
@@ -82,6 +77,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
     if (error) {
       setError('Hubo un error al enviar la confirmación. Por favor intenta de nuevo.')
     } else {
+      if (sectionRef.current) setSectionHeight(sectionRef.current.offsetHeight)
       setSubmitted(true)
     }
   }
@@ -100,10 +96,9 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
 
   if (submitted) {
     return (
-      <section id="rsvp" className="py-20 px-6 text-center" style={{ background: 'var(--color-surface)' }}>
+      <section id="rsvp" className="px-6 flex items-center justify-center" style={{ background: 'var(--color-surface)', minHeight: sectionHeight ? `${sectionHeight}px` : undefined }}>
         <div
-          ref={confirmRef}
-          className="max-w-lg mx-auto rounded-2xl p-10"
+          className="max-w-lg w-full rounded-2xl p-10 text-center"
           style={{ border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)', background: 'var(--color-surface)' }}
         >
           
@@ -116,7 +111,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
               : 'Recibimos que no podrán acompañarnos. Gracias por avisarnos.'}
           </p>
           <button
-            onClick={() => setSubmitted(false)}
+            onClick={() => { setSubmitted(false); setSectionHeight(undefined) }}
             className="mt-6 text-sm underline"
             style={{ color: 'var(--color-muted)' }}
           >
@@ -128,7 +123,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
   }
 
   return (
-    <section id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
+    <section ref={sectionRef} id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>
