@@ -23,25 +23,10 @@ export default function AdultsOnlyNotice() {
 
       <p
         className="font-serif italic mx-auto"
-        style={{ color: 'var(--color-dark)', fontSize: '1.1rem', fontWeight: 300, lineHeight: 1.8, maxWidth: 330, margin: '0 auto' }}
+        style={{ color: 'var(--color-muted)', fontSize: '1.05rem', fontWeight: 300, lineHeight: 1.9, maxWidth: 330, margin: '0 auto' }}
       >
         Queremos que disfruten esta noche al máximo, por eso nuestra celebración será
-        únicamente para adultos.
-      </p>
-
-      <p
-        className="font-sans uppercase"
-        style={{ fontSize: '0.58rem', letterSpacing: '0.28em', color: 'var(--color-muted)', margin: '20px 0 0', lineHeight: 1.9 }}
-      >
-        Excepto bebés de brazos<br />menores de 2 años
-      </p>
-
-      <div style={{ width: 80, height: 1, background: goldRule, margin: '28px auto' }} />
-
-      <p
-        className="font-serif italic mx-auto"
-        style={{ color: 'var(--color-muted)', fontSize: '1rem', fontWeight: 300, lineHeight: 1.8, maxWidth: 320, margin: '0 auto' }}
-      >
+        únicamente para adultos, a excepción de bebés de brazos menores de 2 años.
         Gracias por su comprensión y por organizarse con anticipación.
         ¡Estamos ansiosos por festejar con ustedes!
       </p>
