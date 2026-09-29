@@ -2,7 +2,7 @@ const goldRule = 'linear-gradient(to right, transparent, var(--color-gold), tran
 
 export default function AdultsOnlyNotice() {
   return (
-    <div className="text-center py-12 px-6" style={{ background: 'var(--color-khaki)' }}>
+    <div className="text-center py-20 px-6" style={{ background: 'var(--color-khaki)' }}>
       {/* Top ornament */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ width: 1, height: 28, background: 'linear-gradient(to bottom, transparent, var(--color-gold)88)', margin: '0 auto 10px' }} />
