@@ -201,7 +201,7 @@ export default function WeddingDetails({ config }: Props) {
       {(config.dress_code || config.dress_code_forbidden_text || config.dress_code_forbidden_image_url) && (
         <div className="mt-10">
           <div className="section-block-divider" />
-          <div className="text-center py-8 px-6" style={{ background: 'var(--color-khaki)' }}>
+          <div className="text-center py-20 px-6" style={{ background: 'var(--color-khaki)' }}>
             <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
               Código de vestimenta
             </p>
