@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { WeddingConfig } from '@/types'
 import FloralDivider from '@/components/shared/FloralDivider'
+import AdultsOnlyNotice from '@/components/invitation/AdultsOnlyNotice'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 // Gift/registry section moved to GiftSection.tsx (rendered at the end of the invitation)
@@ -188,6 +189,12 @@ export default function WeddingDetails({ config }: Props) {
             accentColor="var(--color-muted)"
           />
         )}
+      </div>
+
+      {/* Adults-only notice */}
+      <div className="mt-10">
+        <div className="section-block-divider" />
+        <AdultsOnlyNotice />
       </div>
 
       {/* Dress code */}
