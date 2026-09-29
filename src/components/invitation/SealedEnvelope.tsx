@@ -12,6 +12,23 @@ interface Props {
 
 type Phase = 'idle' | 'opening'
 
+// Oculta la barra del navegador en móviles que soportan la Fullscreen API
+// (Android). Debe llamarse dentro de un gesto del usuario.
+function enterFullscreen() {
+  const el = document.documentElement as HTMLElement & {
+    webkitRequestFullscreen?: () => Promise<void> | void
+  }
+  const isMobile = window.matchMedia('(pointer: coarse)').matches
+  if (!isMobile || document.fullscreenElement) return
+  try {
+    const req = el.requestFullscreen?.bind(el) ?? el.webkitRequestFullscreen?.bind(el)
+    const result = req?.({ navigationUI: 'hide' } as FullscreenOptions)
+    if (result instanceof Promise) result.catch(() => {})
+  } catch {
+    // No soportado (p. ej. Safari en iPhone): se ignora
+  }
+}
+
 export default function SealedEnvelope({
   guest,
   brideName,
@@ -24,6 +41,7 @@ export default function SealedEnvelope({
 
   const handleClick = () => {
     if (phase !== 'idle') return
+    enterFullscreen()
     setPhase('opening')
     setTimeout(() => onOpen(), 2050)
   }
