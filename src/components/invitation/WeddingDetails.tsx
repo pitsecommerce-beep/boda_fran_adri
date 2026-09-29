@@ -192,7 +192,8 @@ export default function WeddingDetails({ config }: Props) {
       </div>
 
       {/* Adults-only notice */}
-      <div className="mt-12">
+      <div className="mt-10">
+        <div className="section-block-divider" />
         <AdultsOnlyNotice />
       </div>
 
