@@ -1,0 +1,10 @@
+{
+  "name": "Adri & Fran – Nuestra Boda",
+  "short_name": "Adri & Fran",
+  "display": "fullscreen",
+  "background_color": "#EDE7D9",
+  "theme_color": "#EDE7D9",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
