@@ -210,6 +210,7 @@ export async function submitRSVP(rsvp: {
 export async function submitFamilyRSVP(entries: Array<{
   guest_id: string
   attending: boolean
+  companion_count?: number
   dietary_notes: string
   needs_accommodation: boolean
   message: string
@@ -223,7 +224,7 @@ export async function submitFamilyRSVP(entries: Array<{
   const rows = entries.map((e) => ({
     guest_id: e.guest_id,
     attending: e.attending,
-    companion_count: 0,
+    companion_count: e.attending ? (e.companion_count ?? 0) : 0,
     dietary_notes: e.dietary_notes || null,
     needs_accommodation: e.needs_accommodation,
     message: e.message || null,
