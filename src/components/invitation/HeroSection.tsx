@@ -56,7 +56,7 @@ export default function HeroSection({ config, guestName }: Props) {
 
         {/* Guest name — above couple, clearly secondary */}
         {guestName ? (
-          <div className="animate-fade-in-up" style={{ marginBottom: 40 }}>
+          <div className="animate-fade-in-up" style={{ marginBottom: 28 }}>
             <p
               className="font-sans"
               style={{
@@ -86,15 +86,35 @@ export default function HeroSection({ config, guestName }: Props) {
             </p>
             <div style={{ margin: '14px auto 0', width: 48, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)' }} />
           </div>
-        ) : (
-          <p className="animate-fade-in-up section-label hero-label" style={{ margin: '0 0 24px' }}>
-            Nos casamos
+        ) : null}
+
+        {/* "Nos casamos" label */}
+        <p className="animate-fade-in-up delay-100 section-label hero-label" style={{ margin: '0 0 12px' }}>
+          Nos casamos
+        </p>
+
+        {/* Wedding date */}
+        {formattedDate && (
+          <p
+            className="animate-fade-in-up delay-200 font-serif"
+            style={{
+              margin: '0 0 28px',
+              fontSize: '0.92rem',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              letterSpacing: '0.06em',
+              color: 'rgba(255,255,255,0.82)',
+              lineHeight: 1.6,
+              textShadow: '0 1px 8px rgba(0,0,0,0.45)',
+            }}
+          >
+            {formattedDate}
           </p>
         )}
 
         {/* Bride name */}
         <h1
-          className="animate-fade-in-up delay-100 font-display"
+          className="animate-fade-in-up delay-300 font-display"
           style={{
             fontSize: '4rem',
             lineHeight: 1.05,
@@ -109,7 +129,7 @@ export default function HeroSection({ config, guestName }: Props) {
 
         {/* & divider */}
         <div
-          className="animate-fade-in-up delay-200"
+          className="animate-fade-in-up delay-400"
           style={{ margin: '10px auto', display: 'flex', alignItems: 'center', gap: 12, width: 160 }}
         >
           <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold))' }} />
@@ -121,7 +141,7 @@ export default function HeroSection({ config, guestName }: Props) {
 
         {/* Groom name */}
         <h1
-          className="animate-fade-in-up delay-300 font-display"
+          className="animate-fade-in-up delay-500 font-display"
           style={{
             fontSize: '4rem',
             lineHeight: 1.05,
@@ -134,31 +154,6 @@ export default function HeroSection({ config, guestName }: Props) {
           {config.groom_name}
         </h1>
 
-        {/* Wedding date */}
-        {formattedDate && (
-          <p
-            className="animate-fade-in-up delay-400 font-serif"
-            style={{
-              marginTop: 20,
-              fontSize: '0.92rem',
-              fontStyle: 'italic',
-              fontWeight: 300,
-              letterSpacing: '0.06em',
-              color: 'rgba(255,255,255,0.82)',
-              lineHeight: 1.6,
-              textShadow: '0 1px 8px rgba(0,0,0,0.45)',
-            }}
-          >
-            {formattedDate}
-          </p>
-        )}
-
-        {/* "Nos casamos" label when guest is shown */}
-        {guestName && (
-          <p className="animate-fade-in-up delay-500 section-label hero-label" style={{ margin: '18px 0 0' }}>
-            Nos casamos
-          </p>
-        )}
       </div>
     </section>
   )
