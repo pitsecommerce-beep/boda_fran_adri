@@ -172,7 +172,7 @@ export default function WeddingDetails({ config }: Props) {
             title="Sacramento del Matrimonio"
             venue={config.ceremony_venue}
             address={config.ceremony_address}
-            time={config.ceremony_time ? `${config.ceremony_time} horas en punto` : null}
+            time={config.ceremony_time ? `${config.ceremony_time.replace(/\s*(horas|hrs?\.?)\s*$/i, '')} horas en punto` : null}
             mapsUrl={config.ceremony_maps_url}
             accentColor="var(--color-gold)"
           />
