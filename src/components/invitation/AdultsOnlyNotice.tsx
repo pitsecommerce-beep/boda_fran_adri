@@ -9,14 +9,18 @@ export default function AdultsOnlyNotice() {
         <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '1rem', letterSpacing: '0.1em' }}>✦</span>
       </div>
 
-      <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
-        Con cariño
+      <p
+        className="font-serif italic mx-auto"
+        style={{ color: 'var(--color-muted)', fontSize: '1.05rem', fontWeight: 300, lineHeight: 1.9, maxWidth: 330, margin: '0 auto' }}
+      >
+        Agradecemos su comprensión por asistir
       </p>
+
       <p
         className="font-serif"
-        style={{ color: 'var(--color-dark)', fontSize: '2rem', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        style={{ color: 'var(--color-dark)', fontSize: '2rem', fontWeight: 300, fontStyle: 'italic', lineHeight: 1.3, margin: '12px 0' }}
       >
-        Solo adultos
+        sin niños mayores de dos años
       </p>
 
       <div style={{ width: 80, height: 1, background: goldRule, margin: '28px auto' }} />
@@ -25,10 +29,7 @@ export default function AdultsOnlyNotice() {
         className="font-serif italic mx-auto"
         style={{ color: 'var(--color-muted)', fontSize: '1.05rem', fontWeight: 300, lineHeight: 1.9, maxWidth: 330, margin: '0 auto' }}
       >
-        Queremos que disfruten esta noche al máximo, por eso nuestra celebración será
-        únicamente para adultos, a excepción de bebés de brazos menores de 2 años.
-        Gracias por su comprensión y por organizarse con anticipación.
-        ¡Estamos ansiosos por festejar con ustedes!
+        ¡Estamos felices por celebrar con ustedes!
       </p>
     </div>
   )
