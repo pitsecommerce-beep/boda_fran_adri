@@ -1,6 +1,4 @@
 import type { WeddingConfig } from '@/types'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 
 interface Props {
   config: WeddingConfig
@@ -20,16 +18,6 @@ const cornerStyle = (pos: { top?: number; bottom?: number; left?: number; right?
   })
 
 export default function HeroSection({ config, guestName }: Props) {
-  const weddingDate = config.wedding_date
-    ? (() => { const d = new Date(config.wedding_date!.slice(0, 10) + 'T12:00:00'); return isNaN(d.getTime()) ? null : d })()
-    : null
-  const rawDate = weddingDate
-    ? format(weddingDate, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })
-    : null
-  const formattedDate = rawDate
-    ? rawDate.charAt(0).toUpperCase() + rawDate.slice(1)
-    : null
-
   return (
     <section
       style={{
@@ -89,28 +77,9 @@ export default function HeroSection({ config, guestName }: Props) {
         ) : null}
 
         {/* "Nos casamos" label */}
-        <p className="animate-fade-in-up delay-100 section-label hero-label" style={{ margin: '0 0 12px' }}>
+        <p className="animate-fade-in-up delay-100 section-label hero-label" style={{ margin: '0 0 28px' }}>
           Nos casamos
         </p>
-
-        {/* Wedding date */}
-        {formattedDate && (
-          <p
-            className="animate-fade-in-up delay-200 font-serif"
-            style={{
-              margin: '0 0 28px',
-              fontSize: '0.92rem',
-              fontStyle: 'italic',
-              fontWeight: 300,
-              letterSpacing: '0.06em',
-              color: 'rgba(255,255,255,0.82)',
-              lineHeight: 1.6,
-              textShadow: '0 1px 8px rgba(0,0,0,0.45)',
-            }}
-          >
-            {formattedDate}
-          </p>
-        )}
 
         {/* Bride name */}
         <h1

@@ -11,14 +11,14 @@ export default function AdultsOnlyNotice() {
 
       <p
         className="font-serif italic mx-auto"
-        style={{ color: 'var(--color-muted)', fontSize: '1.05rem', fontWeight: 300, lineHeight: 1.9, maxWidth: 330, margin: '0 auto' }}
+        style={{ color: 'var(--color-muted)', fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.9, maxWidth: 330, margin: '0 auto' }}
       >
         Agradecemos su comprensión por asistir
       </p>
 
       <p
         className="font-serif"
-        style={{ color: 'var(--color-dark)', fontSize: '2rem', fontWeight: 300, fontStyle: 'italic', lineHeight: 1.3, margin: '12px 0' }}
+        style={{ color: 'var(--color-dark)', fontSize: '1.2rem', fontWeight: 400, fontStyle: 'italic', lineHeight: 1.9, margin: '4px 0' }}
       >
         sin niños mayores de dos años
       </p>
@@ -27,7 +27,7 @@ export default function AdultsOnlyNotice() {
 
       <p
         className="font-serif italic mx-auto"
-        style={{ color: 'var(--color-muted)', fontSize: '1.05rem', fontWeight: 300, lineHeight: 1.9, maxWidth: 330, margin: '0 auto' }}
+        style={{ color: 'var(--color-muted)', fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.9, maxWidth: 330, margin: '0 auto' }}
       >
         ¡Estamos felices por celebrar con ustedes!
       </p>
