@@ -54,11 +54,8 @@ export default function GallerySection({ photos }: Props) {
   return (
     <section className="py-14 px-0" style={{ background: 'var(--color-khaki)' }}>
       <div className="text-center mb-8 px-5">
-        <p className="section-label mb-3" style={{ display: 'block', color: 'var(--color-gold)' }}>
-          Nuestra historia
-        </p>
         <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}>
-          Galería
+          Nuestra Alegría
         </h2>
       </div>
 
