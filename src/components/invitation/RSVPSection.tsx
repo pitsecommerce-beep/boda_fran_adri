@@ -6,9 +6,10 @@ interface Props {
   guest: Guest
   existingRSVP: RSVP | null
   onSubmitted: () => void
+  onBack?: () => void
 }
 
-export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props) {
+export default function RSVPSection({ guest, existingRSVP, onSubmitted, onBack }: Props) {
   const [attending, setAttending] = useState<boolean | null>(
     existingRSVP ? existingRSVP.attending : null,
   )
@@ -245,10 +246,21 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
 
           {error && <p className="text-sm text-red-500 mb-4 text-center">{error}</p>}
 
+          <div className="flex gap-3">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="px-6 py-4 font-sans text-sm transition-all"
+              style={{ background: 'rgba(44,32,18,0.05)', color: 'var(--color-muted)', borderRadius: 4, border: 'none' }}
+            >
+              ← Cambiar
+            </button>
+          )}
           <button
             type="submit"
             disabled={submitting || attending === null}
-            className="w-full font-sans transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 font-sans transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: 'var(--color-gold)',
               color: '#FFFFFF',
@@ -263,6 +275,7 @@ export default function RSVPSection({ guest, existingRSVP, onSubmitted }: Props)
           >
             {submitting ? 'Enviando…' : 'Confirmar respuesta'}
           </button>
+          </div>
         </form>
       </div>
     </section>

@@ -436,9 +436,18 @@ const FILTER_COLORS: Record<FilterType, string> = {
   not_delivered: 'var(--color-yellow)',
 }
 
+type SideFilter = 'all' | 'bride' | 'groom'
+
+const SIDE_FILTER_LABELS: Record<SideFilter, string> = {
+  all: 'Ambos lados',
+  bride: 'Novia',
+  groom: 'Novio',
+}
+
 export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const [search, setSearch] = useState('')
   const [filterRSVP, setFilterRSVP] = useState<FilterType>('all')
+  const [filterSide, setFilterSide] = useState<SideFilter>('all')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -455,7 +464,8 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
       filterRSVP === 'delivered'      ? g.invitation_delivered :
       filterRSVP === 'not_delivered'  ? !g.invitation_delivered :
       /* dietary */                     (rsvp?.attending === true && !!rsvp?.dietary_notes)
-    return matchesSearch && matchesFilter
+    const matchesSide = filterSide === 'all' || g.side === filterSide
+    return matchesSearch && matchesFilter && matchesSide
   })
 
   const allFilteredSelected = filtered.length > 0 && filtered.every((g) => selectedIds.has(g.id))
@@ -502,8 +512,9 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
   const totalPending       = guests.length - rsvps.length
   const withDietary        = rsvps.filter((r) => r.attending && !!r.dietary_notes).length
   const totalDelivered     = guests.filter((g) => g.invitation_delivered).length
-  const totalBride         = guests.filter((g) => g.side === 'bride').length
-  const totalGroom         = guests.filter((g) => g.side === 'groom').length
+  // Each guest counts as 1 plus the companions they may bring
+  const totalBride         = guests.filter((g) => g.side === 'bride').reduce((acc, g) => acc + 1 + g.max_companions, 0)
+  const totalGroom         = guests.filter((g) => g.side === 'groom').reduce((acc, g) => acc + 1 + g.max_companions, 0)
 
   const stats = [
     { label: 'Total invitados',             value: guests.length,       color: 'var(--color-yellow)' },
@@ -551,6 +562,20 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
                 color: filterRSVP === f ? 'white' : 'var(--color-muted)',
               }}>
               {FILTER_LABELS[f]}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {(Object.keys(SIDE_FILTER_LABELS) as SideFilter[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilterSide(f)}
+              className="px-4 py-2 rounded-xl font-sans text-xs transition-all"
+              style={{
+                background: filterSide === f ? 'var(--color-yellow)' : '#f5f5f5',
+                color: filterSide === f ? 'white' : 'var(--color-muted)',
+              }}>
+              {SIDE_FILTER_LABELS[f]}
             </button>
           ))}
         </div>
