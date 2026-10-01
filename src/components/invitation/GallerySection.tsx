@@ -55,8 +55,14 @@ export default function GallerySection({ photos }: Props) {
     <section className="py-14 px-0" style={{ background: 'var(--color-khaki)' }}>
       <div className="text-center mb-8 px-5">
         <h2 className="font-serif" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}>
-          Nuestra Alegría
+          Nuestro Amor
         </h2>
+        {/* Discreet gold ornament, matching the rest of the invitation */}
+        <div style={{ margin: '14px auto 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: 120 }}>
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold))' }} />
+          <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '0.55rem', opacity: 0.8 }}>✦</span>
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, var(--color-gold))' }} />
+        </div>
       </div>
 
       {/* Carousel */}
