@@ -10,6 +10,7 @@ interface Props {
 interface MemberState {
   guest: Guest
   attending: boolean
+  companion_count: number
   has_dietary: boolean
   dietary_notes: string
   existingRSVP: RSVP | null
@@ -37,7 +38,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
       const states: MemberState[] = await Promise.all(
         family.map(async (g) => {
           const rsvp = await getRSVPByGuestId(g.id)
-          return { guest: g, attending: rsvp?.attending ?? true, has_dietary: !!rsvp?.dietary_notes, dietary_notes: rsvp?.dietary_notes ?? '', existingRSVP: rsvp }
+          return { guest: g, attending: rsvp?.attending ?? true, companion_count: rsvp?.companion_count ?? 0, has_dietary: !!rsvp?.dietary_notes, dietary_notes: rsvp?.dietary_notes ?? '', existingRSVP: rsvp }
         }),
       )
 
@@ -61,12 +62,14 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
     const entries: FamilyRSVPEntry[] = members.map((m) => ({
       guest: m.guest,
       attending: m.attending,
+      companion_count: m.attending ? Math.min(m.companion_count, m.guest.max_companions) : 0,
       dietary_notes: m.has_dietary ? m.dietary_notes : '',
     }))
 
     const payload = entries.map((e) => ({
       guest_id: e.guest.id,
       attending: e.attending,
+      companion_count: e.companion_count,
       dietary_notes: e.dietary_notes,
       needs_accommodation: false,
       message: globalMessage,
@@ -82,7 +85,10 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
     }
   }
 
-  const confirmedCount = members.filter((m) => m.attending).length
+  const confirmedCount = members
+    .filter((m) => m.attending)
+    .reduce((acc, m) => acc + 1 + Math.min(m.companion_count, m.guest.max_companions), 0)
+  const totalCapacity = members.reduce((acc, m) => acc + 1 + m.guest.max_companions, 0)
 
   if (loading) {
     return (
@@ -203,6 +209,30 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
                   </div>
                 </div>
 
+                {m.attending && m.guest.max_companions > 0 && (
+                  <div className="mb-3">
+                    <p className="font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>
+                      Número de acompañantes (máximo {m.guest.max_companions})
+                    </p>
+                    <select
+                      value={m.companion_count}
+                      onChange={(e) => updateMember(m.guest.id, { companion_count: Number(e.target.value) })}
+                      className="w-full font-sans text-sm outline-none"
+                      style={{
+                        background: '#FFFFFF',
+                        border: '1px solid rgba(184,150,110,0.30)',
+                        borderRadius: 4,
+                        padding: '8px 14px',
+                        color: 'var(--color-dark)',
+                      }}
+                    >
+                      {Array.from({ length: m.guest.max_companions + 1 }, (_, i) => (
+                        <option key={i} value={i}>{i === 0 ? 'Sin acompañantes' : `${i} acompañante${i > 1 ? 's' : ''}`}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {m.attending && (
                   <div>
                     <p className="font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>
@@ -283,7 +313,7 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
           >
             <span style={{ color: 'var(--color-muted)' }}>Confirmarás la asistencia de </span>
             <span className="font-semibold" style={{ color: 'var(--color-dark)' }}>
-              {confirmedCount} de {members.length} {members.length === 1 ? 'persona' : 'personas'}
+              {confirmedCount} de {totalCapacity} {totalCapacity === 1 ? 'persona' : 'personas'}
             </span>
           </div>
 

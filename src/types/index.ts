@@ -105,6 +105,7 @@ export interface GuestWithRSVP extends Guest {
 export interface FamilyRSVPEntry {
   guest: Guest
   attending: boolean
+  companion_count: number
   dietary_notes: string
 }
 
