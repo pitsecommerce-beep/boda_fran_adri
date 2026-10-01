@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Guest, RSVP, FamilyRSVPEntry } from '@/types'
 import { getFamilyMembers, getRSVPByGuestId, submitFamilyRSVP } from '@/lib/supabase'
+import RSVPSection from './RSVPSection'
 
 interface Props {
   selectedGuest: Guest
@@ -98,6 +99,12 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
         </p>
       </section>
     )
+  }
+
+  // A family with a single member is presented as an individual invitation
+  if (members.length === 1) {
+    const [only] = members
+    return <RSVPSection guest={only.guest} existingRSVP={only.existingRSVP} onSubmitted={() => {}} onBack={onBack} />
   }
 
   if (submitted) {
