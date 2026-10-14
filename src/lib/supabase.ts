@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { findGuestBySlug } from '@/lib/slug'
 import type { WeddingConfig, Guest, RSVP, GuestGroup, SeatingTable, SeatAssignment } from '@/types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
@@ -66,10 +67,14 @@ export async function getGuestByToken(token: string): Promise<Guest | null> {
     .from('guests')
     .select('*')
     .eq('token', token)
-    .single()
+    .maybeSingle()
 
+  if (data) return data as Guest
   if (error) return null
-  return data as Guest
+
+  // Links sent before name-based URLs use the raw token; newer ones use the name slug
+  const { data: all } = await db.from('guests').select('*')
+  return findGuestBySlug(token, (all ?? []) as Guest[])
 }
 
 export async function listGuests(): Promise<Guest[]> {

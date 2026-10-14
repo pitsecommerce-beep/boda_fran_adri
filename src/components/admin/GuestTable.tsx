@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import type { Guest, GuestGroup, RSVP } from '@/types'
 import { deleteGuest, deleteGuests, updateGuest, submitRSVP, deleteRSVPByGuestId } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
+import { guestSlug } from '@/lib/slug'
 
 async function toggleFamilyHead(guest: Guest, onRefresh: () => void) {
   await updateGuest(guest.id, { is_family_head: !guest.is_family_head })
@@ -136,7 +137,7 @@ function GuestRow({
   const [showQR, setShowQR] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const inviteUrl = `${BASE_URL}/${guest.token}`
+  const inviteUrl = `${BASE_URL}/${guestSlug(guest, allGuests)}`
   const families = getFamilies(allGuests)
   const loneGuests = allGuests.filter((g) => !g.family_id && g.id !== guest.id)
 
