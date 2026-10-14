@@ -169,7 +169,7 @@ export default function WeddingDetails({ config }: Props) {
         {(config.ceremony_venue || config.ceremony_address) && (
           <DetailCard
             icon={<ChurchIcon color="var(--color-gold)" />}
-            title="Sacramento del Matrimonio"
+            title="Misa"
             venue={config.ceremony_venue}
             address={config.ceremony_address}
             time={config.ceremony_time ? `${config.ceremony_time.replace(/\s*(horas|hrs?\.?)\s*$/i, '')} horas en punto` : null}
