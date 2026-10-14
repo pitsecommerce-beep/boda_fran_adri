@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Guest, GuestGroup, RSVP } from '@/types'
 import { deleteGuest, deleteGuests, updateGuest, submitRSVP, deleteRSVPByGuestId } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
@@ -284,45 +284,6 @@ function GuestRow({
           )}
         </td>
 
-        {/* Familia */}
-        <td className="px-4 py-3">
-          {editing ? (
-            <>
-              <input
-                value={familyEdit}
-                onChange={(e) => setFamilyEdit(e.target.value)}
-                list="family-ids"
-                placeholder="Sin familia"
-                className="border rounded-lg px-2 py-1 text-sm w-28"
-                style={{ borderColor: 'var(--color-yellow)66' }}
-              />
-              <datalist id="family-ids">
-                {familyIds.map((id) => <option key={id} value={id} />)}
-              </datalist>
-            </>
-          ) : (
-            <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
-              {guest.family_id ?? '—'}
-            </span>
-          )}
-        </td>
-
-        {/* Grupo de amigos */}
-        <td className="px-4 py-3">
-          {editing ? (
-            <select
-              value={groupEdit}
-              onChange={(e) => setGroupEdit(e.target.value)}
-              className="border rounded-lg px-2 py-1 text-sm"
-              style={{ borderColor: 'var(--color-yellow)66' }}>
-              <option value="">Sin grupo</option>
-              {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-            </select>
-          ) : (
-            <GroupBadge group={groups.find((g) => g.id === guest.group_id) ?? null} />
-          )}
-        </td>
-
         {/* Invitación entregada */}
         <td className="px-4 py-3">
           <button
@@ -373,6 +334,46 @@ function GuestRow({
             <DietaryInfo rsvp={rsvp} />
           )}
         </td>
+
+        {/* Familia */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <>
+              <input
+                value={familyEdit}
+                onChange={(e) => setFamilyEdit(e.target.value)}
+                list="family-ids"
+                placeholder="Sin familia"
+                className="border rounded-lg px-2 py-1 text-sm w-28"
+                style={{ borderColor: 'var(--color-yellow)66' }}
+              />
+              <datalist id="family-ids">
+                {familyIds.map((id) => <option key={id} value={id} />)}
+              </datalist>
+            </>
+          ) : (
+            <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
+              {guest.family_id ?? '—'}
+            </span>
+          )}
+        </td>
+
+        {/* Grupo de amigos */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <select
+              value={groupEdit}
+              onChange={(e) => setGroupEdit(e.target.value)}
+              className="border rounded-lg px-2 py-1 text-sm"
+              style={{ borderColor: 'var(--color-yellow)66' }}>
+              <option value="">Sin grupo</option>
+              {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+            </select>
+          ) : (
+            <GroupBadge group={groups.find((g) => g.id === guest.group_id) ?? null} />
+          )}
+        </td>
+
 
         {/* Acciones */}
         <td className="px-4 py-3">
@@ -520,6 +521,37 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Click-and-drag horizontal scrolling, so the table isn't limited to its scrollbar
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const drag = useRef<{ x: number; scrollLeft: number; pointerId: number } | null>(null)
+  const [dragging, setDragging] = useState(false)
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return
+    if ((e.target as HTMLElement).closest('input, select, textarea, button, a, label')) return
+    const el = scrollRef.current
+    if (!el) return
+    drag.current = { x: e.clientX, scrollLeft: el.scrollLeft, pointerId: e.pointerId }
+  }
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollRef.current
+    const d = drag.current
+    if (!el || !d) return
+    const dx = e.clientX - d.x
+    if (!dragging && Math.abs(dx) < 5) return
+    if (!dragging) {
+      setDragging(true)
+      el.setPointerCapture(d.pointerId)
+    }
+    el.scrollLeft = d.scrollLeft - dx
+  }
+
+  const handlePointerUp = () => {
+    drag.current = null
+    if (dragging) setDragging(false)
+  }
 
   const filtered = guests.filter((g) => {
     const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -675,7 +707,14 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden"
         style={{ border: '1px solid var(--color-yellow)22' }}>
-        <div className="overflow-x-auto">
+        <div
+          ref={scrollRef}
+          className="overflow-x-auto"
+          style={{ overscrollBehaviorX: 'contain', cursor: dragging ? 'grabbing' : 'grab', userSelect: dragging ? 'none' : undefined }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}>
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: 'var(--color-yellow)1A' }}>
@@ -696,15 +735,15 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Lado</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
-                  style={{ color: 'var(--color-dark)' }}>ID familia</th>
-                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
-                  style={{ color: 'var(--color-dark)' }}>Grupo de amigos</th>
-                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Invitación</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Asistencia</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Restricciones alimenticias</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>ID familia</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>Grupo de amigos</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Acciones</th>
               </tr>
