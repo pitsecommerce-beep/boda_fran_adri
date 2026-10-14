@@ -31,6 +31,12 @@ export default function AdultsOnlyNotice() {
       >
         ¡Estamos felices por celebrar con ustedes!
       </p>
+
+      {/* Bottom ornament */}
+      <div style={{ marginTop: 24 }}>
+        <span className="font-serif" style={{ color: 'var(--color-gold)', fontSize: '1rem', letterSpacing: '0.1em' }}>✦</span>
+        <div style={{ width: 1, height: 28, background: 'linear-gradient(to top, transparent, var(--color-gold)88)', margin: '10px auto 0' }} />
+      </div>
     </div>
   )
 }

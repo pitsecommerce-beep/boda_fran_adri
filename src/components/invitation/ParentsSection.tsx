@@ -112,8 +112,25 @@ export default function ParentsSection({ config }: Props) {
 
       {/* Bottom ornament */}
       <div style={{ marginTop: 40 }}>
-        <div style={{ width: 80, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)', marginBottom: 24 }} />
+        <div style={{ width: 80, height: 1, background: 'linear-gradient(to right, transparent, var(--color-gold), transparent)', margin: '0 auto 24px' }} />
       </div>
+
+      {/* Invitation */}
+      <p
+        className="font-serif"
+        style={{
+          fontSize: '1.1rem',
+          fontStyle: 'italic',
+          fontWeight: 300,
+          color: 'var(--color-dark)',
+          letterSpacing: '0.03em',
+          margin: 0,
+          lineHeight: 1.7,
+          maxWidth: 320,
+        }}
+      >
+        Los invitamos a celebrar este Santo Sacramento con nosotros
+      </p>
     </section>
   )
 }
