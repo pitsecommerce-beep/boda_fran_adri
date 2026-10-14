@@ -4,6 +4,7 @@ import type { Guest } from '@/types'
 import { useWeddingConfig } from '@/hooks/useWeddingConfig'
 import { useGuest } from '@/hooks/useGuest'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
+import { getFamilyMembers } from '@/lib/supabase'
 import LoadingScreen from '@/components/shared/LoadingScreen'
 import SealedEnvelope from '@/components/invitation/SealedEnvelope'
 import MusicPlayer from '@/components/invitation/MusicPlayer'
@@ -26,6 +27,26 @@ export default function InvitationPage() {
   const [letterOpened, setLetterOpened] = useState(false)
   const [searchedGuest, setSearchedGuest] = useState<Guest | null>(null)
   const [assetsReady, setAssetsReady] = useState(false)
+  // Names shown on the cover: the family head plus everyone they confirm for
+  const [familyNames, setFamilyNames] = useState<{ guestId: string; names: string } | null>(null)
+
+  const coverGuest = guest ?? searchedGuest
+  useEffect(() => {
+    if (!coverGuest?.is_family_head || !coverGuest.family_id) return
+    let cancelled = false
+    void getFamilyMembers(coverGuest.family_id).then((members) => {
+      if (cancelled) return
+      const others = members.filter((m) => m.id !== coverGuest.id).map((m) => m.name)
+      setFamilyNames({ guestId: coverGuest.id, names: joinNames([coverGuest.name, ...others]) })
+    })
+    return () => { cancelled = true }
+  }, [coverGuest?.id, coverGuest?.family_id, coverGuest?.is_family_head])
+
+  const isFamilyHead = Boolean(coverGuest?.is_family_head && coverGuest.family_id)
+  const familyLoading = isFamilyHead && familyNames?.guestId !== coverGuest?.id
+  const coverName = isFamilyHead && familyNames && familyNames.guestId === coverGuest?.id
+    ? familyNames.names
+    : coverGuest?.name
 
   // Reveal section text (rising bottom-to-top) once the letter is opened
   useScrollReveal(letterOpened)
@@ -46,6 +67,7 @@ export default function InvitationPage() {
   }, [config?.cover_photo_url, config?.seal_image_url])
 
   if (configLoading || (token && guestLoading)) return <LoadingScreen />
+  if (!letterOpened && familyLoading) return <LoadingScreen />
   if (!config) return <LoadingScreen />
   if (!assetsReady) return <LoadingScreen />
 
@@ -84,6 +106,7 @@ export default function InvitationPage() {
         <MusicPlayer musicUrl={config.music_url ?? null} started={false} />
         <SealedEnvelope
           guest={activeGuest}
+          guestName={coverName}
           brideName={config.bride_name}
           groomName={config.groom_name}
           weddingDate={config.wedding_date}
@@ -103,7 +126,7 @@ export default function InvitationPage() {
         <div className="invitation-column">
           <HeroSection
             config={config}
-            guestName={activeGuest?.name ?? searchedGuest?.name}
+            guestName={coverName}
           />
 
           {config.wedding_date && (
@@ -158,4 +181,17 @@ export default function InvitationPage() {
       </div>
     </>
   )
+}
+
+function joinNames(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? ''
+  const last = names[names.length - 1]
+  return `${names.slice(0, -1).join(', ')} ${conjunctionBefore(last)} ${last}`
+}
+
+// Spanish uses "e" instead of "y" before an "i" sound (Ana e Ignacio, Luis e Hilda),
+// but not before "hi" + vowel (Juan y Hiedra).
+function conjunctionBefore(name: string): string {
+  const n = name.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  return /^(i|hi(?![aeiou]))/.test(n) ? 'e' : 'y'
 }

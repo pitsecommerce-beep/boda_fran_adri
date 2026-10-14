@@ -3,6 +3,7 @@ import type { Guest } from '@/types'
 
 interface Props {
   guest: Guest | null
+  guestName?: string
   brideName: string
   groomName: string
   weddingDate: string | null
@@ -31,6 +32,7 @@ function enterFullscreen() {
 
 export default function SealedEnvelope({
   guest,
+  guestName,
   brideName,
   groomName,
   weddingDate,
@@ -163,7 +165,7 @@ export default function SealedEnvelope({
           {guest ? (
             <>
               <p className="letter-to-label">Para</p>
-              <p className="letter-guest-name">{guest.name}</p>
+              <p className="letter-guest-name">{guestName ?? guest.name}</p>
             </>
           ) : (
             <p className="letter-guest-name" style={{ opacity: 0.6, fontSize: '0.9rem' }}>
