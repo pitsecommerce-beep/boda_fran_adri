@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Guest, GuestGroup, RSVP } from '@/types'
 import { deleteGuest, deleteGuests, updateGuest, submitRSVP, deleteRSVPByGuestId } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
@@ -110,7 +110,7 @@ function GuestRow({
   guest,
   rsvp,
   groups,
-  familyIds,
+  allGuests,
   onRefresh,
   selected,
   onToggleSelect,
@@ -118,7 +118,7 @@ function GuestRow({
   guest: Guest
   rsvp: RSVP | null
   groups: GuestGroup[]
-  familyIds: string[]
+  allGuests: Guest[]
   onRefresh: () => void
   selected: boolean
   onToggleSelect: () => void
@@ -137,6 +137,8 @@ function GuestRow({
   const [copied, setCopied] = useState(false)
 
   const inviteUrl = `${BASE_URL}/${guest.token}`
+  const families = getFamilies(allGuests)
+  const loneGuests = allGuests.filter((g) => !g.family_id && g.id !== guest.id)
 
   const handleCopy = () => {
     void navigator.clipboard.writeText(inviteUrl)
@@ -158,7 +160,14 @@ function GuestRow({
 
   const handleSave = async () => {
     setSaving(true)
-    const familyId = familyEdit.trim() || null
+    // familyEdit: '' = none, 'new' = new family, 'guest:<id>' = join a guest without family, else existing family_id
+    let familyId: string | null = familyEdit || null
+    if (familyEdit === 'new') {
+      familyId = crypto.randomUUID()
+    } else if (familyEdit.startsWith('guest:')) {
+      familyId = crypto.randomUUID()
+      await updateGuest(familyEdit.slice(6), { family_id: familyId })
+    }
     await updateGuest(guest.id, {
       name,
       phone: phone || undefined,
@@ -284,45 +293,6 @@ function GuestRow({
           )}
         </td>
 
-        {/* Familia */}
-        <td className="px-4 py-3">
-          {editing ? (
-            <>
-              <input
-                value={familyEdit}
-                onChange={(e) => setFamilyEdit(e.target.value)}
-                list="family-ids"
-                placeholder="Sin familia"
-                className="border rounded-lg px-2 py-1 text-sm w-28"
-                style={{ borderColor: 'var(--color-yellow)66' }}
-              />
-              <datalist id="family-ids">
-                {familyIds.map((id) => <option key={id} value={id} />)}
-              </datalist>
-            </>
-          ) : (
-            <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
-              {guest.family_id ?? '—'}
-            </span>
-          )}
-        </td>
-
-        {/* Grupo de amigos */}
-        <td className="px-4 py-3">
-          {editing ? (
-            <select
-              value={groupEdit}
-              onChange={(e) => setGroupEdit(e.target.value)}
-              className="border rounded-lg px-2 py-1 text-sm"
-              style={{ borderColor: 'var(--color-yellow)66' }}>
-              <option value="">Sin grupo</option>
-              {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-            </select>
-          ) : (
-            <GroupBadge group={groups.find((g) => g.id === guest.group_id) ?? null} />
-          )}
-        </td>
-
         {/* Invitación entregada */}
         <td className="px-4 py-3">
           <button
@@ -373,6 +343,49 @@ function GuestRow({
             <DietaryInfo rsvp={rsvp} />
           )}
         </td>
+
+        {/* Familia */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <select
+              value={familyEdit}
+              onChange={(e) => setFamilyEdit(e.target.value)}
+              className="border rounded-lg px-2 py-1 text-sm max-w-48"
+              style={{ borderColor: 'var(--color-yellow)66' }}>
+              <option value="">Sin familia</option>
+              <option value="new">+ Nueva familia</option>
+              {families.length > 0 && (
+                <optgroup label="Familias existentes">
+                  {families.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
+                </optgroup>
+              )}
+              {loneGuests.length > 0 && (
+                <optgroup label="Unir con invitado">
+                  {loneGuests.map((g) => <option key={g.id} value={`guest:${g.id}`}>{g.name}</option>)}
+                </optgroup>
+              )}
+            </select>
+          ) : (
+            <FamilyLabel guest={guest} allGuests={allGuests} />
+          )}
+        </td>
+
+        {/* Grupo de amigos */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <select
+              value={groupEdit}
+              onChange={(e) => setGroupEdit(e.target.value)}
+              className="border rounded-lg px-2 py-1 text-sm"
+              style={{ borderColor: 'var(--color-yellow)66' }}>
+              <option value="">Sin grupo</option>
+              {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+            </select>
+          ) : (
+            <GroupBadge group={groups.find((g) => g.id === guest.group_id) ?? null} />
+          )}
+        </td>
+
 
         {/* Acciones */}
         <td className="px-4 py-3">
@@ -460,6 +473,29 @@ function GuestRow({
   )
 }
 
+function getFamilies(guests: Guest[]): { id: string; label: string }[] {
+  const map = new Map<string, string[]>()
+  for (const g of guests) {
+    if (!g.family_id) continue
+    if (!map.has(g.family_id)) map.set(g.family_id, [])
+    map.get(g.family_id)!.push(g.name)
+  }
+  return Array.from(map.entries()).map(([id, names]) => ({
+    id,
+    label: names.slice(0, 3).join(', ') + (names.length > 3 ? ` +${names.length - 3}` : ''),
+  }))
+}
+
+function FamilyLabel({ guest, allGuests }: { guest: Guest; allGuests: Guest[] }) {
+  if (!guest.family_id) return <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>—</span>
+  const others = allGuests.filter((g) => g.family_id === guest.family_id && g.id !== guest.id).map((g) => g.name)
+  return (
+    <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>
+      {others.length ? `Con ${others.join(', ')}` : 'Solo'}
+    </span>
+  )
+}
+
 function GroupBadge({ group }: { group: GuestGroup | null }) {
   if (!group) return <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>—</span>
   return (
@@ -513,13 +549,43 @@ const SIDE_FILTER_LABELS: Record<SideFilter, string> = {
 }
 
 export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) {
-  const familyIds = [...new Set(guests.map((g) => g.family_id).filter((id): id is string => !!id))].sort()
   const [search, setSearch] = useState('')
   const [filterRSVP, setFilterRSVP] = useState<FilterType>('all')
   const [filterSide, setFilterSide] = useState<SideFilter>('all')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Click-and-drag horizontal scrolling, so the table isn't limited to its scrollbar
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const drag = useRef<{ x: number; scrollLeft: number; pointerId: number } | null>(null)
+  const [dragging, setDragging] = useState(false)
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return
+    if ((e.target as HTMLElement).closest('input, select, textarea, button, a, label')) return
+    const el = scrollRef.current
+    if (!el) return
+    drag.current = { x: e.clientX, scrollLeft: el.scrollLeft, pointerId: e.pointerId }
+  }
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollRef.current
+    const d = drag.current
+    if (!el || !d) return
+    const dx = e.clientX - d.x
+    if (!dragging && Math.abs(dx) < 5) return
+    if (!dragging) {
+      setDragging(true)
+      el.setPointerCapture(d.pointerId)
+    }
+    el.scrollLeft = d.scrollLeft - dx
+  }
+
+  const handlePointerUp = () => {
+    drag.current = null
+    if (dragging) setDragging(false)
+  }
 
   const filtered = guests.filter((g) => {
     const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -566,6 +632,20 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
   }
 
   const totalSelectedCount = selectedIds.size
+
+  const [merging, setMerging] = useState(false)
+  const handleBulkMerge = async () => {
+    const selected = guests.filter((g) => selectedIds.has(g.id))
+    if (selected.length < 2) return
+    if (!confirm(`¿Unir a ${selected.map((g) => g.name).join(', ')} en una misma familia?`)) return
+    setMerging(true)
+    // Reuse an existing family from the selection, or start a new one
+    const familyId = selected.find((g) => g.family_id)?.family_id ?? crypto.randomUUID()
+    await Promise.all(selected.filter((g) => g.family_id !== familyId).map((g) => updateGuest(g.id, { family_id: familyId })))
+    setMerging(false)
+    setSelectedIds(new Set())
+    onRefresh()
+  }
 
   const handleBulkDelete = async () => {
     setDeleting(true)
@@ -657,6 +737,15 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
           <span className="font-sans text-sm" style={{ color: 'var(--color-dark)' }}>
             {totalSelectedCount} invitado{totalSelectedCount > 1 ? 's' : ''} seleccionado{totalSelectedCount > 1 ? 's' : ''}
           </span>
+          {totalSelectedCount >= 2 && (
+            <button
+              onClick={() => void handleBulkMerge()}
+              disabled={merging}
+              className="px-4 py-1.5 rounded-lg font-sans text-xs font-medium transition-all"
+              style={{ background: 'var(--color-yellow)', color: 'var(--color-dark)', opacity: merging ? 0.6 : 1 }}>
+              {merging ? 'Uniendo…' : 'Unir en una familia'}
+            </button>
+          )}
           <button
             onClick={() => setShowDeleteModal(true)}
             className="px-4 py-1.5 rounded-lg font-sans text-xs font-medium transition-all"
@@ -675,7 +764,14 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden"
         style={{ border: '1px solid var(--color-yellow)22' }}>
-        <div className="overflow-x-auto">
+        <div
+          ref={scrollRef}
+          className="overflow-x-auto"
+          style={{ overscrollBehaviorX: 'contain', cursor: dragging ? 'grabbing' : 'grab', userSelect: dragging ? 'none' : undefined }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}>
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: 'var(--color-yellow)1A' }}>
@@ -696,15 +792,15 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Lado</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
-                  style={{ color: 'var(--color-dark)' }}>ID familia</th>
-                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
-                  style={{ color: 'var(--color-dark)' }}>Grupo de amigos</th>
-                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Invitación</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Asistencia</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Restricciones alimenticias</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>Familia</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>Grupo de amigos</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Acciones</th>
               </tr>
@@ -724,7 +820,7 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
                     guest={g}
                     rsvp={getRSVP(g.id, rsvps)}
                     groups={groups}
-                    familyIds={familyIds}
+                    allGuests={guests}
                     onRefresh={onRefresh}
                     selected={selectedIds.has(g.id)}
                     onToggleSelect={() => toggleSelect(g.id)}
