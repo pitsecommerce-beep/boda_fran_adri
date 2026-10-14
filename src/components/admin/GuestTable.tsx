@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Guest, RSVP } from '@/types'
+import type { Guest, GuestGroup, RSVP } from '@/types'
 import { deleteGuest, deleteGuests, updateGuest, submitRSVP, deleteRSVPByGuestId } from '@/lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -11,6 +11,7 @@ async function toggleFamilyHead(guest: Guest, onRefresh: () => void) {
 interface Props {
   guests: Guest[]
   rsvps: RSVP[]
+  groups: GuestGroup[]
   onRefresh: () => void
 }
 
@@ -108,12 +109,16 @@ function ConfirmDeleteModal({
 function GuestRow({
   guest,
   rsvp,
+  groups,
+  familyIds,
   onRefresh,
   selected,
   onToggleSelect,
 }: {
   guest: Guest
   rsvp: RSVP | null
+  groups: GuestGroup[]
+  familyIds: string[]
   onRefresh: () => void
   selected: boolean
   onToggleSelect: () => void
@@ -125,6 +130,8 @@ function GuestRow({
   const [attendingEdit, setAttendingEdit] = useState<'none' | 'yes' | 'no'>('none')
   const [dietaryEdit, setDietaryEdit] = useState('')
   const [sideEdit, setSideEdit] = useState<'none' | 'bride' | 'groom'>('none')
+  const [familyEdit, setFamilyEdit] = useState('')
+  const [groupEdit, setGroupEdit] = useState('')
   const [saving, setSaving] = useState(false)
   const [showQR, setShowQR] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -144,12 +151,24 @@ function GuestRow({
     setAttendingEdit(rsvp === null ? 'none' : rsvp.attending ? 'yes' : 'no')
     setDietaryEdit(rsvp?.dietary_notes ?? '')
     setSideEdit(guest.side ?? 'none')
+    setFamilyEdit(guest.family_id ?? '')
+    setGroupEdit(guest.group_id ?? '')
     setEditing(true)
   }
 
   const handleSave = async () => {
     setSaving(true)
-    await updateGuest(guest.id, { name, phone: phone || undefined, max_companions: maxComp, side: sideEdit === 'none' ? null : sideEdit })
+    const familyId = familyEdit.trim() || null
+    await updateGuest(guest.id, {
+      name,
+      phone: phone || undefined,
+      max_companions: maxComp,
+      side: sideEdit === 'none' ? null : sideEdit,
+      family_id: familyId,
+      // A guest without a family can't be its head
+      ...(familyId ? {} : { is_family_head: false }),
+      group_id: groupEdit || null,
+    })
     if (attendingEdit === 'none') {
       await deleteRSVPByGuestId(guest.id)
     } else {
@@ -262,6 +281,45 @@ function GuestRow({
             </select>
           ) : (
             <SideBadge side={guest.side} />
+          )}
+        </td>
+
+        {/* Familia */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <>
+              <input
+                value={familyEdit}
+                onChange={(e) => setFamilyEdit(e.target.value)}
+                list="family-ids"
+                placeholder="Sin familia"
+                className="border rounded-lg px-2 py-1 text-sm w-28"
+                style={{ borderColor: 'var(--color-yellow)66' }}
+              />
+              <datalist id="family-ids">
+                {familyIds.map((id) => <option key={id} value={id} />)}
+              </datalist>
+            </>
+          ) : (
+            <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>
+              {guest.family_id ?? '—'}
+            </span>
+          )}
+        </td>
+
+        {/* Grupo de amigos */}
+        <td className="px-4 py-3">
+          {editing ? (
+            <select
+              value={groupEdit}
+              onChange={(e) => setGroupEdit(e.target.value)}
+              className="border rounded-lg px-2 py-1 text-sm"
+              style={{ borderColor: 'var(--color-yellow)66' }}>
+              <option value="">Sin grupo</option>
+              {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+            </select>
+          ) : (
+            <GroupBadge group={groups.find((g) => g.id === guest.group_id) ?? null} />
           )}
         </td>
 
@@ -381,7 +439,7 @@ function GuestRow({
       </tr>
       {showQR && (
         <tr style={{ background: 'var(--color-cream)' }}>
-          <td colSpan={9} className="px-4 py-4">
+          <td colSpan={11} className="px-4 py-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div className="p-2 bg-white rounded-xl shadow-sm">
                 <QRCodeSVG value={inviteUrl} size={120} />
@@ -399,6 +457,16 @@ function GuestRow({
         </tr>
       )}
     </>
+  )
+}
+
+function GroupBadge({ group }: { group: GuestGroup | null }) {
+  if (!group) return <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>—</span>
+  return (
+    <span className="px-2 py-0.5 rounded-full text-xs font-sans whitespace-nowrap"
+      style={{ background: `${group.color}22`, color: 'var(--color-dark)', border: `1px solid ${group.color}66` }}>
+      {group.name}
+    </span>
   )
 }
 
@@ -444,7 +512,8 @@ const SIDE_FILTER_LABELS: Record<SideFilter, string> = {
   groom: 'Novio',
 }
 
-export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
+export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) {
+  const familyIds = [...new Set(guests.map((g) => g.family_id).filter((id): id is string => !!id))].sort()
   const [search, setSearch] = useState('')
   const [filterRSVP, setFilterRSVP] = useState<FilterType>('all')
   const [filterSide, setFilterSide] = useState<SideFilter>('all')
@@ -627,6 +696,10 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Lado</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>ID familia</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
+                  style={{ color: 'var(--color-dark)' }}>Grupo de amigos</th>
+                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Invitación</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Asistencia</th>
@@ -639,7 +712,7 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-10 text-center font-serif italic"
+                  <td colSpan={11} className="px-4 py-10 text-center font-serif italic"
                     style={{ color: 'var(--color-muted)' }}>
                     No hay invitados que coincidan.
                   </td>
@@ -650,6 +723,8 @@ export default function GuestTable({ guests, rsvps, onRefresh }: Props) {
                     key={g.id}
                     guest={g}
                     rsvp={getRSVP(g.id, rsvps)}
+                    groups={groups}
+                    familyIds={familyIds}
                     onRefresh={onRefresh}
                     selected={selectedIds.has(g.id)}
                     onToggleSelect={() => toggleSelect(g.id)}

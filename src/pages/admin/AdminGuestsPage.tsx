@@ -3,22 +3,24 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import GuestTable from '@/components/admin/GuestTable'
 import ExcelUploader from '@/components/admin/ExcelUploader'
 import AddGuestModal from '@/components/admin/AddGuestModal'
-import { listGuests, listRSVPs } from '@/lib/supabase'
+import { listGuests, listRSVPs, listGuestGroups } from '@/lib/supabase'
 import { downloadGuestTemplate, downloadGuestReport } from '@/lib/excelTemplate'
-import type { Guest, RSVP } from '@/types'
+import type { Guest, GuestGroup, RSVP } from '@/types'
 
 export default function AdminGuestsPage() {
   const [guests, setGuests] = useState<Guest[]>([])
   const [rsvps, setRsvps] = useState<RSVP[]>([])
+  const [groups, setGroups] = useState<GuestGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [showUploader, setShowUploader] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
 
   const refresh = async () => {
     setLoading(true)
-    const [g, r] = await Promise.all([listGuests(), listRSVPs()])
+    const [g, r, gr] = await Promise.all([listGuests(), listRSVPs(), listGuestGroups()])
     setGuests(g)
     setRsvps(r)
+    setGroups(gr)
     setLoading(false)
   }
 
@@ -93,7 +95,7 @@ export default function AdminGuestsPage() {
           Cargando invitados…
         </div>
       ) : (
-        <GuestTable guests={guests} rsvps={rsvps} onRefresh={refresh} />
+        <GuestTable guests={guests} rsvps={rsvps} groups={groups} onRefresh={refresh} />
       )}
 
       {/* Add guest modal */}
