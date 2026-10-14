@@ -185,5 +185,13 @@ export default function InvitationPage() {
 
 function joinNames(names: string[]): string {
   if (names.length <= 1) return names[0] ?? ''
-  return `${names.slice(0, -1).join(', ')} y ${names[names.length - 1]}`
+  const last = names[names.length - 1]
+  return `${names.slice(0, -1).join(', ')} ${conjunctionBefore(last)} ${last}`
+}
+
+// Spanish uses "e" instead of "y" before an "i" sound (Ana e Ignacio, Luis e Hilda),
+// but not before "hi" + vowel (Juan y Hiedra).
+function conjunctionBefore(name: string): string {
+  const n = name.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  return /^(i|hi(?![aeiou]))/.test(n) ? 'e' : 'y'
 }
