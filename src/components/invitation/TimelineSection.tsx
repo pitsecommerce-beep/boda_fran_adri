@@ -13,6 +13,7 @@ function timelineItems(config: WeddingConfig): ItineraryItem[] {
   const fallback: ItineraryItem[] = []
   if (config.ceremony_time) fallback.push({ time: config.ceremony_time, label: 'Ceremonia', note: 'En punto' })
   if (config.reception_time) fallback.push({ time: config.reception_time, label: 'Recepción' })
+  if (fallback.length > 0) fallback.push({ time: '1:00 horas', label: 'Fin del evento' })
   return fallback
 }
 
@@ -21,7 +22,11 @@ export default function TimelineSection({ config }: Props) {
   if (items.length === 0) return null
 
   return (
-    <section id="itinerario" className="py-20 px-6" style={{ background: 'var(--color-khaki)' }}>
+    <section
+      id="itinerario"
+      className="py-20 px-6 flex flex-col justify-center"
+      style={{ background: 'var(--color-khaki)', minHeight: '100svh' }}
+    >
       <div className="text-center mb-14">
         <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>
           Itinerario
