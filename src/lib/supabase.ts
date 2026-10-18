@@ -194,48 +194,13 @@ export async function submitRSVP(rsvp: {
   guest_id: string
   attending: boolean
   companion_count: number
-  dietary_notes?: string
-  needs_accommodation?: boolean
-  message?: string
 }): Promise<{ error: Error | null }> {
   const db = getClient()
   if (!db) return { error: new Error('Supabase no configurado') }
 
   await db.from('rsvps').delete().eq('guest_id', rsvp.guest_id)
 
-  const { error } = await db.from('rsvps').insert({
-    ...rsvp,
-    dietary_notes: rsvp.dietary_notes ?? null,
-    needs_accommodation: rsvp.needs_accommodation ?? false,
-    message: rsvp.message ?? null,
-  })
-  return { error: error as Error | null }
-}
-
-export async function submitFamilyRSVP(entries: Array<{
-  guest_id: string
-  attending: boolean
-  companion_count?: number
-  dietary_notes: string
-  needs_accommodation: boolean
-  message: string
-}>): Promise<{ error: Error | null }> {
-  const db = getClient()
-  if (!db) return { error: new Error('Supabase no configurado') }
-
-  const guestIds = entries.map((e) => e.guest_id)
-  await db.from('rsvps').delete().in('guest_id', guestIds)
-
-  const rows = entries.map((e) => ({
-    guest_id: e.guest_id,
-    attending: e.attending,
-    companion_count: e.attending ? (e.companion_count ?? 0) : 0,
-    dietary_notes: e.dietary_notes || null,
-    needs_accommodation: e.needs_accommodation,
-    message: e.message || null,
-  }))
-
-  const { error } = await db.from('rsvps').insert(rows)
+  const { error } = await db.from('rsvps').insert(rsvp)
   return { error: error as Error | null }
 }
 

@@ -39,16 +39,14 @@ export function downloadGuestReport(guests: Guest[], rsvps: RSVP[]) {
       acompanantes_max: g.max_companions,
       asistencia: rsvp ? (rsvp.attending ? 'Confirmado' : 'No asistirá') : 'Sin respuesta',
       acompanantes_confirmados: rsvp?.attending ? rsvp.companion_count : '',
-      restricciones_alimenticias: rsvp?.dietary_notes ?? '',
-      mensaje: rsvp?.message ?? '',
     }
   })
 
   const ws = XLSX.utils.json_to_sheet(rows, {
-    header: ['nombre', 'celular', 'invitado_de', 'invitacion_entregada', 'acompanantes_max', 'asistencia', 'acompanantes_confirmados', 'restricciones_alimenticias', 'mensaje'],
+    header: ['nombre', 'celular', 'invitado_de', 'invitacion_entregada', 'acompanantes_max', 'asistencia', 'acompanantes_confirmados'],
   })
 
-  ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 20 }, { wch: 16 }, { wch: 18 }, { wch: 22 }, { wch: 30 }, { wch: 40 }]
+  ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 20 }, { wch: 16 }, { wch: 18 }, { wch: 22 }]
 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Invitados')

@@ -43,7 +43,9 @@ export interface Accommodation {
 export interface ItineraryItem {
   time: string
   label: string
-  icon: string
+  /** Small text under the time, e.g. "En punto" */
+  note?: string
+  icon?: string
 }
 
 export interface Guest {
@@ -100,13 +102,6 @@ export interface RSVP {
 
 export interface GuestWithRSVP extends Guest {
   rsvp?: RSVP | null
-}
-
-export interface FamilyRSVPEntry {
-  guest: Guest
-  attending: boolean
-  companion_count: number
-  dietary_notes: string
 }
 
 export interface ExcelRow {
