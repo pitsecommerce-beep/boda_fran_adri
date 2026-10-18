@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { useWeddingConfig } from '@/hooks/useWeddingConfig'
 import { updateWeddingConfig, uploadPhoto } from '@/lib/supabase'
-import type { Accommodation, WeddingConfig } from '@/types'
+import type { Accommodation, ItineraryItem, WeddingConfig } from '@/types'
 
 type FormData = Omit<WeddingConfig, 'id' | 'updated_at' | 'gallery_urls' | 'itinerary' | 'dress_code_image_url' | 'dress_code_forbidden_image_url' | 'seal_image_url' | 'accommodations'>
 
@@ -182,6 +182,7 @@ export default function AdminSettingsPage() {
   const [dressCodeForbiddenImageUrl, setDressCodeForbiddenImageUrl] = useState<string>('')
   const [sealImageUrl, setSealImageUrl] = useState<string>('')
   const [accommodations, setAccommodations] = useState<Accommodation[]>([])
+  const [itinerary, setItinerary] = useState<ItineraryItem[]>([])
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -216,6 +217,7 @@ export default function AdminSettingsPage() {
       setDressCodeForbiddenImageUrl(config.dress_code_forbidden_image_url ?? '')
       setSealImageUrl(config.seal_image_url ?? '')
       setAccommodations(config.accommodations ?? [])
+      setItinerary(config.itinerary ?? [])
     }
   }, [config])
 
@@ -236,6 +238,7 @@ export default function AdminSettingsPage() {
       dress_code_forbidden_image_url: dressCodeForbiddenImageUrl || null,
       seal_image_url: sealImageUrl || null,
       accommodations,
+      itinerary: itinerary.filter((i) => i.time.trim() || i.label.trim()),
     }
 
     const { error } = await updateWeddingConfig(updates)
@@ -396,6 +399,73 @@ export default function AdminSettingsPage() {
             <Field label="Enlace a Google Maps" name="reception_maps_url" form={form} onChange={handleChange}
               hint="Pega aquí el enlace que Google Maps te da al compartir la ubicación" />
           </div>
+        </div>
+
+        {/* Section: Itinerary */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm mb-6"
+          style={{ border: '1px solid var(--color-yellow)33' }}>
+          <h2 className="font-serif text-xl mb-1" style={{ color: 'var(--color-dark)' }}>
+            Itinerario
+          </h2>
+          <p className="font-sans text-xs mb-5" style={{ color: 'var(--color-muted)' }}>
+            Aparece en la invitación después de los detalles del gran día. Si lo dejas vacío se usan los horarios de la ceremonia y la recepción.
+          </p>
+
+          <div className="flex flex-col gap-3">
+            {itinerary.map((item, idx) => {
+              const setItem = (patch: Partial<ItineraryItem>) => {
+                setItinerary(prev => prev.map((it, i) => i === idx ? { ...it, ...patch } : it))
+                setSaved(false)
+              }
+              const move = (to: number) => {
+                setItinerary(prev => {
+                  const next = [...prev]
+                  ;[next[to], next[idx]] = [next[idx], next[to]]
+                  return next
+                })
+                setSaved(false)
+              }
+              return (
+                <div key={idx} className="rounded-xl p-3 flex flex-wrap md:flex-nowrap items-center gap-2"
+                  style={{ background: 'var(--color-khaki)', border: '1px solid var(--color-border)' }}>
+                  <div className="flex flex-col gap-0.5">
+                    <button type="button" disabled={idx === 0} onClick={() => move(idx - 1)}
+                      className="px-1.5 py-0.5 rounded font-sans text-xs leading-none disabled:opacity-30"
+                      style={{ background: 'var(--color-border)', color: 'var(--color-dark)' }} title="Subir">▲</button>
+                    <button type="button" disabled={idx === itinerary.length - 1} onClick={() => move(idx + 1)}
+                      className="px-1.5 py-0.5 rounded font-sans text-xs leading-none disabled:opacity-30"
+                      style={{ background: 'var(--color-border)', color: 'var(--color-dark)' }} title="Bajar">▼</button>
+                  </div>
+                  <input type="text" value={item.time} placeholder="12:00 pm"
+                    onChange={(e) => setItem({ time: e.target.value })}
+                    className="w-28 border rounded-xl px-3 py-2 font-sans text-sm bg-white outline-none"
+                    style={{ borderColor: 'var(--color-yellow)66' }} />
+                  <input type="text" value={item.label} placeholder="Ceremonia"
+                    onChange={(e) => setItem({ label: e.target.value })}
+                    className="flex-1 min-w-32 border rounded-xl px-3 py-2 font-sans text-sm bg-white outline-none"
+                    style={{ borderColor: 'var(--color-yellow)66' }} />
+                  <input type="text" value={item.note ?? ''} placeholder="Nota (opcional)"
+                    onChange={(e) => setItem({ note: e.target.value || undefined })}
+                    className="flex-1 min-w-32 border rounded-xl px-3 py-2 font-sans text-sm bg-white outline-none"
+                    style={{ borderColor: 'var(--color-yellow)66' }} />
+                  <button type="button"
+                    onClick={() => { setItinerary(prev => prev.filter((_, i) => i !== idx)); setSaved(false) }}
+                    className="font-sans text-xs px-2 py-1 rounded-lg"
+                    style={{ color: '#E05555', background: '#FFF0F0', border: '1px solid #FFCCCC' }}>
+                    ✕
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => { setItinerary(prev => [...prev, { time: '', label: '' }]); setSaved(false) }}
+            className="w-full mt-4 py-3 rounded-xl font-sans text-sm font-medium transition-all border-2 border-dashed"
+            style={{ color: 'var(--color-gold)', borderColor: 'var(--color-yellow)66', background: 'transparent' }}>
+            + Agregar momento
+          </button>
         </div>
 
         {/* Section: Media */}

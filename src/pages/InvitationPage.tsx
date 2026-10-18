@@ -12,7 +12,7 @@ import HeroSection from '@/components/invitation/HeroSection'
 import CountdownTimer from '@/components/invitation/CountdownTimer'
 import WeddingDetails from '@/components/invitation/WeddingDetails'
 import GallerySection from '@/components/invitation/GallerySection'
-import RSVPSection from '@/components/invitation/RSVPSection'
+import TimelineSection from '@/components/invitation/TimelineSection'
 import GuestSearchForm from '@/components/invitation/GuestSearchForm'
 import FamilyRSVPSection from '@/components/invitation/FamilyRSVPSection'
 import ParentsSection from '@/components/invitation/ParentsSection'
@@ -23,7 +23,7 @@ import AccommodationSection from '@/components/invitation/AccommodationSection'
 export default function InvitationPage() {
   const { token } = useParams<{ token?: string }>()
   const { config, loading: configLoading } = useWeddingConfig()
-  const { guest, rsvp, loading: guestLoading, notFound } = useGuest(token)
+  const { guest, loading: guestLoading, notFound } = useGuest(token)
   const [letterOpened, setLetterOpened] = useState(false)
   const [searchedGuest, setSearchedGuest] = useState<Guest | null>(null)
   const [assetsReady, setAssetsReady] = useState(false)
@@ -136,6 +136,8 @@ export default function InvitationPage() {
           <ParentsSection config={config} />
 
           <WeddingDetails config={config} />
+
+          <TimelineSection config={config} />
         </div>
 
         {/* Gallery — own phone-column section */}
@@ -149,11 +151,9 @@ export default function InvitationPage() {
         <div className="invitation-column">
           <AccommodationSection accommodations={config.accommodations ?? []} />
 
-          {activeGuest && activeGuest.is_family_head && activeGuest.family_id ? (
-            <FamilyRSVPSection selectedGuest={activeGuest} />
-          ) : activeGuest ? (
-            <RSVPSection guest={activeGuest} existingRSVP={rsvp} onSubmitted={() => {}} />
-          ) : null}
+          {activeGuest && (
+            <FamilyRSVPSection selectedGuest={activeGuest} onlySelf={!activeGuest.is_family_head} />
+          )}
 
           {!activeGuest && !searchedGuest && (
             <GuestSearchForm onGuestSelected={(g) => setSearchedGuest(g)} />

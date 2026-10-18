@@ -43,20 +43,6 @@ function AttendanceStatus({ rsvp }: { rsvp: RSVP | null }) {
   )
 }
 
-function DietaryInfo({ rsvp }: { rsvp: RSVP | null }) {
-  if (!rsvp?.attending || !rsvp.dietary_notes) return (
-    <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>—</span>
-  )
-  return (
-    <span
-      className="font-sans text-xs italic"
-      style={{ color: 'var(--color-dark)' }}
-      title={rsvp.dietary_notes}>
-      {rsvp.dietary_notes.length > 35 ? rsvp.dietary_notes.slice(0, 35) + '…' : rsvp.dietary_notes}
-    </span>
-  )
-}
-
 function ConfirmDeleteModal({
   count,
   onConfirm,
@@ -129,7 +115,6 @@ function GuestRow({
   const [phone, setPhone] = useState(guest.phone ?? '')
   const [maxComp, setMaxComp] = useState(guest.max_companions)
   const [attendingEdit, setAttendingEdit] = useState<'none' | 'yes' | 'no'>('none')
-  const [dietaryEdit, setDietaryEdit] = useState('')
   const [sideEdit, setSideEdit] = useState<'none' | 'bride' | 'groom'>('none')
   const [familyEdit, setFamilyEdit] = useState('')
   const [groupEdit, setGroupEdit] = useState('')
@@ -152,7 +137,6 @@ function GuestRow({
     setPhone(guest.phone ?? '')
     setMaxComp(guest.max_companions)
     setAttendingEdit(rsvp === null ? 'none' : rsvp.attending ? 'yes' : 'no')
-    setDietaryEdit(rsvp?.dietary_notes ?? '')
     setSideEdit(guest.side ?? 'none')
     setFamilyEdit(guest.family_id ?? '')
     setGroupEdit(guest.group_id ?? '')
@@ -186,9 +170,6 @@ function GuestRow({
         guest_id: guest.id,
         attending: attendingEdit === 'yes',
         companion_count: rsvp?.companion_count ?? 0,
-        dietary_notes: dietaryEdit || undefined,
-        needs_accommodation: false,
-        message: rsvp?.message ?? undefined,
       })
     }
     setSaving(false)
@@ -329,22 +310,6 @@ function GuestRow({
           )}
         </td>
 
-        {/* Restricciones alimenticias */}
-        <td className="px-4 py-3">
-          {editing ? (
-            <input
-              value={dietaryEdit}
-              onChange={(e) => setDietaryEdit(e.target.value)}
-              placeholder="Ninguna"
-              className="border rounded-lg px-2 py-1 text-sm w-full"
-              style={{ borderColor: 'var(--color-yellow)66' }}
-              disabled={attendingEdit === 'no' || attendingEdit === 'none'}
-            />
-          ) : (
-            <DietaryInfo rsvp={rsvp} />
-          )}
-        </td>
-
         {/* Familia */}
         <td className="px-4 py-3">
           {editing ? (
@@ -453,7 +418,7 @@ function GuestRow({
       </tr>
       {showQR && (
         <tr style={{ background: 'var(--color-cream)' }}>
-          <td colSpan={11} className="px-4 py-4">
+          <td colSpan={10} className="px-4 py-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div className="p-2 bg-white rounded-xl shadow-sm">
                 <QRCodeSVG value={inviteUrl} size={120} />
@@ -519,14 +484,13 @@ function SideBadge({ side }: { side: 'bride' | 'groom' | null }) {
   )
 }
 
-type FilterType = 'all' | 'confirmed' | 'declined' | 'pending' | 'dietary' | 'delivered' | 'not_delivered'
+type FilterType = 'all' | 'confirmed' | 'declined' | 'pending' | 'delivered' | 'not_delivered'
 
 const FILTER_LABELS: Record<FilterType, string> = {
   all: 'Todos',
   confirmed: 'Confirmados',
   declined: 'No asisten',
   pending: 'Sin respuesta',
-  dietary: 'Con restricción alimentaria',
   delivered: 'Invitación entregada',
   not_delivered: 'Sin entregar',
 }
@@ -536,7 +500,6 @@ const FILTER_COLORS: Record<FilterType, string> = {
   confirmed: 'var(--color-yellow)',
   declined: 'var(--color-yellow)',
   pending: 'var(--color-yellow)',
-  dietary: 'var(--color-yellow)',
   delivered: 'var(--color-yellow)',
   not_delivered: 'var(--color-yellow)',
 }
@@ -598,8 +561,7 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
       filterRSVP === 'confirmed'      ? (rsvp?.attending === true) :
       filterRSVP === 'declined'       ? (rsvp?.attending === false) :
       filterRSVP === 'delivered'      ? g.invitation_delivered :
-      filterRSVP === 'not_delivered'  ? !g.invitation_delivered :
-      /* dietary */                     (rsvp?.attending === true && !!rsvp?.dietary_notes)
+      /* not_delivered */               !g.invitation_delivered
     const matchesSide = filterSide === 'all' || g.side === filterSide
     return matchesSearch && matchesFilter && matchesSide
   })
@@ -660,7 +622,6 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
   const totalConfirmed     = rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
   const totalDeclined      = rsvps.filter((r) => !r.attending).length
   const totalPending       = guests.length - rsvps.length
-  const withDietary        = rsvps.filter((r) => r.attending && !!r.dietary_notes).length
   const totalDelivered     = guests.filter((g) => g.invitation_delivered).length
   // Each guest counts as 1 plus the companions they may bring
   const totalBride         = guests.filter((g) => g.side === 'bride').reduce((acc, g) => acc + 1 + g.max_companions, 0)
@@ -674,13 +635,12 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
     { label: 'Invitación entregada',        value: totalDelivered,      color: 'var(--color-yellow)' },
     { label: 'De la novia',                 value: totalBride,          color: 'var(--color-yellow)' },
     { label: 'Del novio',                   value: totalGroom,          color: 'var(--color-yellow)' },
-    { label: 'Con restricción alimentaria', value: withDietary,         color: 'var(--color-yellow)' },
   ]
 
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
         {stats.map(({ label, value, color }) => (
           <div key={label}
             className="bg-white rounded-2xl p-4 text-center shadow-sm"
@@ -797,8 +757,6 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Asistencia</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
-                  style={{ color: 'var(--color-dark)' }}>Restricciones alimenticias</th>
-                <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Familia</th>
                 <th className="text-left px-4 py-3 font-sans font-medium text-xs tracking-wide"
                   style={{ color: 'var(--color-dark)' }}>Grupo de amigos</th>
@@ -809,7 +767,7 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-10 text-center font-serif italic"
+                  <td colSpan={10} className="px-4 py-10 text-center font-serif italic"
                     style={{ color: 'var(--color-muted)' }}>
                     No hay invitados que coincidan.
                   </td>

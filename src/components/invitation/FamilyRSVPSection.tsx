@@ -1,37 +1,42 @@
-import { useEffect, useRef, useState } from 'react'
-import type { Guest, RSVP, FamilyRSVPEntry } from '@/types'
-import { getFamilyMembers, getRSVPByGuestId, submitFamilyRSVP } from '@/lib/supabase'
-import RSVPSection from './RSVPSection'
+import { useEffect, useState } from 'react'
+import type { Guest } from '@/types'
+import { deleteRSVPByGuestId, getFamilyMembers, getRSVPByGuestId, submitRSVP } from '@/lib/supabase'
 
 interface Props {
   selectedGuest: Guest
+  /** Only show the selected guest, even if they belong to a family */
+  onlySelf?: boolean
   onBack?: () => void
 }
 
+// 'pending' = "No puedo confirmar aún": stored as no RSVP row, so the guest
+// stays as "sin respuesta" in the dashboard until they decide.
+type Status = 'yes' | 'no' | 'pending'
+
 interface MemberState {
   guest: Guest
-  attending: boolean
+  status: Status | null
   companion_count: number
-  has_dietary: boolean
-  dietary_notes: string
-  existingRSVP: RSVP | null
+  saving: boolean
+  saved: boolean
 }
 
-export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
+const OPTIONS: { value: Status; label: string }[] = [
+  { value: 'yes', label: 'Ahí estaré' },
+  { value: 'no', label: 'No podré asistir' },
+  { value: 'pending', label: 'No puedo confirmar aún' },
+]
+
+export default function FamilyRSVPSection({ selectedGuest, onlySelf, onBack }: Props) {
   const [members, setMembers] = useState<MemberState[]>([])
-  const [globalMessage, setGlobalMessage] = useState('')
   const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const sectionRef = useRef<HTMLElement>(null)
-  const [sectionHeight, setSectionHeight] = useState<number | undefined>(undefined)
 
   useEffect(() => {
     const load = async () => {
       setLoading(true)
       let family: Guest[] = []
-      if (selectedGuest.family_id) {
+      if (!onlySelf && selectedGuest.family_id) {
         family = await getFamilyMembers(selectedGuest.family_id)
       }
       if (!family.length) family = [selectedGuest]
@@ -39,56 +44,47 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
       const states: MemberState[] = await Promise.all(
         family.map(async (g) => {
           const rsvp = await getRSVPByGuestId(g.id)
-          return { guest: g, attending: rsvp?.attending ?? true, companion_count: rsvp?.companion_count ?? 0, has_dietary: !!rsvp?.dietary_notes, dietary_notes: rsvp?.dietary_notes ?? '', existingRSVP: rsvp }
+          return {
+            guest: g,
+            status: rsvp ? (rsvp.attending ? 'yes' : 'no') : null,
+            companion_count: rsvp?.companion_count ?? 0,
+            saving: false,
+            saved: false,
+          }
         }),
       )
 
       setMembers(states)
-      const anyMsg = states.find((s) => s.existingRSVP?.message)?.existingRSVP?.message
-      if (anyMsg) setGlobalMessage(anyMsg)
       setLoading(false)
     }
     void load()
-  }, [selectedGuest])
+  }, [selectedGuest, onlySelf])
 
-  const updateMember = (id: string, patch: Partial<Omit<MemberState, 'guest' | 'existingRSVP'>>) => {
+  const updateMember = (id: string, patch: Partial<Omit<MemberState, 'guest'>>) => {
     setMembers((prev) => prev.map((m) => m.guest.id === id ? { ...m, ...patch } : m))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
+  const save = async (member: MemberState, status: Status, companionCount: number) => {
+    const id = member.guest.id
+    updateMember(id, { status, companion_count: companionCount, saving: true, saved: false })
     setError(null)
 
-    const entries: FamilyRSVPEntry[] = members.map((m) => ({
-      guest: m.guest,
-      attending: m.attending,
-      companion_count: m.attending ? Math.min(m.companion_count, m.guest.max_companions) : 0,
-      dietary_notes: m.has_dietary ? m.dietary_notes : '',
-    }))
+    const { error } = status === 'pending'
+      ? await deleteRSVPByGuestId(id)
+      : await submitRSVP({
+          guest_id: id,
+          attending: status === 'yes',
+          companion_count: status === 'yes' ? Math.min(companionCount, member.guest.max_companions) : 0,
+        })
 
-    const payload = entries.map((e) => ({
-      guest_id: e.guest.id,
-      attending: e.attending,
-      companion_count: e.companion_count,
-      dietary_notes: e.dietary_notes,
-      needs_accommodation: false,
-      message: globalMessage,
-    }))
-
-    const { error } = await submitFamilyRSVP(payload)
-    setSubmitting(false)
     if (error) {
-      setError('Hubo un error al enviar la confirmación. Por favor intenta de nuevo.')
+      updateMember(id, { status: member.status, companion_count: member.companion_count, saving: false })
+      setError('Hubo un problema al guardar tu respuesta. Intenta de nuevo.')
     } else {
-      if (sectionRef.current) setSectionHeight(sectionRef.current.offsetHeight)
-      setSubmitted(true)
+      updateMember(id, { saving: false, saved: true })
     }
   }
 
-  const confirmedCount = members
-    .filter((m) => m.attending)
-    .reduce((acc, m) => acc + 1 + Math.min(m.companion_count, m.guest.max_companions), 0)
   const totalCapacity = members.reduce((acc, m) => acc + 1 + m.guest.max_companions, 0)
 
   if (loading) {
@@ -101,44 +97,10 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
     )
   }
 
-  // A family with a single member is presented as an individual invitation
-  if (members.length === 1) {
-    const [only] = members
-    return <RSVPSection guest={only.guest} existingRSVP={only.existingRSVP} onSubmitted={() => {}} onBack={onBack} />
-  }
-
-  if (submitted) {
-    return (
-      <section id="rsvp" className="px-6 flex items-center justify-center" style={{ background: 'var(--color-surface)', minHeight: sectionHeight ? `${sectionHeight}px` : undefined }}>
-        <div
-          className="max-w-lg w-full rounded-2xl p-10 text-center"
-          style={{ border: '1px solid var(--color-border)', boxShadow: '0 2px 24px rgba(44,32,18,0.07)', background: 'var(--color-surface)' }}
-        >
-          
-          <h3 className="font-serif mb-3" style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '1.8rem' }}>
-            {confirmedCount > 0 ? '¡Gracias por confirmar!' : '¡Los tendremos presentes!'}
-          </h3>
-          <p className="font-serif italic leading-relaxed" style={{ color: 'var(--color-muted)', fontWeight: 300 }}>
-            {confirmedCount > 0
-              ? `Hemos registrado la asistencia de ${confirmedCount} ${confirmedCount === 1 ? 'persona' : 'personas'}. ¡Será una noche increíble!`
-              : 'Recibimos que no podrán acompañarnos. Gracias por avisarnos.'}
-          </p>
-          <button
-            onClick={() => { setSubmitted(false); setSectionHeight(undefined) }}
-            className="mt-6 text-sm underline"
-            style={{ color: 'var(--color-muted)' }}
-          >
-            Modificar respuesta
-          </button>
-        </div>
-      </section>
-    )
-  }
-
   return (
-    <section ref={sectionRef} id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
+    <section id="rsvp" className="py-20 px-6" style={{ background: 'var(--color-surface)' }}>
+      <div className="max-w-xl mx-auto">
+        <div className="text-center mb-10">
           <p className="section-label mb-4" style={{ display: 'block', color: 'var(--color-gold)' }}>
             Confirmación de asistencia
           </p>
@@ -146,217 +108,96 @@ export default function FamilyRSVPSection({ selectedGuest, onBack }: Props) {
             className="font-serif"
             style={{ color: 'var(--color-dark)', fontWeight: 300, fontSize: '2.2rem', margin: 0 }}
           >
-            {members.length > 1 ? 'Confirma por tu gente' : 'Tu respuesta'}
+            Por favor confirma tu asistencia
           </h2>
-          {members.length > 1 && (
-            <p className="mt-3 font-serif italic" style={{ color: 'var(--color-muted)', fontWeight: 300 }}>
-              Confirmamos {members.length} personas en tu invitación.
-              Indica quiénes podrán asistir.
-            </p>
-          )}
+          <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full font-sans text-xs tracking-widest uppercase"
+            style={{ background: 'rgba(184,150,110,0.12)', color: 'var(--color-muted)', letterSpacing: '0.2em' }}>
+            <span style={{ color: 'var(--color-gold)', fontSize: '0.4rem' }}>✦</span>
+            <span>
+              Invitación para{' '}
+              <strong style={{ fontWeight: 600, color: 'var(--color-dark)' }}>{totalCapacity}</strong>{' '}
+              {totalCapacity === 1 ? 'persona' : 'personas'}
+            </span>
+            <span style={{ color: 'var(--color-gold)', fontSize: '0.4rem' }}>✦</span>
+          </div>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-2xl p-6 md:p-8"
-          style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            boxShadow: '0 2px 24px rgba(44,32,18,0.07)',
-          }}
-        >
-          {/* Family members */}
-          <div className="space-y-4 mb-8">
-            {members.map((m) => (
-              <div
-                key={m.guest.id}
-                className="rounded-xl p-5 transition-all"
-                style={{
-                  background: 'var(--color-surface)',
-                  border: `1px solid ${m.attending ? 'rgba(184,150,110,0.35)' : 'rgba(44,32,18,0.08)'}`,
-                }}
-              >
-                <div className="mb-3">
-                  <p className="font-serif text-lg mb-3" style={{ color: 'var(--color-dark)' }}>
-                    {m.guest.name}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => updateMember(m.guest.id, { attending: true })}
-                      className="font-sans font-medium transition-all"
-                      style={{
-                        background: m.attending ? 'var(--color-gold)' : 'transparent',
-                        color: m.attending ? '#FFFFFF' : 'var(--color-muted)',
-                        borderRadius: 999,
-                        fontSize: '0.7rem',
-                        letterSpacing: '0.08em',
-                        padding: '7px 18px',
-                        border: m.attending ? '1px solid var(--color-gold)' : '1px solid rgba(44,32,18,0.15)',
-                      }}
-                    >
-                      Asistirá
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateMember(m.guest.id, { attending: false })}
-                      className="font-sans font-medium transition-all"
-                      style={{
-                        background: !m.attending ? 'var(--color-dark)' : 'transparent',
-                        color: !m.attending ? 'white' : 'var(--color-muted)',
-                        borderRadius: 999,
-                        fontSize: '0.7rem',
-                        letterSpacing: '0.08em',
-                        padding: '7px 18px',
-                        border: !m.attending ? '1px solid var(--color-dark)' : '1px solid rgba(44,32,18,0.15)',
-                      }}
-                    >
-                      No asistirá
-                    </button>
-                  </div>
-                </div>
+        {members.map((m) => (
+          <div key={m.guest.id} className="pt-8 pb-10" style={{ borderTop: '1px solid rgba(184,150,110,0.30)' }}>
+            <p className="font-serif mb-5" style={{ color: 'var(--color-dark)', fontSize: '1.8rem', fontWeight: 400, lineHeight: 1.2 }}>
+              {m.guest.name}
+            </p>
 
-                {m.attending && m.guest.max_companions > 0 && (
-                  <div className="mb-3">
-                    <p className="font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>
-                      Número de acompañantes (máximo {m.guest.max_companions})
-                    </p>
-                    <select
-                      value={m.companion_count}
-                      onChange={(e) => updateMember(m.guest.id, { companion_count: Number(e.target.value) })}
-                      className="w-full font-sans text-sm outline-none"
-                      style={{
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(184,150,110,0.30)',
-                        borderRadius: 4,
-                        padding: '8px 14px',
-                        color: 'var(--color-dark)',
-                      }}
-                    >
-                      {Array.from({ length: m.guest.max_companions + 1 }, (_, i) => (
-                        <option key={i} value={i}>{i === 0 ? 'Sin acompañantes' : `${i} acompañante${i > 1 ? 's' : ''}`}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+            <div className="flex flex-col gap-3">
+              {OPTIONS.map(({ value, label }) => {
+                const active = m.status === value
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    disabled={m.saving}
+                    onClick={() => void save(m, value, m.companion_count)}
+                    className="w-full font-sans uppercase transition-all active:scale-[0.98] disabled:opacity-60"
+                    style={{
+                      background: active ? 'var(--color-gold)' : 'transparent',
+                      color: active ? '#FFFFFF' : 'var(--color-dark)',
+                      border: `1px solid ${active ? 'var(--color-gold)' : 'rgba(184,150,110,0.55)'}`,
+                      borderRadius: 999,
+                      padding: '18px 16px',
+                      fontSize: '0.72rem',
+                      letterSpacing: '0.3em',
+                    }}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
 
-                {m.attending && (
-                  <div>
-                    <p className="font-sans text-xs mb-2" style={{ color: 'var(--color-muted)' }}>
-                      ¿Tiene alguna restricción alimenticia o alergia?
-                    </p>
-                    <div className="flex gap-2 mb-2">
-                      {[
-                        { value: true, label: 'Sí' },
-                        { value: false, label: 'No' },
-                      ].map(({ value, label }) => (
-                        <button
-                          key={String(value)}
-                          type="button"
-                          onClick={() => updateMember(m.guest.id, { has_dietary: value, ...(!value ? { dietary_notes: '' } : {}) })}
-                          className="font-sans font-medium transition-all"
-                          style={{
-                            background: m.has_dietary === value ? 'var(--color-gold)' : '#f0f0f0',
-                            color: m.has_dietary === value ? '#FFFFFF' : 'var(--color-muted)',
-                            borderRadius: 2,
-                            fontSize: '0.6rem',
-                            letterSpacing: '0.15em',
-                            textTransform: 'uppercase',
-                            padding: '6px 14px',
-                            border: 'none',
-                          }}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                    {m.has_dietary && (
-                      <input
-                        type="text"
-                        value={m.dietary_notes}
-                        onChange={(e) => updateMember(m.guest.id, { dietary_notes: e.target.value })}
-                        placeholder="Ej. vegetariano, alérgico al gluten…"
-                        className="w-full font-sans text-sm outline-none"
-                        style={{
-                          background: '#FFFFFF',
-                          border: '1px solid rgba(184,150,110,0.30)',
-                          borderRadius: 4,
-                          padding: '8px 14px',
-                          color: 'var(--color-dark)',
-                        }}
-                      />
-                    )}
-                  </div>
-                )}
+            {m.status === 'yes' && m.guest.max_companions > 0 && (
+              <div className="mt-4">
+                <label className="block font-sans text-xs mb-2 text-center" style={{ color: 'var(--color-muted)' }}>
+                  Número de acompañantes (máximo {m.guest.max_companions})
+                </label>
+                <select
+                  value={m.companion_count}
+                  disabled={m.saving}
+                  onChange={(e) => void save(m, 'yes', Number(e.target.value))}
+                  className="w-full font-sans text-sm outline-none text-center"
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(184,150,110,0.55)',
+                    borderRadius: 999,
+                    padding: '12px 16px',
+                    color: 'var(--color-dark)',
+                  }}
+                >
+                  {Array.from({ length: m.guest.max_companions + 1 }, (_, i) => (
+                    <option key={i} value={i}>{i === 0 ? 'Sin acompañantes' : `${i} acompañante${i > 1 ? 's' : ''}`}</option>
+                  ))}
+                </select>
               </div>
-            ))}
-          </div>
-
-          {/* Message */}
-          <div className="mb-6">
-            <label className="block font-sans text-sm font-medium mb-2" style={{ color: 'var(--color-dark)' }}>
-              Mensaje para los novios (opcional)
-            </label>
-            <textarea
-              value={globalMessage}
-              onChange={(e) => setGlobalMessage(e.target.value)}
-              rows={3}
-              placeholder="¡Con mucho amor y emoción los acompañamos…!"
-              className="w-full font-sans text-sm resize-none outline-none"
-              style={{
-                background: '#FFFFFF',
-                border: '1px solid rgba(184,150,110,0.30)',
-                borderRadius: 4,
-                padding: '12px 16px',
-                color: 'var(--color-dark)',
-              }}
-            />
-          </div>
-
-          {/* Summary */}
-          <div
-            className="mb-6 p-4 rounded-xl font-sans text-sm text-center"
-            style={{ background: 'rgba(184,150,110,0.08)', border: '1px solid rgba(184,150,110,0.15)' }}
-          >
-            <span style={{ color: 'var(--color-muted)' }}>Confirmarás la asistencia de </span>
-            <span className="font-semibold" style={{ color: 'var(--color-dark)' }}>
-              {confirmedCount} de {totalCapacity} {totalCapacity === 1 ? 'persona' : 'personas'}
-            </span>
-          </div>
-
-          {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
-
-          <div className="flex gap-3">
-            {onBack && (
-              <button
-                type="button"
-                onClick={onBack}
-                className="px-6 py-4 font-sans text-sm transition-all"
-                style={{ background: 'rgba(44,32,18,0.05)', color: 'var(--color-muted)', borderRadius: 4, border: 'none' }}
-              >
-                ← Cambiar
-              </button>
             )}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 font-sans transition-all hover:shadow-md active:scale-95 disabled:opacity-50"
-              style={{
-                background: 'var(--color-gold)',
-                color: '#FFFFFF',
-                borderRadius: 4,
-                fontSize: '0.75rem',
-                fontWeight: 500,
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                padding: '16px',
-                border: 'none',
-              }}
-            >
-              {submitting ? 'Enviando…' : 'Confirmar asistencia'}
+
+            <p className="font-serif italic text-center mt-4" style={{ color: 'var(--color-muted)', fontSize: '0.9rem', minHeight: '1.4em' }}>
+              {m.saving ? 'Guardando…' : m.saved ? (
+                m.status === 'yes' ? '¡Gracias! Te esperamos.'
+                  : m.status === 'no' ? 'Gracias por avisarnos, te echaremos de menos.'
+                  : 'Sin problema, puedes confirmar más adelante.'
+              ) : ''}
+            </p>
+          </div>
+        ))}
+
+        {error && <p className="text-sm text-red-500 mb-4 text-center">{error}</p>}
+
+        {onBack && (
+          <div className="text-center">
+            <button type="button" onClick={onBack} className="font-sans text-sm underline" style={{ color: 'var(--color-muted)' }}>
+              ← Buscar otro nombre
             </button>
           </div>
-        </form>
+        )}
       </div>
     </section>
   )

@@ -112,12 +112,6 @@ export default function AdminDashboardPage() {
   const confirmedWithCompanions =
     rsvps.filter((r) => r.attending).reduce((acc, r) => acc + 1 + r.companion_count, 0)
   const needsAccommodation = rsvps.filter((r) => r.attending && r.needs_accommodation).length
-  const withDietary        = rsvps.filter((r) => r.attending && !!r.dietary_notes)
-
-  const dietaryList = withDietary.map((r) => {
-    const guest = guests.find((g) => g.id === r.guest_id)
-    return { name: guest?.name ?? 'Invitado', note: r.dietary_notes! }
-  })
 
   const weddingDate = config?.wedding_date ? new Date(config.wedding_date) : null
   const daysUntil = weddingDate
@@ -184,7 +178,7 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
             <StatCard
               icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
               label="Invitados"
@@ -218,13 +212,6 @@ export default function AdminDashboardPage() {
               value={needsAccommodation}
               sub="solicitan apoyo"
               accent="var(--color-orchid)"
-            />
-            <StatCard
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>}
-              label="Restricción alimentaria"
-              value={withDietary.length}
-              sub={withDietary.length > 0 ? 'ver detalle abajo' : 'ninguna registrada'}
-              accent="var(--color-apricot)"
             />
           </div>
 
@@ -278,31 +265,6 @@ export default function AdminDashboardPage() {
             </div>
           )}
         </>
-      )}
-
-      {/* Dietary restrictions detail */}
-      {!loading && dietaryList.length > 0 && (
-        <div
-          className="bg-white rounded-2xl p-6 shadow-sm mb-8"
-          style={{ border: '1px solid var(--color-yellow)33' }}
-        >
-          <h2 className="font-serif text-xl mb-4" style={{ color: 'var(--color-dark)' }}>
-            Restricciones alimentarias
-          </h2>
-          <div className="divide-y" style={{ borderColor: 'var(--color-yellow)1A' }}>
-            {dietaryList.map(({ name, note }) => (
-              <div key={name + note} className="py-3 flex items-start gap-4">
-                <span className="font-sans text-sm font-medium flex-shrink-0 w-40 truncate"
-                  style={{ color: 'var(--color-dark)' }} title={name}>
-                  {name}
-                </span>
-                <span className="font-sans text-sm italic" style={{ color: 'var(--color-muted)' }}>
-                  {note}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
       )}
 
       {/* Quick links */}
