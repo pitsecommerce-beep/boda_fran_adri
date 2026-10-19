@@ -4,16 +4,13 @@ import { deleteGuest, deleteGuests, updateGuest, submitRSVP, deleteRSVPByGuestId
 import { QRCodeSVG } from 'qrcode.react'
 import { guestSlug } from '@/lib/slug'
 
-async function toggleFamilyHead(guest: Guest, onRefresh: () => void) {
-  await updateGuest(guest.id, { is_family_head: !guest.is_family_head })
-  onRefresh()
-}
-
 interface Props {
   guests: Guest[]
   rsvps: RSVP[]
   groups: GuestGroup[]
   onRefresh: () => void
+  /** Updates a guest locally so the table reacts before the reload finishes */
+  onGuestChange: (id: string, patch: Partial<Guest>) => void
 }
 
 const BASE_URL = `${window.location.origin}${import.meta.env.BASE_URL}#/invitacion`
@@ -99,6 +96,7 @@ function GuestRow({
   groups,
   allGuests,
   onRefresh,
+  onChange,
   selected,
   onToggleSelect,
 }: {
@@ -107,6 +105,8 @@ function GuestRow({
   groups: GuestGroup[]
   allGuests: Guest[]
   onRefresh: () => void
+  /** Saves a change: shown immediately, then persisted and reloaded */
+  onChange: (patch: Partial<Guest>) => Promise<void>
   selected: boolean
   onToggleSelect: () => void
 }) {
@@ -278,10 +278,7 @@ function GuestRow({
         {/* Invitación entregada */}
         <td className="px-4 py-3">
           <button
-            onClick={async () => {
-              await updateGuest(guest.id, { invitation_delivered: !guest.invitation_delivered })
-              onRefresh()
-            }}
+            onClick={() => void onChange({ invitation_delivered: !guest.invitation_delivered })}
             title={guest.invitation_delivered ? 'Marcar como no entregada' : 'Marcar como entregada'}
             className="px-2 py-1 rounded-full text-xs font-sans transition-all"
             style={{
@@ -390,7 +387,7 @@ function GuestRow({
                 </button>
                 {guest.family_id && (
                   <button
-                    onClick={() => void toggleFamilyHead(guest, onRefresh)}
+                    onClick={() => void onChange({ is_family_head: !guest.is_family_head })}
                     title={guest.is_family_head ? 'Quitar responsable del grupo' : 'Marcar como responsable del grupo'}
                     className="p-1.5 rounded-lg text-sm transition-all"
                     style={{ background: guest.is_family_head ? 'var(--color-yellow)88' : 'var(--color-yellow)22' }}>
@@ -512,13 +509,28 @@ const SIDE_FILTER_LABELS: Record<SideFilter, string> = {
   groom: 'Novio',
 }
 
-export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) {
+export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestChange }: Props) {
   const [search, setSearch] = useState('')
   const [filterRSVP, setFilterRSVP] = useState<FilterType>('all')
   const [filterSide, setFilterSide] = useState<SideFilter>('all')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  // Guests changed under the current filters stay listed even if they no longer
+  // match (e.g. marked as delivered while viewing "Sin entregar"), so rows don't
+  // jump while working through the list. Cleared when the filters change.
+  const filterKey = `${filterRSVP}|${filterSide}|${search}`
+  const [touched, setTouched] = useState<{ key: string; ids: Set<string> }>({ key: '', ids: new Set() })
+  const touchedIds = touched.key === filterKey ? touched.ids : new Set<string>()
+  const markTouched = (id: string) => {
+    setTouched((prev) => ({ key: filterKey, ids: new Set(prev.key === filterKey ? prev.ids : []).add(id) }))
+  }
+  const changeGuest = async (id: string, patch: Partial<Guest>) => {
+    markTouched(id)
+    onGuestChange(id, patch)
+    await updateGuest(id, patch)
+    onRefresh()
+  }
 
   // Click-and-drag horizontal scrolling, so the table isn't limited to its scrollbar
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -563,7 +575,7 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
       filterRSVP === 'delivered'      ? g.invitation_delivered :
       /* not_delivered */               !g.invitation_delivered
     const matchesSide = filterSide === 'all' || g.side === filterSide
-    return matchesSearch && matchesFilter && matchesSide
+    return touchedIds.has(g.id) || (matchesSearch && matchesFilter && matchesSide)
   })
 
   const allFilteredSelected = filtered.length > 0 && filtered.every((g) => selectedIds.has(g.id))
@@ -780,7 +792,8 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh }: Props) 
                     rsvp={getRSVP(g.id, rsvps)}
                     groups={groups}
                     allGuests={guests}
-                    onRefresh={onRefresh}
+                    onRefresh={() => { markTouched(g.id); onRefresh() }}
+                    onChange={(patch) => changeGuest(g.id, patch)}
                     selected={selectedIds.has(g.id)}
                     onToggleSelect={() => toggleSelect(g.id)}
                   />

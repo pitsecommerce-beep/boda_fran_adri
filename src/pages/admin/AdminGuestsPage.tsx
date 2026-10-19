@@ -11,17 +11,26 @@ export default function AdminGuestsPage() {
   const [guests, setGuests] = useState<Guest[]>([])
   const [rsvps, setRsvps] = useState<RSVP[]>([])
   const [groups, setGroups] = useState<GuestGroup[]>([])
+  // loading: first load only (shows the placeholder); refreshing: later reloads
+  // that update the table in place so filters and scroll are kept
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [showUploader, setShowUploader] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
 
   const refresh = async () => {
-    setLoading(true)
+    setRefreshing(true)
     const [g, r, gr] = await Promise.all([listGuests(), listRSVPs(), listGuestGroups()])
     setGuests(g)
     setRsvps(r)
     setGroups(gr)
+    setRefreshing(false)
     setLoading(false)
+  }
+
+  // Applies a change locally right away, before the reload confirms it
+  const patchGuest = (id: string, patch: Partial<Guest>) => {
+    setGuests((prev) => prev.map((g) => g.id === id ? { ...g, ...patch } : g))
   }
 
   useEffect(() => { void refresh() }, [])
@@ -63,14 +72,14 @@ export default function AdminGuestsPage() {
         </button>
         <button
           onClick={refresh}
-          disabled={loading}
+          disabled={refreshing}
           className="px-5 py-2.5 rounded-xl font-sans text-sm transition-all hover:shadow-sm disabled:opacity-50"
           style={{
             background: '#f5f5f5',
             color: 'var(--color-muted)',
             border: '1px solid var(--color-dark)22',
           }}>
-          {loading ? 'Cargando…' : '↻ Actualizar'}
+          {refreshing ? 'Cargando…' : '↻ Actualizar'}
         </button>
       </div>
 
@@ -95,7 +104,7 @@ export default function AdminGuestsPage() {
           Cargando invitados…
         </div>
       ) : (
-        <GuestTable guests={guests} rsvps={rsvps} groups={groups} onRefresh={refresh} />
+        <GuestTable guests={guests} rsvps={rsvps} groups={groups} onRefresh={refresh} onGuestChange={patchGuest} />
       )}
 
       {/* Add guest modal */}
