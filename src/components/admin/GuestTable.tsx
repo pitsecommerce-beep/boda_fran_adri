@@ -563,7 +563,7 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestCh
     if (dragging) setDragging(false)
   }
 
-  const filtered = guests.filter((g) => {
+  const matchesFilters = (g: Guest) => {
     const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
       (g.phone ?? '').includes(search)
     const rsvp = getRSVP(g.id, rsvps)
@@ -575,8 +575,11 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestCh
       filterRSVP === 'delivered'      ? g.invitation_delivered :
       /* not_delivered */               !g.invitation_delivered
     const matchesSide = filterSide === 'all' || g.side === filterSide
-    return touchedIds.has(g.id) || (matchesSearch && matchesFilter && matchesSide)
-  })
+    return matchesSearch && matchesFilter && matchesSide
+  }
+  const matching = guests.filter(matchesFilters)
+  const filtered = guests.filter((g) => touchedIds.has(g.id) || matchesFilters(g))
+
 
   const allFilteredSelected = filtered.length > 0 && filtered.every((g) => selectedIds.has(g.id))
   const someSelected = selectedIds.size > 0
@@ -702,6 +705,16 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestCh
           ))}
         </div>
       </div>
+
+      {/* Result count for the current filters */}
+      <p className="font-sans text-sm mb-4" style={{ color: 'var(--color-muted)' }}>
+        <strong className="font-serif text-2xl mr-1.5" style={{ color: 'var(--color-dark)', fontWeight: 500 }}>
+          {matching.length}
+        </strong>
+        {matching.length === 1 ? 'registro' : 'registros'}
+        {' · '}
+        {matching.reduce((acc, g) => acc + 1 + g.max_companions, 0)} personas con acompañantes
+      </p>
 
       {/* Bulk actions bar */}
       {someSelected && (
