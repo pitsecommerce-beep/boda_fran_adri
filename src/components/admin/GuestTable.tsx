@@ -481,27 +481,23 @@ function SideBadge({ side }: { side: 'bride' | 'groom' | null }) {
   )
 }
 
-type FilterType = 'all' | 'confirmed' | 'declined' | 'pending' | 'delivered' | 'not_delivered'
+// Each group filters independently and they combine (e.g. Novio + Entregada + Sin respuesta)
+type RSVPFilter = 'all' | 'confirmed' | 'declined' | 'pending'
+type DeliveryFilter = 'all' | 'delivered' | 'not_delivered'
+type SideFilter = 'all' | 'bride' | 'groom'
 
-const FILTER_LABELS: Record<FilterType, string> = {
-  all: 'Todos',
+const RSVP_FILTER_LABELS: Record<RSVPFilter, string> = {
+  all: 'Cualquier respuesta',
   confirmed: 'Confirmados',
   declined: 'No asisten',
   pending: 'Sin respuesta',
+}
+
+const DELIVERY_FILTER_LABELS: Record<DeliveryFilter, string> = {
+  all: 'Entregada o no',
   delivered: 'Invitación entregada',
   not_delivered: 'Sin entregar',
 }
-
-const FILTER_COLORS: Record<FilterType, string> = {
-  all: 'var(--color-yellow)',
-  confirmed: 'var(--color-yellow)',
-  declined: 'var(--color-yellow)',
-  pending: 'var(--color-yellow)',
-  delivered: 'var(--color-yellow)',
-  not_delivered: 'var(--color-yellow)',
-}
-
-type SideFilter = 'all' | 'bride' | 'groom'
 
 const SIDE_FILTER_LABELS: Record<SideFilter, string> = {
   all: 'Ambos lados',
@@ -509,9 +505,33 @@ const SIDE_FILTER_LABELS: Record<SideFilter, string> = {
   groom: 'Novio',
 }
 
+function FilterGroup<T extends string>({ labels, value, onChange }: {
+  labels: Record<T, string>
+  value: T
+  onChange: (value: T) => void
+}) {
+  return (
+    <div className="flex gap-1 flex-wrap p-1 rounded-2xl" style={{ border: '1px solid #ececec' }}>
+      {(Object.keys(labels) as T[]).map((f) => (
+        <button
+          key={f}
+          onClick={() => onChange(f)}
+          className="px-4 py-2 rounded-xl font-sans text-xs transition-all"
+          style={{
+            background: value === f ? 'var(--color-yellow)' : '#f5f5f5',
+            color: value === f ? 'white' : 'var(--color-muted)',
+          }}>
+          {labels[f]}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestChange }: Props) {
   const [search, setSearch] = useState('')
-  const [filterRSVP, setFilterRSVP] = useState<FilterType>('all')
+  const [filterRSVP, setFilterRSVP] = useState<RSVPFilter>('all')
+  const [filterDelivery, setFilterDelivery] = useState<DeliveryFilter>('all')
   const [filterSide, setFilterSide] = useState<SideFilter>('all')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -519,7 +539,7 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestCh
   // Guests changed under the current filters stay listed even if they no longer
   // match (e.g. marked as delivered while viewing "Sin entregar"), so rows don't
   // jump while working through the list. Cleared when the filters change.
-  const filterKey = `${filterRSVP}|${filterSide}|${search}`
+  const filterKey = `${filterRSVP}|${filterDelivery}|${filterSide}|${search}`
   const [touched, setTouched] = useState<{ key: string; ids: Set<string> }>({ key: '', ids: new Set() })
   const touchedIds = touched.key === filterKey ? touched.ids : new Set<string>()
   const markTouched = (id: string) => {
@@ -567,15 +587,15 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestCh
     const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
       (g.phone ?? '').includes(search)
     const rsvp = getRSVP(g.id, rsvps)
-    const matchesFilter =
-      filterRSVP === 'all'            ? true :
-      filterRSVP === 'pending'        ? !rsvp :
-      filterRSVP === 'confirmed'      ? (rsvp?.attending === true) :
-      filterRSVP === 'declined'       ? (rsvp?.attending === false) :
-      filterRSVP === 'delivered'      ? g.invitation_delivered :
-      /* not_delivered */               !g.invitation_delivered
+    const matchesRSVP =
+      filterRSVP === 'all'       ? true :
+      filterRSVP === 'pending'   ? !rsvp :
+      filterRSVP === 'confirmed' ? (rsvp?.attending === true) :
+      /* declined */               (rsvp?.attending === false)
+    const matchesDelivery =
+      filterDelivery === 'all' || g.invitation_delivered === (filterDelivery === 'delivered')
     const matchesSide = filterSide === 'all' || g.side === filterSide
-    return matchesSearch && matchesFilter && matchesSide
+    return matchesSearch && matchesRSVP && matchesDelivery && matchesSide
   }
   const matching = guests.filter(matchesFilters)
   const filtered = guests.filter((g) => touchedIds.has(g.id) || matchesFilters(g))
@@ -680,34 +700,9 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestCh
           className="flex-1 min-w-48 border rounded-xl px-4 py-2 font-sans text-sm bg-white"
           style={{ borderColor: 'var(--color-yellow)66' }}
         />
-        <div className="flex gap-2 flex-wrap">
-          {(Object.keys(FILTER_LABELS) as FilterType[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilterRSVP(f)}
-              className="px-4 py-2 rounded-xl font-sans text-xs transition-all"
-              style={{
-                background: filterRSVP === f ? FILTER_COLORS[f] : '#f5f5f5',
-                color: filterRSVP === f ? 'white' : 'var(--color-muted)',
-              }}>
-              {FILTER_LABELS[f]}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {(Object.keys(SIDE_FILTER_LABELS) as SideFilter[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilterSide(f)}
-              className="px-4 py-2 rounded-xl font-sans text-xs transition-all"
-              style={{
-                background: filterSide === f ? 'var(--color-yellow)' : '#f5f5f5',
-                color: filterSide === f ? 'white' : 'var(--color-muted)',
-              }}>
-              {SIDE_FILTER_LABELS[f]}
-            </button>
-          ))}
-        </div>
+        <FilterGroup labels={SIDE_FILTER_LABELS} value={filterSide} onChange={setFilterSide} />
+        <FilterGroup labels={DELIVERY_FILTER_LABELS} value={filterDelivery} onChange={setFilterDelivery} />
+        <FilterGroup labels={RSVP_FILTER_LABELS} value={filterRSVP} onChange={setFilterRSVP} />
       </div>
 
       {/* Result count for the current filters */}
