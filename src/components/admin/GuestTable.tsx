@@ -639,23 +639,27 @@ export default function GuestTable({ guests, rsvps, groups, onRefresh, onGuestCh
   const totalPending       = guests.length - rsvps.length
   const totalDelivered     = guests.filter((g) => g.invitation_delivered).length
   // Each guest counts as 1 plus the companions they may bring
+  const totalPeople        = guests.reduce((acc, g) => acc + 1 + g.max_companions, 0)
   const totalBride         = guests.filter((g) => g.side === 'bride').reduce((acc, g) => acc + 1 + g.max_companions, 0)
   const totalGroom         = guests.filter((g) => g.side === 'groom').reduce((acc, g) => acc + 1 + g.max_companions, 0)
+  const totalNoSide        = totalPeople - totalBride - totalGroom
 
   const stats = [
-    { label: 'Total invitados',             value: guests.length,       color: 'var(--color-yellow)' },
+    { label: 'Total invitados',             value: totalPeople,         color: 'var(--color-yellow)' },
     { label: 'Confirmados',                 value: totalConfirmed,      color: 'var(--color-yellow)' },
     { label: 'No asistirán',                value: totalDeclined,       color: 'var(--color-yellow)' },
     { label: 'Sin respuesta',               value: totalPending,        color: 'var(--color-yellow)' },
     { label: 'Invitación entregada',        value: totalDelivered,      color: 'var(--color-yellow)' },
     { label: 'De la novia',                 value: totalBride,          color: 'var(--color-yellow)' },
     { label: 'Del novio',                   value: totalGroom,          color: 'var(--color-yellow)' },
+    // Only shown when someone has no side, so bride + groom add up to the total
+    ...(totalNoSide > 0 ? [{ label: 'Sin novia/novio asignado', value: totalNoSide, color: 'var(--color-yellow)' }] : []),
   ]
 
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
+      <div className={`grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 ${totalNoSide > 0 ? 'lg:grid-cols-8' : 'lg:grid-cols-7'} gap-4 mb-6`}>
         {stats.map(({ label, value, color }) => (
           <div key={label}
             className="bg-white rounded-2xl p-4 text-center shadow-sm"
